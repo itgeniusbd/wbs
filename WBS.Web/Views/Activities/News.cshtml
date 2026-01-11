@@ -1,0 +1,94 @@
+@model IEnumerable<WBS.Web.Models.News>
+
+@{
+    ViewData["Title"] = "News";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Latest News</h1>
+                <p class="lead">Stay informed about our recent activities and updates</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var news in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(news.FeaturedImage))
+                            {
+                                <img src="@news.FeaturedImage" class="card-img-top" alt="@news.Title" style="height: 250px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                    <i class="far fa-newspaper fa-4x text-muted"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@news.Title</h5>
+                                @if (!string.IsNullOrEmpty(news.Summary))
+                                {
+                                    <p class="card-text text-muted">@news.Summary</p>
+                                }
+                                else if (!string.IsNullOrEmpty(news.Content))
+                                {
+                                    <p class="card-text text-muted">@(news.Content.Length > 150 ? news.Content.Substring(0, 150) + "..." : news.Content)</p>
+                                }
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="far fa-calendar me-1"></i>@news.PublishedAt.ToString("MMM dd, yyyy")
+                                </small>
+                                <a href="/news/@news.Slug" class="btn btn-sm btn-outline-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No news available at the moment.
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav aria-label="News pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="/activities/news?page=@(currentPage - 1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="/activities/news?page=@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="/activities/news?page=@(currentPage + 1)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</section>

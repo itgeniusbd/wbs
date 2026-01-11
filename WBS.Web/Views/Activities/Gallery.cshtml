@@ -1,0 +1,70 @@
+@model IEnumerable<WBS.Web.Models.Gallery>
+
+@{
+    ViewData["Title"] = "Gallery";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Photo Gallery</h1>
+                <p class="lead">Explore our moments captured through the lens</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var gallery in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (gallery.Images != null && gallery.Images.Any())
+                            {
+                                var firstImage = gallery.Images.First();
+                                <img src="@firstImage.ImageUrl" class="card-img-top" alt="@gallery.Title" style="height: 250px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                    <i class="fas fa-images fa-4x text-muted"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@gallery.Title</h5>
+                                @if (!string.IsNullOrEmpty(gallery.Description))
+                                {
+                                    <p class="card-text text-muted">@(gallery.Description.Length > 100 ? gallery.Description.Substring(0, 100) + "..." : gallery.Description)</p>
+                                }
+                                <p class="text-muted">
+                                    <i class="far fa-images me-1"></i>@(gallery.Images?.Count() ?? 0) photos
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/activities/gallery/@gallery.Id" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-eye me-2"></i>View Gallery
+                                </a>
+                            </div>
+                            <div class="card-footer text-muted">
+                                <small><i class="far fa-calendar me-1"></i>@gallery.CreatedAt.ToString("MMM dd, yyyy")</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No galleries available at the moment.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

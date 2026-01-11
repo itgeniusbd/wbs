@@ -1,0 +1,69 @@
+@model IEnumerable<WBS.Web.Models.AnnualReport>
+
+@{
+    ViewData["Title"] = "Annual Reports";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Annual Reports</h1>
+                <p class="lead">Review our yearly accomplishments and financial reports</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var report in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(report.CoverImage))
+                            {
+                                <img src="@report.CoverImage" class="card-img-top" alt="Annual Report @report.Year" style="height: 300px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                                    <div class="text-center">
+                                        <i class="fas fa-file-alt fa-5x text-primary mb-3"></i>
+                                        <h2 class="text-primary">@report.Year</h2>
+                                    </div>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">Annual Report @report.Year</h5>
+                                @if (!string.IsNullOrEmpty(report.Description))
+                                {
+                                    <p class="card-text">@report.Description</p>
+                                }
+                            </div>
+                            <div class="card-footer">
+                                @if (!string.IsNullOrEmpty(report.FileUrl))
+                                {
+                                    <a href="@report.FileUrl" target="_blank" class="btn btn-primary w-100">
+                                        <i class="fas fa-download me-2"></i>Download Report
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No annual reports available at the moment.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

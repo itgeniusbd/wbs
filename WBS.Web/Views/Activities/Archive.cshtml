@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Archive";
+    var selectedYear = ViewBag.SelectedYear as int?;
+    var availableYears = ViewBag.AvailableYears as List<int>;
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Archive</h1>
+                <p class="lead">Browse our past activities and events</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3>Year: @selectedYear</h3>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="yearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="far fa-calendar-alt me-2"></i>Select Year
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="yearDropdown">
+                            @if (availableYears != null)
+                            {
+                                foreach (var year in availableYears)
+                                {
+                                    <li><a class="dropdown-item @(year == selectedYear ? "active" : "")" href="/activities/archive?year=@year">@year</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="far fa-newspaper me-2"></i>News from @selectedYear</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.News != null && ViewBag.News.Count > 0)
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var news in ViewBag.News)
+                                {
+                                    <a href="/news/@news.Slug" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@news.Title</h6>
+                                            <small class="text-muted">@news.PublishedAt.ToString("MMM dd")</small>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(news.Summary))
+                                        {
+                                            <p class="mb-1 text-muted small">@(news.Summary.Length > 100 ? news.Summary.Substring(0, 100) + "..." : news.Summary)</p>
+                                        }
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>No news found for @selectedYear
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="far fa-calendar-check me-2"></i>Events from @selectedYear</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.Events != null && ViewBag.Events.Count > 0)
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var evt in ViewBag.Events)
+                                {
+                                    <a href="/events/@evt.Slug" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@evt.Title</h6>
+                                            <small class="text-muted">@evt.StartDate.ToString("MMM dd")</small>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(evt.Location))
+                                        {
+                                            <p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt me-1"></i>@evt.Location</p>
+                                        }
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>No events found for @selectedYear
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

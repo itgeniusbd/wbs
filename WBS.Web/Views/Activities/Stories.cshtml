@@ -1,0 +1,69 @@
+@model IEnumerable<WBS.Web.Models.Story>
+
+@{
+    ViewData["Title"] = "Success Stories";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Success Stories</h1>
+                <p class="lead">Inspiring stories of change and impact</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var story in Model)
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(story.FeaturedImage))
+                            {
+                                <img src="@story.FeaturedImage" class="card-img-top" alt="@story.Title" style="height: 300px; object-fit: cover;" />
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@story.Title</h5>
+                                @if (!string.IsNullOrEmpty(story.Summary))
+                                {
+                                    <p class="card-text text-muted">@story.Summary</p>
+                                }
+                                else if (!string.IsNullOrEmpty(story.Content))
+                                {
+                                    <p class="card-text text-muted">@(story.Content.Length > 150 ? story.Content.Substring(0, 150) + "..." : story.Content)</p>
+                                }
+                                @if (!string.IsNullOrEmpty(story.BeneficiaryName))
+                                {
+                                    <p class="mb-1"><strong>@story.BeneficiaryName</strong></p>
+                                }
+                                @if (!string.IsNullOrEmpty(story.Location))
+                                {
+                                    <p class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>@story.Location</p>
+                                }
+                            </div>
+                            <div class="card-footer">
+                                <a href="/activities/stories/@story.Slug" class="btn btn-outline-primary">
+                                    <i class="fas fa-book-open me-2"></i>Read Story
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No success stories available at the moment.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

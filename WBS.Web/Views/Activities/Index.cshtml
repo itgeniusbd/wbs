@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Activities";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">Our Activities</h1>
+                <p class="lead">Stay updated with our latest news and events</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="mb-4">Latest News</h2>
+                <div class="row">
+                    @if (ViewBag.News != null && ViewBag.News.Count > 0)
+                    {
+                        foreach (var item in ViewBag.News)
+                        {
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    @if (!string.IsNullOrEmpty(item.FeaturedImage))
+                                    {
+                                        <img src="@item.FeaturedImage" class="card-img-top" alt="@item.Title" style="height: 200px; object-fit: cover;" />
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.Title</h5>
+                                        <p class="card-text text-muted">@(item.Summary ?? (item.Content != null && item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content ?? ""))</p>
+                                        <a href="/news/@item.Slug" class="btn btn-outline-primary">Read More</a>
+                                    </div>
+                                    <div class="card-footer text-muted">
+                                        <small><i class="far fa-calendar me-1"></i>@item.PublishedDate.ToString("MMM dd, yyyy")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>No news available at the moment. Check back soon!
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/news" class="btn btn-primary">View All News</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">Upcoming Events</h2>
+                <div class="row">
+                    @if (ViewBag.Events != null && ViewBag.Events.Count > 0)
+                    {
+                        foreach (var item in ViewBag.Events)
+                        {
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    @if (!string.IsNullOrEmpty(item.FeaturedImage))
+                                    {
+                                        <img src="@item.FeaturedImage" class="card-img-top" alt="@item.Title" style="height: 200px; object-fit: cover;" />
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.Title</h5>
+                                        <p class="card-text text-muted">@(item.Description != null && item.Description.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description ?? "")</p>
+                                        <p><i class="far fa-calendar-alt me-2"></i>@item.StartDate.ToString("MMM dd, yyyy")</p>
+                                        @if (!string.IsNullOrEmpty(item.Location))
+                                        {
+                                            <p><i class="fas fa-map-marker-alt me-2"></i>@item.Location</p>
+                                        }
+                                        <a href="/events/@item.Slug" class="btn btn-outline-primary">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>No upcoming events at the moment. Check back soon!
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/events" class="btn btn-primary">View All Events</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
