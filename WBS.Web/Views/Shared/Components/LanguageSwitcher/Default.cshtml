@@ -1,0 +1,14 @@
+@model WBS.Web.ViewComponents.LanguageSwitcherViewModel
+
+<div class="language-switcher">
+    <div class="btn-group btn-group-sm">
+        @foreach (var culture in Model.SupportedCultures)
+        {
+            <a href="@Url.Action("Change", "Language", new { culture = culture.Code, returnUrl = Model.ReturnUrl })" 
+               class="btn @(Model.CurrentCulture == culture.Code ? "btn-light" : "btn-outline-light")"
+               title="@culture.Name">
+                @culture.NativeName
+            </a>
+        }
+    </div>
+</div>

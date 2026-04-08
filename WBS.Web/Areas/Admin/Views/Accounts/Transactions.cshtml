@@ -1,0 +1,203 @@
+﻿@model List<WBS.Web.Models.AccountTransaction>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Account Transactions";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    var accounts = ViewBag.Accounts as List<WBS.Web.Models.Account> ?? new List<WBS.Web.Models.Account>();
+    var selectedAccountId = ViewBag.SelectedAccountId as int?;
+    var fromDate = ViewBag.FromDate as string;
+    var toDate = ViewBag.ToDate as string;
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">
+                <i class="fas fa-exchange-alt me-2"></i>
+                @(isBangla ? "লেনদেন রেকর্ড" : "Transaction Records")
+            </h2>
+            <p class="text-muted mb-0">@(isBangla ? "সকল লেনদেন দেখুন এবং ফিল্টার করুন" : "View and filter all transactions")</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Index", "Accounts", new { area = "Admin" })" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                @(isBangla ? "ফিরে যান" : "Back to Accounts")
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">@(isBangla ? "একাউন্ট" : "Account")</label>
+                    <select name="accountId" class="form-select">
+                        <option value="">@(isBangla ? "সকল একাউন্ট" : "All Accounts")</option>
+                        @foreach (var account in accounts)
+                        {
+                            <option value="@account.Id" selected="@(selectedAccountId == account.Id)">
+                                @(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">@(isBangla ? "শুরুর তারিখ" : "From Date")</label>
+                    <input type="date" name="fromDate" class="form-control" value="@fromDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">@(isBangla ? "শেষ তারিখ" : "To Date")</label>
+                    <input type="date" name="toDate" class="form-control" value="@toDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>@(isBangla ? "ফিল্টার" : "Filter")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">@(isBangla ? "মোট লেনদেন" : "Total Transactions")</p>
+                    <h3 class="mb-0 fw-bold">@Model.Count</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">@(isBangla ? "মোট আয়" : "Total Income")</p>
+                    <h3 class="mb-0 fw-bold text-success">৳@Model.Where(t => t.TransactionType.ToLower() == "income").Sum(t => t.Amount).ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">@(isBangla ? "মোট ব্যয়" : "Total Expense")</p>
+                    <h3 class="mb-0 fw-bold text-danger">৳@Model.Where(t => t.TransactionType.ToLower() == "expense").Sum(t => t.Amount).ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <p class="text-muted mb-1">@(isBangla ? "নেট ব্যালেন্স" : "Net Balance")</p>
+                    <h3 class="mb-0 fw-bold text-info">৳@((Model.Where(t => t.TransactionType.ToLower() == "income").Sum(t => t.Amount) - Model.Where(t => t.TransactionType.ToLower() == "expense").Sum(t => t.Amount)).ToString("N2"))</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">@(isBangla ? "লেনদেন তালিকা" : "Transaction List")</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>@(isBangla ? "তারিখ" : "Date")</th>
+                            <th>@(isBangla ? "একাউন্ট" : "Account")</th>
+                            <th>@(isBangla ? "ধরন" : "Type")</th>
+                            <th>@(isBangla ? "পরিমাণ" : "Amount")</th>
+                            <th>@(isBangla ? "পূর্বের ব্যালেন্স" : "Balance Before")</th>
+                            <th>@(isBangla ? "পরবর্তী ব্যালেন্স" : "Balance After")</th>
+                            <th>@(isBangla ? "বিবরণ" : "Description")</th>
+                            <th>@(isBangla ? "রেফারেন্স" : "Reference")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            foreach (var transaction in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <small>@transaction.TransactionDate.ToString("dd MMM yyyy")</small><br />
+                                        <small class="text-muted">@transaction.TransactionDate.ToString("hh:mm tt")</small>
+                                    </td>
+                                    <td>
+                                        <strong>@(isBangla && !string.IsNullOrEmpty(transaction.Account?.AccountNameBn) ? transaction.Account.AccountNameBn : transaction.Account?.AccountName)</strong>
+                                    </td>
+                                    <td>
+                                        @if (transaction.TransactionType.ToLower() == "income")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-arrow-down me-1"></i>@(isBangla ? "আয়" : "Income")
+                                            </span>
+                                        }
+                                        else if (transaction.TransactionType.ToLower() == "expense")
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-arrow-up me-1"></i>@(isBangla ? "ব্যয়" : "Expense")
+                                            </span>
+                                        }
+                                        else if (transaction.TransactionType.ToLower() == "transfer_in")
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-arrow-right me-1"></i>@(isBangla ? "ট্রান্সফার ইন" : "Transfer In")
+                                            </span>
+                                        }
+                                        else if (transaction.TransactionType.ToLower() == "transfer_out")
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-arrow-left me-1"></i>@(isBangla ? "ট্রান্সফার আউট" : "Transfer Out")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@transaction.TransactionType</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong class="@(transaction.TransactionType.ToLower().Contains("in") || transaction.TransactionType.ToLower() == "income" ? "text-success" : "text-danger")">
+                                            ৳@transaction.Amount.ToString("N2")
+                                        </strong>
+                                    </td>
+                                    <td>৳@transaction.BalanceBefore.ToString("N2")</td>
+                                    <td>
+                                        <strong class="@(transaction.BalanceAfter >= transaction.BalanceBefore ? "text-success" : "text-danger")">
+                                            ৳@transaction.BalanceAfter.ToString("N2")
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <small>@transaction.Description</small>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(transaction.ReferenceType) && transaction.ReferenceId.HasValue)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @transaction.ReferenceType #@transaction.ReferenceId
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">@(isBangla ? "কোন লেনদেন পাওয়া যায়নি" : "No transactions found")</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

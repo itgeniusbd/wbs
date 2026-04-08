@@ -1,0 +1,609 @@
+﻿@using WBS.Web.Models
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Rohingya Response";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    var programs = ViewBag.RohingyaPrograms as List<SDGProgram> ?? new List<SDGProgram>();
+    var events = ViewBag.RohingyaEvents as List<SDGProject> ?? new List<SDGProject>();
+    var appeals = ViewBag.Appeals as List<Appeal> ?? new List<Appeal>();
+    var stats = ViewBag.Stats;
+}
+
+<div class="page-header bg-danger text-white py-5">
+    <div class="container">
+        <h1 class="display-4">
+            @if (isBangla)
+            {
+                <text>রোহিঙ্গা সহায়তা</text>
+            }
+            else
+            {
+                @ViewData["Title"]
+            }
+        </h1>
+        <p class="lead">
+            @if (isBangla)
+            {
+                <text>রোহিঙ্গা শরণার্থীদের সহায়তা</text>
+            }
+            else
+            {
+                <text>Supporting Rohingya Refugees</text>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="mb-4">
+                        @if (isBangla)
+                        {
+                            <text>রোহিঙ্গা শরণার্থীদের সহায়তা</text>
+                        }
+                        else
+                        {
+                            <text>Supporting Rohingya Refugees</text>
+                        }
+                    </h2>
+                    <p class="lead">
+                        @if (isBangla)
+                        {
+                            <text>WBS মিয়ানমার থেকে বাস্তুচ্যুত রোহিঙ্গা শরণার্থীদের মানবিক সহায়তা প্রদানের জন্য সক্রিয়ভাবে কাজ করছে। আমাদের ব্যাপক কর্মসূচি তাৎক্ষণিক ত্রাণ এবং দীর্ঘমেয়াদী টেকসইতার উপর দৃষ্টি নিবদ্ধ করে।</text>
+                        }
+                        else
+                        {
+                            <text>WBS has been actively working to provide humanitarian assistance to Rohingya refugees 
+                            displaced from Myanmar. Our comprehensive programs focus on immediate relief and long-term sustainability.</text>
+                        }
+                    </p>
+                    <hr class="my-4">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-home fa-3x text-primary mb-2"></i>
+                                <h5>
+                                    @if (isBangla)
+                                    {
+                                        <text>আশ্রয়</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Shelter</text>
+                                    }
+                                </h5>
+                                <p class="text-muted small">
+                                    @if (isBangla)
+                                    {
+                                        <text>পরিবারের জন্য নিরাপদ আবাসন</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Safe housing for families</text>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-utensils fa-3x text-success mb-2"></i>
+                                <h5>
+                                    @if (isBangla)
+                                    {
+                                        <text>খাদ্য নিরাপত্তা</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Food Security</text>
+                                    }
+                                </h5>
+                                <p class="text-muted small">
+                                    @if (isBangla)
+                                    {
+                                        <text>নিয়মিত খাদ্য বিতরণ</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Regular food distribution</text>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-medkit fa-3x text-danger mb-2"></i>
+                                <h5>
+                                    @if (isBangla)
+                                    {
+                                        <text>স্বাস্থ্যসেবা</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Healthcare</text>
+                                    }
+                                </h5>
+                                <p class="text-muted small">
+                                    @if (isBangla)
+                                    {
+                                        <text>চিকিৎসা সহায়তা</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Medical assistance</text>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (stats != null)
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    @if (isBangla)
+                    {
+                        <text>আমাদের প্রভাব</text>
+                    }
+                    else
+                    {
+                        <text>Our Impact</text>
+                    }
+                </h3>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h3 class="text-primary mb-0">@stats.TotalPrograms</h3>
+                        <p class="text-muted mb-0">
+                            @if (isBangla)
+                            {
+                                <text>সক্রিয় কর্মসূচি</text>
+                            }
+                            else
+                            {
+                                <text>Active Programs</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h3 class="text-success mb-0">@stats.TotalEvents</h3>
+                        <p class="text-muted mb-0">
+                            @if (isBangla)
+                            {
+                                <text>সম্পন্ন ইভেন্ট</text>
+                            }
+                            else
+                            {
+                                <text>Events Conducted</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h3 class="text-info mb-0">@stats.TotalBeneficiaries.ToString("N0")</h3>
+                        <p class="text-muted mb-0">
+                            @if (isBangla)
+                            {
+                                <text>সাহায্যপ্রাপ্ত মানুষ</text>
+                            }
+                            else
+                            {
+                                <text>People Helped</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @* Camps Reached card removed *@
+        </div>
+    }
+
+    @if (programs.Any())
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    @if (isBangla)
+                    {
+                        <text>আমাদের রোহিঙ্গা কর্মসূচি</text>
+                    }
+                    else
+                    {
+                        <text>Our Rohingya Programs</text>
+                    }
+                </h3>
+            </div>
+        </div>
+        <div class="row g-4 mb-5">
+            @foreach (var program in programs)
+            {
+                var title = isBangla && !string.IsNullOrEmpty(program.TitleBn) ? program.TitleBn : program.Title;
+                var description = isBangla && !string.IsNullOrEmpty(program.DescriptionBn) ? program.DescriptionBn : program.Description;
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(program.FeaturedImage))
+                        {
+                            <img src="@program.FeaturedImage" class="card-img-top" alt="@title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-hands-helping fa-4x text-white"></i>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            @if (program.SDG != null)
+                            {
+                                var sdgName = isBangla && !string.IsNullOrEmpty(program.SDG.NameBn) ? program.SDG.NameBn : program.SDG.Name;
+                                <span class="badge mb-2" style="background-color: @program.SDG.Color; width: fit-content;">
+                                    SDG @program.SDG.Number: @sdgName
+                                </span>
+                            }
+                            <h5 class="card-title">@title</h5>
+                            @if (!string.IsNullOrEmpty(description))
+                            {
+                                <p class="card-text text-muted">@(description.Length > 150 ? description.Substring(0, 150) + "..." : description)</p>
+                            }
+                            <div class="mt-auto">
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i> @program.Events.Count 
+                                        @if (isBangla)
+                                        {
+                                            <text>ইভেন্ট</text>
+                                        }
+                                        else
+                                        {
+                                            <text>event(s)</text>
+                                        }
+                                    </small>
+                                </div>
+                                <a href="/ourwork/program/@program.Id" class="btn btn-primary w-100">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    @if (isBangla)
+                                    {
+                                        <text>বিস্তারিত দেখুন</text>
+                                    }
+                                    else
+                                    {
+                                        <text>View Details</text>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (events.Any())
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    @if (isBangla)
+                    {
+                        <text>সাম্প্রতিক রোহিঙ্গা ইভেন্ট</text>
+                    }
+                    else
+                    {
+                        <text>Recent Rohingya Events</text>
+                    }
+                </h3>
+                <p class="text-center text-muted mb-4">
+                    @if (isBangla)
+                    {
+                        <text>রোহিঙ্গা শরণার্থীদের জন্য আমাদের মাঠ পর্যায়ের কার্যক্রম এবং হস্তক্ষেপ</text>
+                    }
+                    else
+                    {
+                        <text>Our on-ground activities and interventions for Rohingya refugees</text>
+                    }
+                </p>
+            </div>
+        </div>
+        <div class="row g-4 mb-5">
+            @foreach (var eventItem in events.Take(6))
+            {
+                var title = isBangla && !string.IsNullOrEmpty(eventItem.TitleBn) ? eventItem.TitleBn : eventItem.Title;
+                var description = isBangla && !string.IsNullOrEmpty(eventItem.DescriptionBn) ? eventItem.DescriptionBn : eventItem.Description;
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(eventItem.FeaturedImage))
+                        {
+                            <img src="@eventItem.FeaturedImage" class="card-img-top" alt="@title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-calendar-alt fa-4x text-white"></i>
+                            </div>
+                        }
+                        <div class="card-body d-flex flex-column">
+                            @if (eventItem.SDGProgram != null)
+                            {
+                                var programTitle = isBangla && !string.IsNullOrEmpty(eventItem.SDGProgram.TitleBn) ? eventItem.SDGProgram.TitleBn : eventItem.SDGProgram.Title;
+                                <span class="badge bg-info mb-2" style="width: fit-content;">
+                                    @programTitle
+                                </span>
+                            }
+                            <h5 class="card-title">@title</h5>
+                            @if (!string.IsNullOrEmpty(description))
+                            {
+                                <p class="card-text text-muted">@(description.Length > 120 ? description.Substring(0, 120) + "..." : description)</p>
+                            }
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    @if (!string.IsNullOrEmpty(eventItem.District))
+                                    {
+                                        var districtName = isBangla && !string.IsNullOrEmpty(eventItem.DistrictBn) ? eventItem.DistrictBn : eventItem.District;
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i> @districtName
+                                        </small>
+                                    }
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i> @eventItem.BeneficiaryCount.ToString("N0")
+                                    </small>
+                                </div>
+                                <a href="/ourwork/event/@eventItem.Id" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    @if (isBangla)
+                                    {
+                                        <text>বিস্তারিত দেখুন</text>
+                                    }
+                                    else
+                                    {
+                                        <text>View Details</text>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (appeals.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="text-center mb-4">
+                    @if (isBangla)
+                    {
+                        <text>সক্রিয় রোহিঙ্গা আবেদন</text>
+                    }
+                    else
+                    {
+                        <text>Active Rohingya Appeals</text>
+                    }
+                </h3>
+            </div>
+        </div>
+        <div class="row g-4 mb-5">
+            @foreach (var appeal in appeals)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(appeal.FeaturedImage))
+                        {
+                            <img src="@appeal.FeaturedImage" class="card-img-top" alt="@appeal.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        <div class="card-body">
+                            <span class="badge bg-danger mb-2">
+                                @if (isBangla)
+                                {
+                                    <text>জরুরি</text>
+                                }
+                                else
+                                {
+                                    <text>Urgent</text>
+                                }
+                            </span>
+                            <h5 class="card-title">@appeal.Title</h5>
+                            <p class="card-text text-muted">@appeal.Summary</p>
+                            @if (appeal.TargetAmount.HasValue && appeal.TargetAmount > 0)
+                            {
+                                <div class="progress mb-3" style="height: 8px;">
+                                    @{
+                                        var progressPercentage = (int)((appeal.RaisedAmount / appeal.TargetAmount.Value) * 100);
+                                    }
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: @progressPercentage%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <div>
+                                        <small class="text-muted">
+                                            @if (isBangla)
+                                            {
+                                                <text>সংগৃহীত</text>
+                                            }
+                                            else
+                                            {
+                                                <text>Raised</text>
+                                            }
+                                        </small>
+                                        <div class="fw-bold">৳@appeal.RaisedAmount.ToString("N0")</div>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">
+                                            @if (isBangla)
+                                            {
+                                                <text>লক্ষ্য</text>
+                                            }
+                                            else
+                                            {
+                                                <text>Goal</text>
+                                            }
+                                        </small>
+                                        <div class="fw-bold">৳@appeal.TargetAmount.Value.ToString("N0")</div>
+                                    </div>
+                                </div>
+                            }
+                            <a href="/donation?appealId=@appeal.Id" class="btn btn-danger w-100">
+                                <i class="fas fa-heart me-1"></i> 
+                                @if (isBangla)
+                                {
+                                    <text>এখনই দান করুন</text>
+                                }
+                                else
+                                {
+                                    <text>Donate Now</text>
+                                }
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!programs.Any() && !appeals.Any())
+    {
+        <div class="row">
+            <div class="col-lg-6 mx-auto">
+                <div class="card shadow-sm text-center p-5">
+                    <i class="fas fa-hand-holding-heart fa-4x text-muted mb-3"></i>
+                    <h4>
+                        @if (isBangla)
+                        {
+                            <text>কোন সক্রিয় কর্মসূচি বা আবেদন নেই</text>
+                        }
+                        else
+                        {
+                            <text>No Active Programs or Appeals</text>
+                        }
+                    </h4>
+                    <p class="text-muted">
+                        @if (isBangla)
+                        {
+                            <text>বর্তমানে কোন সক্রিয় রোহিঙ্গা কর্মসূচি বা আবেদন নেই। অনুগ্রহ করে পরে আবার দেখুন বা আমাদের সাধারণ তহবিলে সাহায্য করুন।</text>
+                        }
+                        else
+                        {
+                            <text>There are currently no active Rohingya programs or appeals. Please check back later or support our general fund.</text>
+                        }
+                    </p>
+                    <a href="/donation" class="btn btn-primary mt-3">
+                        <i class="fas fa-donate me-1"></i> 
+                        @if (isBangla)
+                        {
+                            <text>সাধারণ তহবিলে দান করুন</text>
+                        }
+                        else
+                        {
+                            <text>Donate to General Fund</text>
+                        }
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row mt-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="bg-light p-4 rounded">
+                <h4 class="mb-3">
+                    @if (isBangla)
+                    {
+                        <text>আপনি কীভাবে সাহায্য করতে পারেন</text>
+                    }
+                    else
+                    {
+                        <text>How You Can Help</text>
+                    }
+                </h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>একবার বা মাসিক দান করুন</text>
+                        }
+                        else
+                        {
+                            <text>Make a one-time or monthly donation</text>
+                        }
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>একটি পরিবারের মৌলিক চাহিদা স্পন্সর করুন</text>
+                        }
+                        else
+                        {
+                            <text>Sponsor a family's basic needs</text>
+                        }
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>আপনার সময় এবং দক্ষতা স্বেচ্ছাসেবক করুন</text>
+                        }
+                        else
+                        {
+                            <text>Volunteer your time and skills</text>
+                        }
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>সংকট সম্পর্কে সচেতনতা ছড়িয়ে দিন</text>
+                        }
+                        else
+                        {
+                            <text>Spread awareness about the crisis</text>
+                        }
+                    </li>
+                </ul>
+                <div class="mt-4">
+                    <a href="/donation" class="btn btn-danger me-2">
+                        <i class="fas fa-heart me-1"></i> 
+                        @if (isBangla)
+                        {
+                            <text>এখনই দান করুন</text>
+                        }
+                        else
+                        {
+                            <text>Donate Now</text>
+                        }
+                    </a>
+                    <a href="/getinvolved/volunteer" class="btn btn-outline-primary">
+                        <i class="fas fa-hands-helping me-1"></i> 
+                        @if (isBangla)
+                        {
+                            <text>স্বেচ্ছাসেবক</text>
+                        }
+                        else
+                        {  
+                            <text>Volunteer</text>
+                        }
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

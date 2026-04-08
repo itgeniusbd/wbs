@@ -1,0 +1,173 @@
+﻿@model WBS.Web.ViewModels.ContactFormViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Contact Us";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "যোগাযোগ করুন" : "Contact Us")</h1>
+                <p class="lead">@(isBangla ? "আমরা আপনার মতামত শুনতে আগ্রহী" : "We'd love to hear from you")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4 p-lg-5">
+                        <h3 class="mb-4">@(isBangla ? "আমাদের একটি বার্তা পাঠান" : "Send us a message")</h3>
+                        <form asp-action="Contact" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">@(isBangla ? "আপনার নাম" : "Your Name") *</label>
+                                <input asp-for="Name" class="form-control form-control-lg" placeholder="@(isBangla ? "আপনার পুরো নাম লিখুন" : "Enter your full name")" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Email" class="form-label">@(isBangla ? "ইমেইল" : "Email") *</label>
+                                    <input asp-for="Email" type="email" class="form-control form-control-lg" placeholder="@(isBangla ? "আপনার ইমেইল" : "your@email.com")" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Phone" class="form-label">@(isBangla ? "ফোন" : "Phone")</label>
+                                    <input asp-for="Phone" class="form-control form-control-lg" placeholder="+880" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Subject" class="form-label">@(isBangla ? "বিষয়" : "Subject")</label>
+                                <input asp-for="Subject" class="form-control form-control-lg" placeholder="@(isBangla ? "আপনার বার্তার বিষয়" : "What is this about?")" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Message" class="form-label">@(isBangla ? "বার্তা" : "Message") *</label>
+                                <textarea asp-for="Message" class="form-control form-control-lg" rows="6" placeholder="@(isBangla ? "আপনার বার্তা এখানে লিখুন..." : "Write your message here...")"></textarea>
+                                <span asp-validation-for="Message" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                @(isBangla ? "বার্তা পাঠান" : "Send Message")
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4">@(isBangla ? "যোগাযোগের তথ্য" : "Contact Information")</h4>
+                        
+                        <!-- Address -->
+                        <div class="d-flex mb-4">
+                            <div class="me-3">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2">@(isBangla ? "ঠিকানা" : "Address")</h6>
+                                <p class="text-muted mb-0">
+                                    @if (isBangla)
+                                    {
+                                        <text>হাউস - ১৫ (৫এ), রোড-০৮, ব্লক -সি, বসিলা গার্ডেন সিটি, মোহাম্মদপুর, ঢাকা-১২০৭</text>
+                                    }
+                                    else
+                                    {
+                                        <text>House - 15 (5A), Road-08, Block -C, Bosila Garden City, Mohammadpur, Dhaka-1207</text>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="d-flex mb-4">
+                            <div class="me-3">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2">@(isBangla ? "ফোন" : "Phone")</h6>
+                                <p class="text-muted mb-0">
+                                    <a href="tel:+8801550721313" class="text-decoration-none text-muted">+880 1550-721313</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="d-flex mb-4">
+                            <div class="me-3">
+                                <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2">@(isBangla ? "ইমেইল" : "Email")</h6>
+                                <p class="text-muted mb-0">
+                                    <a href="mailto:info@wbs-bd.org" class="text-decoration-none text-muted">info@wbs-bd.org</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Working Hours -->
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2">@(isBangla ? "কার্য সময়" : "Working Hours")</h6>
+                                <p class="text-muted mb-1">@(isBangla ? "রবিবার - বৃহস্পতিবার" : "Sunday - Thursday")</p>
+                                <p class="text-muted mb-0">@(isBangla ? "সকাল ৯:০০ - বিকাল ৫:০০" : "9:00 AM - 5:00 PM")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.906754742859!2d90.35972331498142!3d23.753868484588314!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf4a0c48cf17%3A0x23c69e0c6e15f5be!2sBosila%20Garden%20City%2C%20Mohammadpur%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1703000000000!5m2!1sen!2sbd" 
+                            width="100%" 
+                            height="350" 
+                            style="border:0; border-radius: 0.375rem;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

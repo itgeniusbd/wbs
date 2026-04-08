@@ -1,0 +1,217 @@
+﻿@model WBS.Web.Models.SiteSettings
+@using Microsoft.AspNetCore.Localization
+@{
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    ViewData["Title"] = isBangla ? "আমাদের সম্পর্কে" : "About Us";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "আমাদের সম্পর্কে" : "About Us")</h1>
+                <p class="lead">@(isBangla ? "সংগঠন সম্পর্কে জানুন" : "Learn About Our Organization")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                @if (!string.IsNullOrEmpty(Model?.AboutUsImage))
+                {
+                    <div class="text-center mb-5">
+                        <img src="@Model.AboutUsImage" alt="@(Model.SiteName)" class="img-fluid rounded shadow-lg" style="max-height: 400px; object-fit: cover; width: 100%;" />
+                    </div>
+                }
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h3 class="text-primary mb-3">
+                            <i class="fas fa-building me-2"></i>
+                            @(isBangla ? "সংগঠনের নাম" : "Organization Name")
+                        </h3>
+                        <p class="fs-5">
+                            @if (!string.IsNullOrEmpty(Model?.OrganizationFullName))
+                            {
+                                @(isBangla && !string.IsNullOrEmpty(Model?.OrganizationFullNameBn) ? Model.OrganizationFullNameBn : Model.OrganizationFullName)
+                            }
+                            else
+                            {
+                                @(isBangla && !string.IsNullOrEmpty(Model?.SiteNameBn) ? Model.SiteNameBn : Model?.SiteName ?? "Working Bangladesh Society")
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model?.AboutUs))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla ? "আমাদের সম্পর্কে" : "About Us")
+                            </h3>
+                            <div class="content">
+                                @Html.Raw(isBangla && !string.IsNullOrEmpty(Model?.AboutUsBn) ? Model.AboutUsBn : Model.AboutUs)
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (Model?.EstablishedYear != null)
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                @(isBangla ? "প্রতিষ্ঠার সাল" : "Established Year")
+                            </h3>
+                            <p class="fs-5">@Model.EstablishedYear</p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model?.OrganizationType))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-tag me-2"></i>
+                                @(isBangla ? "সংগঠনের ধরন" : "Organization Type")
+                            </h3>
+                            <p class="fs-5">
+                                @(isBangla && !string.IsNullOrEmpty(Model?.OrganizationTypeBn) ? Model.OrganizationTypeBn : Model.OrganizationType)
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model?.RegistrationNumber))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-certificate me-2"></i>
+                                @(isBangla ? "রেজিস্ট্রেশন তথ্য" : "Registration Information")
+                            </h3>
+                            <div class="row">
+                                @if (!string.IsNullOrEmpty(Model?.RegistrationType))
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <strong>@(isBangla ? "রেজিস্ট্রেশনের ধরন:" : "Registration Type:")</strong>
+                                        <p>@Model.RegistrationType</p>
+                                    </div>
+                                }
+                                <div class="col-md-6 mb-3">
+                                    <strong>@(isBangla ? "রেজিস্ট্রেশন নম্বর:" : "Registration Number:")</strong>
+                                    <p>@Model.RegistrationNumber</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model?.ManagementInfo))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-users-cog me-2"></i>
+                                @(isBangla ? "ম্যানেজমেন্ট টিম" : "Management Team")
+                            </h3>
+                            <div class="content">
+                                @Html.Raw(isBangla && !string.IsNullOrEmpty(Model?.ManagementInfoBn) ? Model.ManagementInfoBn : Model.ManagementInfo)
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="card shadow-sm mb-4 bg-light">
+                    <div class="card-body p-4">
+                        <h3 class="text-primary mb-3">
+                            <i class="fas fa-address-card me-2"></i>
+                            @(isBangla ? "যোগাযোগের তথ্য" : "Contact Information")
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <p><i class="fas fa-map-marker-alt me-2 text-primary"></i> 
+                                    <strong>@(isBangla ? "ঠিকানা:" : "Address:")</strong><br />
+                                    @if (!string.IsNullOrEmpty(Model?.Address))
+                                    {
+                                        @(isBangla && !string.IsNullOrEmpty(Model?.AddressBn) ? Model.AddressBn : Model.Address)
+                                    }
+                                    else
+                                    {
+                                        if (isBangla)
+                                        {
+                                            <text>হাউস - ১৫ (৫এ), রোড-০৮, ব্লক -সি, বসিলা গার্ডেন সিটি, মোহাম্মদপুর, ঢাকা-১২০৭</text>
+                                        }
+                                        else
+                                        {
+                                            <text>House - 15 (5A), Road-08, Block -C, Bosila Garden City, Mohammadpur, Dhaka-1207</text>
+                                        }
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p><i class="fas fa-phone me-2 text-primary"></i> 
+                                    <strong>@(isBangla ? "ফোন:" : "Phone:")</strong><br />
+                                    <a href="tel:@(Model?.Phone ?? "+8801550721313")">@(Model?.Phone ?? "+880 1550-721313")</a>
+                                </p>
+                                <p><i class="fas fa-envelope me-2 text-primary"></i> 
+                                    <strong>@(isBangla ? "ইমেইল:" : "Email:")</strong><br />
+                                    <a href="mailto:@(Model?.Email ?? "info@wbs-bd.org")">@(Model?.Email ?? "info@wbs-bd.org")</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/about/contact" class="btn btn-primary btn-lg">
+                        <i class="fas fa-envelope me-2"></i>
+                        @(isBangla ? "যোগাযোগ করুন" : "Contact Us")
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+    }
+    
+    .content h2, .content h3, .content h4 {
+        color: #00a99d;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+    
+    .content ul, .content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+    
+    .card {
+        border: none;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>

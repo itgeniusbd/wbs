@@ -1,0 +1,1107 @@
+﻿@model HomeViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Home";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<!-- Debug Info (Remove after testing) -->
+@if (Context.Request.Query.ContainsKey("debug"))
+{
+    <div class="alert alert-info m-3">
+        <h5>Debug Info:</h5>
+        <ul>
+            <li>FeaturedPrograms Count: @Model.FeaturedPrograms.Count</li>
+            <li>FeaturedAppeals Count: @Model.FeaturedAppeals.Count</li>
+            <li>SDGs Count: @Model.SDGs.Count</li>
+            <li><strong>Statistics:</strong></li>
+            <li>- Total Programs: @Model.Statistics.TotalPrograms</li>
+            <li>- Total Events: @Model.Statistics.TotalEvents</li>
+            <li>- Total Districts: @Model.Statistics.TotalDistricts</li>
+            <li>- Total Thanas: @Model.Statistics.TotalThanas</li>
+            <li>- Total Beneficiaries: @Model.Statistics.TotalBeneficiaries</li>
+        </ul>
+    </div>
+}
+
+<!-- Hero Slider -->
+<section class="hero-slider">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @if (Model.Sliders.Any())
+            {
+                for (int i = 0; i < Model.Sliders.Count; i++)
+                {
+                    var slider = Model.Sliders[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@slider.ImageUrl" class="slider-bg-img" alt="@slider.Title" />
+                        <div class="carousel-overlay"></div>
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    @{
+                                        var subtitle = isBangla && !string.IsNullOrEmpty(slider.SubtitleBn) ? slider.SubtitleBn : slider.Subtitle;
+                                        var title = isBangla && !string.IsNullOrEmpty(slider.TitleBn) ? slider.TitleBn : slider.Title;
+                                        var buttonText = isBangla && !string.IsNullOrEmpty(slider.ButtonTextBn) ? slider.ButtonTextBn : slider.ButtonText;
+                                    }
+                                    @if (!string.IsNullOrEmpty(subtitle))
+                                    {
+                                        <p class="slider-subtitle text-uppercase mb-2">@subtitle</p>
+                                    }
+                                    <h1 class="slider-title display-4 fw-bold mb-4">@title</h1>
+                                    @if (!string.IsNullOrEmpty(buttonText))
+                                    {
+                                        <a href="@slider.ButtonUrl" class="btn btn-danger btn-lg rounded-pill px-5">@buttonText</a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(slider.SecondButtonText))
+                                    {
+                                        <a href="@slider.SecondButtonUrl" class="btn btn-outline-light btn-lg rounded-pill px-5 ms-2">@slider.SecondButtonText</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="carousel-item active" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%);">
+                    <div class="carousel-overlay" style="z-index:1;"></div>
+                    <div class="container h-100">
+                        <div class="row h-100 align-items-center">
+                            <div class="col-lg-6">
+                                <p class="slider-subtitle text-uppercase mb-2">
+                                    @(isBangla ? "স্বেচ্ছায় দাতব্য" : "LILLAH IS A VOLUNTARY FORM OF CHARITY")
+                                </p>
+                                <h1 class="slider-title display-4 fw-bold mb-4">
+                                    @(isBangla ? "লিলহা" : "LILLAH")
+                                </h1>
+                                <a href="/donation" class="btn btn-danger btn-lg rounded-pill px-5">
+                                    @(isBangla ? "এখনই দান করুন" : "Donate now")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-section py-5 bg-gradient-blue text-white">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center g-3 justify-content-center">
+            <!-- Summary Cards - All in one row -->
+            <div class="col-auto">
+                <div class="summary-card-inline">
+                    <div class="summary-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="summary-number">@Model.Statistics.TotalPrograms</h3>
+                        <p class="summary-label">@(isBangla ? "প্রোগ্রাম" : "Programmes")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <div class="summary-card-inline">
+                    <div class="summary-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="summary-number">@Model.Statistics.TotalEvents</h3>
+                        <p class="summary-label">@(isBangla ? "ইভেন্ট" : "Events")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <div class="summary-card-inline">
+                    <div class="summary-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="summary-number">@Model.Statistics.TotalDistricts</h3>
+                        <p class="summary-label">@(isBangla ? "জেলা" : "Districts")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <div class="summary-card-inline">
+                    <div class="summary-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="summary-number">@Model.Statistics.TotalThanas</h3>
+                        <p class="summary-label">@(isBangla ? "উপজেলা" : "Upozilas")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <div class="summary-card-inline">
+                    <div class="summary-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 class="summary-number">@Model.Statistics.TotalBeneficiaries.ToString("N0")</h3>
+                        <p class="summary-label">@(isBangla ? "উপকারভোগী" : "Beneficiaries")</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vertical Divider -->
+            <div class="col-auto d-none d-lg-block">
+                <div class="vertical-divider"></div>
+            </div>
+
+            <!-- Donation Form - Inline -->
+            <div class="col-auto">
+                <div class="donation-form-inline">
+                    <small class="text-white-50 d-block mb-2 text-start" style="font-size: 0.75rem; padding-left: 0.25rem;">
+                        @(isBangla ? "আপনি কোন খাতে দান করতে চান তা নির্বাচন করুন" : "Select the category you want to donate to")
+                    </small>
+                    <form id="quickDonationForm" action="/donation" method="get" class="d-flex align-items-center gap-2">
+                        <!-- Donation Type Selection -->
+                        <select class="form-select form-select-sm" id="donationTypeSelect" name="typeId" required style="min-width: 200px;">
+                            <option value="">@(isBangla ? "দানের ধরন নির্বাচন করুন" : "Select Donation Type")</option>
+                            @foreach (var donationType in Model.DonationTypes)
+                            {
+                                <option value="@donationType.Id">
+                                    @(isBangla && !string.IsNullOrEmpty(donationType.NameBn) ? donationType.NameBn : donationType.Name)
+                                </option>
+                            }
+                        </select>
+
+                        <!-- Amount Input -->
+                        <input type="number" class="form-control form-control-sm" id="amountInput" 
+                               name="amount" placeholder="@(isBangla ? "পরিমাণ (৳)" : "Amount (BDT)")" 
+                               min="10" step="1" required style="min-width: 120px; max-width: 140px;">
+
+                        <!-- Donate Button -->
+                        <button type="submit" class="btn btn-danger btn-sm donate-btn-inline px-4 text-nowrap">
+                            <i class="fas fa-heart me-1"></i>
+                            @(isBangla ? "দান করুন" : "Donate Now")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SDGs Section -->
+@if (Model.SDGs.Any())
+{
+    <section class="sdgs-section py-5">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">@(isBangla ? "টেকসই উন্নয়ন লক্ষ্য" : "Sustainable Development Goals")</h2>
+                <p class="text-muted">@(isBangla ? "আমরা যে SDG গুলিতে কাজ করি" : "SDGs We Work On")</p>
+            </div>
+            
+            <!-- SDG Slider -->
+            <div class="sdg-slider-container position-relative">
+                <div class="swiper sdgSwiper">
+                    <div class="swiper-wrapper">
+                        @foreach (var sdg in Model.SDGs)
+                        {
+                            <div class="swiper-slide">
+                                <a href="/ourwork/sdg/@sdg.Id" class="sdg-card-slider" data-sdg-color="@sdg.Color">
+                                    @if (!string.IsNullOrEmpty(sdg.Image))
+                                    {
+                                        <div class="sdg-image-wrapper-slider">
+                                            <img src="@sdg.Image" alt="@sdg.Name" class="sdg-image-slider" />
+                                        </div>
+                                        <div class="sdg-name-slider text-center mt-2">
+                                            <small class="fw-500">@(isBangla && !string.IsNullOrEmpty(sdg.NameBn) ? sdg.NameBn : sdg.Name)</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="sdg-no-image-slider" style="background-color: @sdg.Color;">
+                                            <div class="sdg-number-slider">@sdg.Number</div>
+                                            <div class="sdg-name-slider">@(isBangla && !string.IsNullOrEmpty(sdg.NameBn) ? sdg.NameBn : sdg.Name)</div>
+                                        </div>
+                                    }
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="swiper-button-next sdg-next"></div>
+                <div class="swiper-button-prev sdg-prev"></div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="/ourwork/sdg" class="btn btn-primary px-4">
+                    @(isBangla ? "সব SDG দেখুন" : "View All SDGs") <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Featured Programs -->
+@if (Model.FeaturedPrograms.Any())
+{
+    <section class="featured-programs py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">@(isBangla ? "প্রধান প্রোগাম" : "Featured Programs")</h2>
+                <p class="text-muted">@(isBangla ? "আমাদের প্রধান কর্মসূচি যা সমাজে পরিবর্তন আনছে" : "Our major programs making a difference in society")</p>
+            </div>
+            <div class="row g-4">
+                @foreach (var program in Model.FeaturedPrograms)
+                {
+                    var programTitle = isBangla && !string.IsNullOrEmpty(program.TitleBn) ? program.TitleBn : program.Title;
+                    var programDescription = isBangla && !string.IsNullOrEmpty(program.DescriptionBn) ? program.DescriptionBn : program.Description;
+                    var sdgName = isBangla && !string.IsNullOrEmpty(program.SDGNameBn) ? program.SDGNameBn : program.SDGName;
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 program-card shadow-sm">
+                            @if (!string.IsNullOrEmpty(program.FeaturedImage))
+                            {
+                                <img src="@program.FeaturedImage" class="card-img-top" alt="@programTitle" style="height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-project-diagram fa-3x text-white-50"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                @if (!string.IsNullOrEmpty(sdgName))
+                                {
+                                    <span class="badge mb-2" style="background-color: @(program.SDGColor ?? "#00a99d");">
+                                        <i class="fas fa-bullseye me-1"></i>@sdgName
+                                    </span>
+                                }
+                                <h5 class="card-title">@programTitle</h5>
+                                @if (!string.IsNullOrEmpty(programDescription))
+                                {
+                                    <p class="card-text text-muted small">
+                                        @(programDescription.Length > 120 ? programDescription.Substring(0, 120) + "..." : programDescription)
+                                    </p>
+                                }
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    <span>@program.EventCount @(isBangla ? "টি ইভেন্ট" : program.EventCount == 1 ? "Event" : "Events")</span>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <a href="/ourwork/program/@program.Id" class="btn btn-outline-primary w-100">
+                                    @(isBangla ? "বিস্তারিত দেখুন" : "View Details") <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="text-center mt-4">
+                <a href="/ourwork" class="btn btn-primary px-4">
+                    @(isBangla ? "সকল প্রোগ্রাম দেখুন" : "View All Programs") <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Featured Appeals -->
+@if (Model.FeaturedAppeals.Any())
+{
+    <section class="appeals-section py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">@(isBangla ? "বর্তমান আবেদন" : "Current Appeals")</h2>
+                <a href="/appeals" class="btn btn-outline-primary">@(isBangla ? "সব দেখুন" : "View All")</a>
+            </div>
+            <div class="row g-4">
+                @foreach (var appeal in Model.FeaturedAppeals.Take(3))
+                {
+                    var appealTitle = isBangla && !string.IsNullOrEmpty(appeal.TitleBn) ? appeal.TitleBn : appeal.Title;
+                    var appealSummary = isBangla && !string.IsNullOrEmpty(appeal.SummaryBn) ? appeal.SummaryBn : appeal.Summary;
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100 appeal-card">
+                            @if (!string.IsNullOrEmpty(appeal.FeaturedImage))
+                            {
+                                <img src="@appeal.FeaturedImage" class="card-img-top" alt="@appealTitle" style="height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image fa-3x text-white-50"></i>
+                                </div>
+                            }
+                            @if (appeal.IsUrgent)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">@(isBangla ? "জরুরি" : "URGENT")</span>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@appealTitle</h5>
+                                @if (!string.IsNullOrEmpty(appealSummary))
+                                {
+                                    <p class="card-text text-muted">@(appealSummary.Length > 100 ? appealSummary.Substring(0, 100) + "..." : appealSummary)</p>
+                                }
+                                @if (appeal.TargetAmount.HasValue)
+                                {
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @appeal.DonationPercentage%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>@(isBangla ? "সংগৃহীত" : "Raised"): ৳@appeal.RaisedAmount.ToString("N0")</span>
+                                        <span>@(isBangla ? "লক্ষ্য" : "Goal"): ৳@appeal.TargetAmount?.ToString("N0")</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <a href="/appeals/@appeal.Slug" class="btn btn-primary w-100">@(isBangla ? "এখনই দান করুন" : "Donate Now")</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Featured Events -->
+@if (Model.FeaturedEvents.Any())
+{
+    <section class="events-section py-5 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0">@(isBangla ? "ফিচারড ইভেন্ট" : "Featured Events")</h2>
+                    <p class="text-muted mb-0">@(isBangla ? "আমাদের আসন্ন গুরুত্বপূর্ণ ইভেন্টগুলি দেখুন" : "Check out our upcoming featured events")</p>
+                </div>
+                <a href="/events" class="btn btn-outline-primary">@(isBangla ? "সব দেখুন" : "View All")</a>
+            </div>
+            <div class="row g-4">
+                @foreach (var evt in Model.FeaturedEvents.Take(3))
+                {
+                    var eventTitle = isBangla && !string.IsNullOrEmpty(evt.TitleBn) ? evt.TitleBn : evt.Title;
+                    var eventDescription = isBangla && !string.IsNullOrEmpty(evt.DescriptionBn) ? evt.DescriptionBn : evt.Description;
+                    var eventLocation = isBangla && !string.IsNullOrEmpty(evt.LocationBn) ? evt.LocationBn : evt.Location;
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100 event-card shadow-sm">
+                            @if (!string.IsNullOrEmpty(evt.FeaturedImage))
+                            {
+                                <img src="@evt.FeaturedImage" class="card-img-top" alt="@eventTitle" style="height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-primary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-calendar-alt fa-4x text-white opacity-50"></i>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@eventTitle</h5>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="fas fa-calendar text-primary me-1"></i>
+                                        @evt.StartDate.ToString("MMM dd, yyyy")
+                                        @if (evt.EndDate.HasValue)
+                                        {
+                                            <span>- @evt.EndDate.Value.ToString("MMM dd, yyyy")</span>
+                                        }
+                                    </small>
+                                    
+                                    @if (!string.IsNullOrEmpty(eventLocation))
+                                    {
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                            @eventLocation
+                                        </small>
+                                    }
+                                    
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="fas fa-ticket-alt text-primary me-1"></i>
+                                        @if (evt.TicketPrice.HasValue && evt.TicketPrice.Value > 0)
+                                        {
+                                            <span class="fw-bold text-success">৳@evt.TicketPrice.Value.ToString("N2")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-success">@(isBangla ? "বিনামূল্যে" : "Free")</span>
+                                        }
+                                    </small>
+                                    
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-users text-primary me-1"></i>
+                                        @evt.RegisteredCount / @evt.TotalCapacity 
+                                        (@(evt.AvailableSeats) @(isBangla ? "আসন বাকি" : "seats left"))
+                                    </small>
+                                </div>
+                                
+                                @if (!string.IsNullOrEmpty(eventDescription))
+                                {
+                                    <p class="card-text text-muted small">@(eventDescription.Length > 100 ? eventDescription.Substring(0, 100) + "..." : eventDescription)</p>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <div class="d-flex gap-2">
+                                    <a href="/events/@evt.Slug" class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        @(isBangla ? "বিস্তারিত" : "Details")
+                                    </a>
+                                    <a href="/events/@evt.Slug#register" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="fas fa-ticket-alt me-1"></i>
+                                        @(isBangla ? "নিবন্ধন" : "Register")
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Stories Section -->
+@if (Model.FeaturedStories.Any())
+{
+    <section class="stories-section py-5">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5">@(isBangla ? "সুবিধাভোগীদের গল্প" : "Beneficiary Stories")</h2>
+            <div class="row g-4">
+                @foreach (var story in Model.FeaturedStories.Take(3))
+                {
+                    var storyTitle = isBangla && !string.IsNullOrEmpty(story.TitleBn) ? story.TitleBn : story.Title;
+                    var storySummary = isBangla && !string.IsNullOrEmpty(story.SummaryBn) ? story.SummaryBn : story.Summary;
+                    var beneficiaryName = isBangla && !string.IsNullOrEmpty(story.BeneficiaryNameBn) ? story.BeneficiaryNameBn : story.BeneficiaryName;
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100 story-card">
+                            @if (!string.IsNullOrEmpty(story.FeaturedImage))
+                            {
+                                <img src="@story.FeaturedImage" class="card-img-top" alt="@storyTitle" style="height: 200px; object-fit: cover;" />
+                            }
+                            @if (!string.IsNullOrEmpty(story.VideoUrl))
+                            {
+                                <a href="@story.VideoUrl" class="video-play-btn" target="_blank">
+                                    <i class="fas fa-play-circle fa-3x text-white"></i>
+                                </a>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@storyTitle</h5>
+                                @if (!string.IsNullOrEmpty(beneficiaryName))
+                                {
+                                    <p class="text-primary mb-2">@beneficiaryName</p>
+                                }
+                                @if (!string.IsNullOrEmpty(storySummary))
+                                {
+                                    <p class="card-text text-muted">@(storySummary.Length > 100 ? storySummary.Substring(0, 100) + "..." : storySummary)
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Featured Video Gallery -->
+@if (Model.FeaturedVideos.Any())
+{
+    <section class="video-gallery-section py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">@(isBangla ? "ফিচারড ভিডিও" : "Featured Videos")</h2>
+                <p class="text-muted">@(isBangla ? "আমাদের কাজের ভিডিও দেখুন" : "Watch videos of our work in action")</p>
+            </div>
+            <div class="row g-4">
+                @foreach (var video in Model.FeaturedVideos.Take(3))
+                {
+                    var videoTitle = isBangla && !string.IsNullOrEmpty(video.TitleBn) ? video.TitleBn : video.Title;
+                    var videoDescription = isBangla && !string.IsNullOrEmpty(video.DescriptionBn) ? video.DescriptionBn : video.Description;
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 video-card shadow-sm">
+                            <div class="position-relative video-thumbnail-wrapper">
+                                @if (!string.IsNullOrEmpty(video.ThumbnailUrl))
+                                {
+                                    <img src="@video.ThumbnailUrl" class="card-img-top" alt="@videoTitle" style="height: 250px; object-fit: cover;" />
+                                }
+                                else if (!string.IsNullOrEmpty(video.YouTubeVideoId))
+                                {
+                                    <img src="https://img.youtube.com/vi/@video.YouTubeVideoId/maxresdefault.jpg" class="card-img-top" alt="@videoTitle" style="height: 250px; object-fit: cover;" 
+                                         onerror="this.src='https://img.youtube.com/vi/@video.YouTubeVideoId/hqdefault.jpg'" />
+                                }
+                                else
+                                {
+                                    <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 250px;">
+                                        <i class="fab fa-youtube fa-4x text-white opacity-50"></i>
+                                    </div>
+                                }
+                                <div class="position-absolute top-50 start-50 translate-middle play-button-overlay">
+                                    <a href="@video.YouTubeUrl" target="_blank" class="btn btn-danger btn-lg rounded-circle" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-play fa-lg"></i>
+                                    </a>
+                                </div>
+                                <div class="video-overlay"></div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">@videoTitle</h5>
+                                @if (!string.IsNullOrEmpty(videoDescription))
+                                {
+                                    <p class="card-text text-muted small">
+                                        @(videoDescription.Length > 120 ? videoDescription.Substring(0, 120) + "..." : videoDescription)
+                                    </p>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <a href="@video.YouTubeUrl" target="_blank" class="btn btn-outline-danger w-100">
+                                    <i class="fab fa-youtube me-2"></i>@(isBangla ? "ইউটিউবে দেখুন" : "Watch on YouTube")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="text-center mt-4">
+                <a href="/activities/gallery?tab=videos" class="btn btn-primary px-4">
+                    @(isBangla ? "সব ভিডিও দেখুন" : "View All Videos") <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Partners Section -->
+@if (Model.Partners.Any())
+{
+    <section class="partners-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5">@(isBangla ? "আমাদের অংশীদার" : "Our Partners")</h2>
+            <div class="row g-4 align-items-center justify-content-center">
+                @foreach (var partner in Model.Partners)
+                {
+                    var partnerName = isBangla && !string.IsNullOrEmpty(partner.NameBn) ? partner.NameBn : partner.Name;
+                    
+                    <div class="col-6 col-md-3 col-lg-2 text-center">
+                        @if (!string.IsNullOrEmpty(partner.Website))
+                        {
+                            <a href="@partner.Website" target="_blank" title="@partnerName">
+                                @if (!string.IsNullOrEmpty(partner.Logo))
+                                {
+                                    <img src="@partner.Logo" alt="@partnerName" class="img-fluid partner-logo" style="max-height: 60px;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">@partnerName</span>
+                                }
+                            </a>
+                        }
+                        else if (!string.IsNullOrEmpty(partner.Logo))
+                        {
+                            <img src="@partner.Logo" alt="@partnerName" class="img-fluid partner-logo" style="max-height: 60px;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">@partnerName</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Call to Action -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3">@(isBangla ? "আজই একটি পরিবর্তন আনুন" : "Make a Difference Today")</h2>
+        <p class="lead mb-4">
+            @(isBangla 
+                ? "আপনার দান কারো জীবন পরিবর্তন করতে পারে। বিশ্বকে আরও ভাল জায়গা করতে আমাদের সাথে যোগ দিন。" 
+                : "Your donation can change someone's life. Join us in making the world a better place.")
+        </p>
+        <a href="/donation" class="btn btn-danger btn-lg rounded-pill px-5">@(isBangla ? "এখনই দান করুন" : "Donate Now")</a>
+        <a href="/getinvolved/volunteer" class="btn btn-outline-light btn-lg rounded-pill px-5 ms-3">@(isBangla ? "স্বেচ্ছাসेबক হন" : "Become a Volunteer")</a>
+    </div>
+</section>
+
+<script>
+    // Initialize SDG Swiper Slider
+    document.addEventListener('DOMContentLoaded', function() {
+        var sdgSwiper = new Swiper('.sdgSwiper', {
+            slidesPerView: 2,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            },
+            navigation: {
+                nextEl: '.sdg-next',
+                prevEl: '.sdg-prev',
+            },
+            breakpoints: {
+                480: {
+                    slidesPerView: 3,
+                    spaceBetween: 20
+                },
+                640: {
+                    slidesPerView: 4,
+                    spaceBetween: 25
+                },
+                768: {
+                    slidesPerView: 5,
+                    spaceBetween: 25
+                },
+                1024: {
+                    slidesPerView: 6,
+                    spaceBetween: 30
+                },
+                1200: {
+                    slidesPerView: 7,
+                    spaceBetween: 30
+                },
+                1400: {
+                    slidesPerView: 8,
+                    spaceBetween: 30
+                }
+            }
+        });
+        
+        // SDG Hover Color Effect
+        const sdgCards = document.querySelectorAll('.sdg-card-slider');
+        
+        sdgCards.forEach(card => {
+            const sdgColor = card.getAttribute('data-sdg-color');
+            
+            if (sdgColor) {
+                card.style.setProperty('--hover-color', sdgColor);
+            }
+        });
+    });
+</script>
+
+<style>
+    /* General Styles */
+    body {
+        scroll-behavior: smooth;
+    }
+
+    /* Blue Gradient Background Section */
+    .bg-gradient-blue {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #189ed9 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bg-gradient-blue::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    .bg-gradient-blue::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+        animation: float 15s infinite ease-in-out reverse;
+    }
+
+    @@keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(-20px, -20px) scale(1.1); }
+    }
+
+    /* Summary Cards - Inline - More Compact */
+    .summary-card-inline {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 0.5rem 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        transition: all 0.3s ease;
+        min-width: 110px;
+    }
+
+    .summary-card-inline:hover {
+        transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .summary-content {
+        flex: 1;
+        text-align: center;
+    }
+
+    .summary-number {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .summary-label {
+        font-size: 0.65rem;
+        margin: 0.2rem 0 0 0;
+        opacity: 0.9;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    /* Vertical Divider */
+    .vertical-divider {
+        width: 2px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.3);
+        margin: 0 0.5rem;
+    }
+
+    /* Donation Form - Inline - More Compact */
+    .donation-form-inline {
+        position: relative;
+        z-index: 1;
+    }
+
+    .donation-form-inline .form-select,
+    .donation-form-inline .form-control {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.95);
+        transition: all 0.3s ease;
+        height: 36px;
+    }
+
+    .donation-form-inline .form-select:focus,
+    .donation-form-inline .form-control:focus {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        outline: none;
+        background: #fff;
+    }
+
+    .donation-form-inline .form-select {
+        min-width: 200px;
+    }
+
+    .donation-form-inline .form-control {
+        min-width: 120px;
+        max-width: 140px;
+    }
+
+    .donate-btn-inline {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        border: none;
+        border-radius: 6px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        height: 36px;
+        white-space: nowrap;
+    }
+
+    .donate-btn-inline:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    }
+
+    .donate-btn-inline:active {
+        transform: translateY(0);
+    }
+
+    /* Card Hover Effects */
+    .program-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        border-color: #00a99d;
+    }
+    
+    .program-card .card-footer .btn:hover {
+        background-color: #00a99d;
+        border-color: #00a99d;
+        color: white;
+    }
+    
+    .featured-programs .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+    }
+
+    /* SDG Slider Styles */
+    .sdg-slider-container {
+        padding: 0 50px;
+    }
+
+    .sdgSwiper {
+        padding: 20px 0;
+    }
+
+    .sdg-card-slider {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .sdg-image-wrapper-slider {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .sdg-image-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .sdg-card-slider:hover .sdg-image-wrapper-slider {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .sdg-card-slider:hover .sdg-image-slider {
+        transform: scale(1.05);
+    }
+
+    .sdg-no-image-slider {
+        width: 100%;
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .sdg-card-slider:hover .sdg-no-image-slider {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .sdg-number-slider {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 10px;
+    }
+
+    .sdg-name-slider {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #555;
+        line-height: 1.3;
+        margin-top: 8px;
+    }
+
+    .sdg-no-image-slider .sdg-name-slider {
+        color: white;
+        font-size: 0.7rem;
+        margin-top: 0;
+    }
+
+    /* Swiper Navigation Buttons */
+    .sdg-next,
+    .sdg-prev {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: #00a99d;
+        transition: all 0.3s ease;
+    }
+
+    .sdg-next:after,
+    .sdg-prev:after {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .sdg-next:hover,
+    .sdg-prev:hover {
+        background: #00a99d;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .sdg-next {
+        right: 0;
+    }
+
+    .sdg-prev {
+        left: 0;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .sdg-slider-container {
+            padding: 0 40px;
+        }
+
+        .sdg-next,
+        .sdg-prev {
+            width: 35px;
+            height: 35px;
+        }
+
+        .sdg-next:after,
+        .sdg-prev:after {
+            font-size: 16px;
+        }
+
+        .sdg-number-slider {
+            font-size: 2rem;
+        }
+
+        .sdg-name-slider {
+            font-size: 0.7rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .sdg-slider-container {
+            padding: 0 35px;
+        }
+
+        .sdg-next,
+        .sdg-prev {
+            width: 30px;
+            height: 30px;
+        }
+
+        .sdg-next:after,
+        .sdg-prev:after {
+            font-size: 14px;
+        }
+    }
+
+    /* Video Gallery Styles */
+    .video-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+    }
+
+    .video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        border-color: #dc3545;
+    }
+
+    .video-thumbnail-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .video-thumbnail-wrapper img {
+        transition: transform 0.3s ease;
+    }
+
+    .video-card:hover .video-thumbnail-wrapper img {
+        transform: scale(1.05);
+    }
+
+    .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        transition: background 0.3s ease;
+    }
+
+    .video-card:hover .video-overlay {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .play-button-overlay {
+        z-index: 10;
+        transition: transform 0.3s ease;
+    }
+
+    .video-card:hover .play-button-overlay {
+        transform: translate(-50%, -50%) scale(1.1) !important;
+    }
+
+    .play-button-overlay .btn {
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .play-button-overlay .btn:hover {
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        transform: scale(1.05);
+    }
+
+    .video-gallery-section {
+        background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    }
+</style>

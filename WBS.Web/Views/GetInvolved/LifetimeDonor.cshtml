@@ -1,0 +1,413 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "আজীবন দাতা সদস্যপদ - Lifetime Donor Member";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<style>
+    .lifetime-hero {
+        background: linear-gradient(135deg, #00a99d 0%, #008f85 100%);
+        padding: 80px 0;
+        color: white;
+        text-align: center;
+    }
+
+    .lifetime-hero h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .lifetime-hero p {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        max-width: 900px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .benefits-section {
+        padding: 80px 0;
+        background: white;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title h2 {
+        color: #00a99d;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .section-title p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    .benefit-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid #f0f0f0;
+        height: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0, 169, 157, 0.2);
+        border-color: #00a99d;
+    }
+
+    .benefit-icon {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #00a99d, #00c9b7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.8rem;
+        color: white;
+    }
+
+    .benefit-card h4 {
+        color: #212529;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+
+    .benefit-card p {
+        color: #6c757d;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .membership-tiers {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+
+    .tier-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tier-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #00a99d, #00c9b7);
+    }
+
+    .tier-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 169, 157, 0.2);
+    }
+
+    .tier-card.featured {
+        border: 3px solid #00a99d;
+        transform: scale(1.05);
+    }
+
+    .tier-badge {
+        display: inline-block;
+        background: #00a99d;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .tier-name {
+        color: #212529;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .tier-amount {
+        color: #00a99d;
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .tier-description {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.7;
+    }
+
+    .tier-features {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .tier-features li {
+        padding: 0.8rem 0;
+        color: #495057;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .tier-features li:last-child {
+        border-bottom: none;
+    }
+
+    .tier-features li i {
+        color: #00a99d;
+        margin-right: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    .tier-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: #00a99d;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tier-btn:hover {
+        background: #008f85;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 169, 157, 0.3);
+    }
+
+    .cta-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #00a99d 0%, #008f85 100%);
+        color: white;
+        text-align: center;
+    }
+
+    .cta-section h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+    }
+
+    .cta-btn {
+        display: inline-block;
+        padding: 1.2rem 3rem;
+        background: white;
+        color: #00a99d;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        color: #00a99d;
+    }
+
+    @@media (max-width: 768px) {
+        .lifetime-hero h1 {
+            font-size: 2rem;
+        }
+
+        .tier-card.featured {
+            transform: scale(1);
+        }
+
+        .tier-amount {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="lifetime-hero">
+    <div class="container">
+        <h1>@(isBangla ? "আজীবন দাতা সদস্যপদ" : "Lifetime Donor Membership")</h1>
+        <p>@(isBangla ? "একবার দান করুন এবং জীবনভর আমাদের পরিবারের অংশ থাকুন। আপনার অবদান চিরস্থায়ী প্রভাব ফেলবে এবং ভবিষ্যত প্রজন্মকে সাহায্য করবে।" : "Donate once and be part of our family for a lifetime. Your contribution will make a lasting impact and help future generations.")</p>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>@(isBangla ? "আজীবন সদস্য হওয়ার সুবিধা" : "Benefits of Lifetime Membership")</h2>
+            <p>@(isBangla ? "আজীবন দাতা সদস্য হিসেবে আপনি বিশেষ সুবিধা এবং স্বীকৃতি পাবেন" : "As a lifetime donor member, you will receive special benefits and recognition")</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h4>@(isBangla ? "আজীবন সদস্যপদ সনদ" : "Lifetime Membership Certificate")</h4>
+                    <p>@(isBangla ? "বিশেষভাবে ডিজাইন করা আজীবন সদস্যপদ সনদ পাবেন" : "Receive a specially designed lifetime membership certificate")</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>@(isBangla ? "স্থায়ী সদস্যপদ" : "Permanent Membership")</h4>
+                    <p>@(isBangla ? "কোনো বার্ষিক ফি ছাড়াই আজীবন সদস্য থাকুন" : "Remain a member for life without any annual fees")</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h4>@(isBangla ? "বার্ষিক প্রতিবেদন" : "Annual Reports")</h4>
+                    <p>@(isBangla ? "আমাদের কার্যক্রম সম্পর্কে বার্ষিক বিস্তারিত প্রতিবেদন পাবেন" : "Receive detailed annual reports about our activities")</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h4>@(isBangla ? "বিশেষ ইভেন্টে আমন্ত্রণ" : "Invitations to Special Events")</h4>
+                    <p>@(isBangla ? "আমাদের বিশেষ ইভেন্ট এবং অনুষ্ঠানে অগ্রাধিকার আমন্ত্রণ" : "Priority invitations to our special events and programs")</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h4>@(isBangla ? "বিশেষ স্বীকৃতি" : "Special Recognition")</h4>
+                    <p>@(isBangla ? "আমাদের ওয়েবসাইট এবং প্রকাশনায় আপনার নাম অন্তর্ভুক্ত করা হবে" : "Your name will be featured on our website and publications")</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h4>@(isBangla ? "চিরস্থায়ী প্রভাব" : "Lasting Impact")</h4>
+                    <p>@(isBangla ? "আপনার দান প্রজন্মের পর প্রজন্ম মানুষকে সাহায্য করবে" : "Your donation will help people for generations to come")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Membership Tiers -->
+<section class="membership-tiers">
+    <div class="container">
+        <div class="section-title">
+            <h2>@(isBangla ? "সদস্যপদের ধরন" : "Membership Tiers")</h2>
+            <p>@(isBangla ? "আপনার সামর্থ্য অনুযায়ী একটি সদস্যপদ বেছে নিন" : "Choose a membership tier that suits your capacity")</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="tier-card">
+                    <div class="tier-name">@(isBangla ? "রৌপ্য সদস্য" : "Silver Member")</div>
+                    <div class="tier-amount">৳ 10,000</div>
+                    <p class="tier-description">@(isBangla ? "বেসিক আজীবন সদস্যপদ সুবিধা" : "Basic lifetime membership benefits")</p>
+                    <ul class="tier-features">
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "আজীবন সদস্যপদ সনদ" : "Lifetime membership certificate")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "বার্ষিক প্রতিবেদন" : "Annual reports")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "নিউজলেটার সাবস্ক্রিপশন" : "Newsletter subscription")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "ট্যাক্স রিসিট" : "Tax receipt")</li>
+                    </ul>
+                    <button class="tier-btn" onclick="window.location.href='/donation?type=lifetime&tier=silver&amount=10000'">
+                        @(isBangla ? "এখনই যোগ দিন" : "Join Now")
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="tier-card featured">
+                    <div class="tier-badge">@(isBangla ? "জনপ্রিয়" : "POPULAR")</div>
+                    <div class="tier-name">@(isBangla ? "স্বর্ণ সদস্য" : "Gold Member")</div>
+                    <div class="tier-amount">৳ 25,000</div>
+                    <p class="tier-description">@(isBangla ? "উন্নত সুবিধা এবং বিশেষ স্বীকৃতি" : "Enhanced benefits and special recognition")</p>
+                    <ul class="tier-features">
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "রৌপ্য সদস্যের সকল সুবিধা" : "All Silver member benefits")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "ওয়েবসাইটে নাম প্রদর্শন" : "Name displayed on website")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "বিশেষ ইভেন্টে আমন্ত্রণ" : "Special event invitations")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "বিশেষ স্মারক উপহার" : "Special commemorative gift")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "অগ্রাধিকার সহায়তা" : "Priority support")</li>
+                    </ul>
+                    <button class="tier-btn" onclick="window.location.href='/donation?type=lifetime&tier=gold&amount=25000'">
+                        @(isBangla ? "এখনই যোগ দিন" : "Join Now")
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="tier-card">
+                    <div class="tier-name">@(isBangla ? "হীরক সদস্য" : "Platinum Member")</div>
+                    <div class="tier-amount">৳ 50,000+</div>
+                    <p class="tier-description">@(isBangla ? "সর্বোচ্চ স্তরের সুবিধা এবং সম্মান" : "Highest level of benefits and honor")</p>
+                    <ul class="tier-features">
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "স্বর্ণ সদস্যের সকল সুবিধা" : "All Gold member benefits")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "বিশেষ প্লেকের মাধ্যমে স্বীকৃতি" : "Recognition with special plaque")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "নির্বাহী পর্যায়ের বৈঠকে আমন্ত্রণ" : "Executive level meeting invitations")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "ব্যক্তিগত প্রভাব প্রতিবেদন" : "Personal impact reports")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "প্রকল্প নামকরণের সুযোগ" : "Project naming opportunity")</li>
+                        <li><i class="fas fa-check-circle"></i> @(isBangla ? "বোর্ড পরামর্শক ভূমিকা" : "Board advisory role")</li>
+                    </ul>
+                    <button class="tier-btn" onclick="window.location.href='/donation?type=lifetime&tier=platinum&amount=50000'">
+                        @(isBangla ? "এখনই যোগ দিন" : "Join Now")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2>@(isBangla ? "আজই আমাদের পরিবারের অংশ হন" : "Join Our Family Today")</h2>
+        <p>@(isBangla ? "আপনার অবদান হাজারো মানুষের জীবনে স্থায়ী পরিবর্তন আনতে সাহায্য করবে" : "Your contribution will help bring lasting change to thousands of lives")</p>
+        <a href="/donation?type=lifetime" class="cta-btn">
+            @(isBangla ? "আজীবন দাতা সদস্য হন" : "Become a Lifetime Member")
+        </a>
+    </div>
+</section>

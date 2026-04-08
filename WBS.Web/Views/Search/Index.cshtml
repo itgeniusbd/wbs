@@ -1,0 +1,149 @@
+@model WBS.Web.Controllers.SearchResultViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    ViewData["Title"] = isBangla ? "????? ?????" : "Search Results";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@ViewData["Title"]</h1>
+                @if (!string.IsNullOrWhiteSpace(Model.Query))
+                {
+                    <p class="lead">
+                        @(isBangla ? "????? ?????:" : "Search results for:") 
+                        <strong>"@Model.Query"</strong>
+                    </p>
+                    <p>@Model.TotalResults @(isBangla ? "?? ????? ?????? ????" : "results found")</p>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-lg-8 mx-auto">
+                <form method="get" asp-action="Index" class="mb-4">
+                    <div class="input-group input-group-lg">
+                        <input type="text" name="q" class="form-control" placeholder="@(isBangla ? "????? ????? ????..." : "Search here...")" value="@Model.Query" required />
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-2"></i>@(isBangla ? "????? ????" : "Search")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (Model.Results.Any())
+        {
+            <div class="row">
+                @foreach (var result in Model.Results)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm hover-lift">
+                            @if (!string.IsNullOrEmpty(result.Image))
+                            {
+                                <img src="@result.Image" class="card-img-top" alt="@result.Title" style="height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                    <i class="fas fa-file-alt fa-4x text-muted"></i>
+                                </div>
+                            }
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">@result.Type</span>
+                                    @if (result.Date.HasValue)
+                                    {
+                                        <small class="text-muted ms-2">
+                                            <i class="far fa-calendar me-1"></i>
+                                            @result.Date.Value.ToString("MMM dd, yyyy")
+                                        </small>
+                                    }
+                                </div>
+                                <h5 class="card-title">@result.Title</h5>
+                                @if (!string.IsNullOrEmpty(result.Description))
+                                {
+                                    <p class="card-text text-muted flex-grow-1">@result.Description</p>
+                                }
+                                <div class="mt-auto">
+                                    <a href="@result.Url" class="btn btn-outline-primary">
+                                        @(isBangla ? "????????? ?????" : "View Details") <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Search pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="?q=@Model.Query&page=@(Model.CurrentPage - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="?q=@Model.Query&page=@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="?q=@Model.Query&page=@(Model.CurrentPage + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.Query))
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-search fa-3x mb-3"></i>
+                        <h4>@(isBangla ? "??? ????? ?????? ??????" : "No results found")</h4>
+                        <p class="mb-0">
+                            @(isBangla 
+                                ? "???? ??? ???? ????????? ????? ?????? ???? ?? ????? ????? ??? ?????" 
+                                : "Try different keywords or check your spelling.")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-warning text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <h4>@(isBangla ? "??????? ??? ???? ????? ????? ?????" : "Please enter a search term")</h4>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

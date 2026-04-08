@@ -1,0 +1,1238 @@
+﻿@model WBS.Web.Models.Donation
+@{
+    ViewData["Title"] = "Add Manual Donation";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-hand-holding-usd me-2"></i>Add Manual Donation
+                </h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Donor Information</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonorName" class="form-label">Donor Name *</label>
+                            <input asp-for="DonorName" class="form-control" required />
+                            <span asp-validation-for="DonorName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">Email *</label>
+                            <input asp-for="Email" type="email" class="form-control" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label">Phone *</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+880" required />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonorType" class="form-label">Donor Type</label>
+                            <div class="input-group">
+                                <select asp-for="DonorType" class="form-select" id="donorTypeSelect">
+                                    <option value="">-- Select Donor Type --</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addDonorTypeModal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Specify donor category for better tracking</small>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsAnonymous" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsAnonymous" class="form-check-label">
+                            Make this donation anonymous
+                        </label>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">Donation Details</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Amount" class="form-label">Amount (Tk) *</label>
+                            <input asp-for="Amount" type="number" step="0.01" class="form-control" required />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Currency" class="form-label">Currency</label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="BDT">BDT (Tk)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonationTypeId" class="form-label">Donation Type *</label>
+                            <div class="input-group">
+                                <select asp-for="DonationTypeId" class="form-select" id="donationTypeSelect" required>
+                                    <option value="">-- Select Type --</option>
+                                    @foreach (var item in (ViewBag.DonationTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addDonationTypeModal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="DonationTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AppealId" class="form-label">Appeal (Optional)</label>
+                            <select asp-for="AppealId" class="form-select">
+                                <option value="">-- General Donation --</option>
+                                @foreach (var item in (ViewBag.Appeals as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SDGId" class="form-label">SDG Goal *</label>
+                            <select asp-for="SDGId" class="form-select" id="sdgSelect" required>
+                                <option value="">-- Select SDG --</option>
+                                @foreach (var item in (ViewBag.SDGs as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SDGId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ProgramId" class="form-label">Program *</label>
+                            <select asp-for="ProgramId" class="form-select" id="programSelect" required disabled>
+                                <option value="">-- First Select SDG --</option>
+                            </select>
+                            <span asp-validation-for="ProgramId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">Payment Information</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PaymentMethod" class="form-label">Payment Method *</label>
+                            <div class="input-group">
+                                <select asp-for="PaymentMethod" class="form-select" id="paymentMethodSelect" required>
+                                    <option value="">-- Select Method --</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TransactionId" class="form-label">Transaction ID</label>
+                            <input asp-for="TransactionId" class="form-control" placeholder="Auto-generated if empty" />
+                            <small class="form-text text-muted">Leave empty to auto-generate</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Status" class="form-label">Status *</label>
+                            <select asp-for="Status" class="form-select" required>
+                                <option value="0">Pending</option>
+                                <option value="1" selected>Completed</option>
+                                <option value="2">Failed</option>
+                                <option value="3">Cancelled</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="AccountId" class="form-label">Account *</label>
+                            <select asp-for="AccountId" class="form-select" required>
+                                <option value="">-- Select Account --</option>
+                                @foreach (var account in (ViewBag.Accounts as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@account.Value">@account.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="AccountId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Donation Date</label>
+                            <input type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input type="checkbox" name="sendNotifications" class="form-check-input" id="sendNotifications" value="true" checked />
+                        <label class="form-check-label" for="sendNotifications">
+                            Send SMS and Email notifications to donor
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Donation
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Donor Type Modal -->
+<div class="modal fade" id="addDonorTypeModal" tabindex="-1" aria-labelledby="addDonorTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addDonorTypeModalLabel">
+                    <i class="fas fa-user-tag me-2"></i>Manage Donor Types
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add New Donor Type Form -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Donor Type
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="addDonorTypeForm">
+                            <input type="hidden" id="editDonorTypeId" />
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newDonorTypeName" class="form-label">Donor Type Name (English) *</label>
+                                    <input type="text" class="form-control" id="newDonorTypeName" placeholder="e.g., Weekly Donor" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="newDonorTypeNameBn" class="form-label">Donor Type Name (বাংলা)</label>
+                                    <input type="text" class="form-control" id="newDonorTypeNameBn" placeholder="যেমন: সাপ্তাহিক দাতা" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="newDonorTypeDescription" class="form-label">Description</label>
+                                    <textarea class="form-control" id="newDonorTypeDescription" rows="2" placeholder="Optional description..."></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm" id="saveDonorTypeBtn">
+                                <i class="fas fa-save me-2"></i><span id="saveBtnText">Add Donor Type</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="cancelEditBtn" style="display: none;">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Donor Types List -->
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Existing Donor Types
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadDonorTypesList()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="donorTypesListLoading" class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 mb-0 text-muted">Loading donor types...</p>
+                        </div>
+                        <div id="donorTypesList" class="list-group" style="display: none; max-height: 300px; overflow-y: auto;"></div>
+                        <div id="donorTypesEmpty" class="alert alert-info mb-0" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>No donor types found. Add your first donor type above.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Donation Type Modal -->
+<div class="modal fade" id="addDonationTypeModal" tabindex="-1" aria-labelledby="addDonationTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addDonationTypeModalLabel">
+                    <i class="fas fa-hand-holding-heart me-2"></i>Manage Donation Types
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add New Donation Type Form -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Donation Type
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="addDonationTypeForm">
+                            <input type="hidden" id="editDonationTypeId" />
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newDonationTypeName" class="form-label">Donation Type Name (English) *</label>
+                                    <input type="text" class="form-control" id="newDonationTypeName" placeholder="e.g., Zakat" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="newDonationTypeNameBn" class="form-label">Donation Type Name (বাংলা)</label>
+                                    <input type="text" class="form-control" id="newDonationTypeNameBn" placeholder="যেমন: যাকাত" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="newDonationTypeDescription" class="form-label">Description (English)</label>
+                                    <textarea class="form-control" id="newDonationTypeDescription" rows="2" placeholder="Optional description..."></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="newDonationTypeDescriptionBn" class="form-label">Description (বাংলা)</label>
+                                    <textarea class="form-control" id="newDonationTypeDescriptionBn" rows="2" placeholder="ঐচ্ছিক বর্ণনা..."></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newDonationTypeDisplayOrder" class="form-label">Display Order</label>
+                                    <input type="number" class="form-control" id="newDonationTypeDisplayOrder" value="0" />
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success btn-sm" id="saveDonationTypeBtn">
+                                <i class="fas fa-save me-2"></i><span id="saveDonationBtnText">Add Donation Type</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="cancelDonationEditBtn" style="display: none;">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Donation Types List -->
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Existing Donation Types
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadDonationTypesList()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="donationTypesListLoading" class="text-center py-3">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 mb-0 text-muted">Loading donation types...</p>
+                        </div>
+                        <div id="donationTypesList" class="list-group" style="display: none; max-height: 300px; overflow-y: auto;"></div>
+                        <div id="donationTypesEmpty" class="alert alert-info mb-0" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>No donation types found. Add your first donation type above.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Method Modal -->
+<div class="modal fade" id="addPaymentMethodModal" tabindex="-1" aria-labelledby="addPaymentMethodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="addPaymentMethodModalLabel">
+                    <i class="fas fa-credit-card me-2"></i>Manage Payment Methods
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add New Payment Method Form -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Payment Method
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="addPaymentMethodForm">
+                            <input type="hidden" id="editPaymentMethodId" />
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newPaymentMethodName" class="form-label">Payment Method Name (English) *</label>
+                                    <input type="text" class="form-control" id="newPaymentMethodName" placeholder="e.g., Rocket" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="newPaymentMethodNameBn" class="form-label">Payment Method Name (বাংলা)</label>
+                                    <input type="text" class="form-control" id="newPaymentMethodNameBn" placeholder="যেমন: রকেট" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="newPaymentMethodDescription" class="form-label">Description</label>
+                                    <textarea class="form-control" id="newPaymentMethodDescription" rows="2" placeholder="Optional description..."></textarea>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="newPaymentMethodIcon" class="form-label">Icon (FontAwesome)</label>
+                                    <input type="text" class="form-control" id="newPaymentMethodIcon" placeholder="fas fa-wallet" />
+                                    <small class="text-muted">e.g., fas fa-wallet</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="newPaymentMethodDisplayOrder" class="form-label">Display Order</label>
+                                    <input type="number" class="form-control" id="newPaymentMethodDisplayOrder" value="0" />
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-info btn-sm text-white" id="savePaymentMethodBtn">
+                                <i class="fas fa-save me-2"></i><span id="savePaymentBtnText">Add Payment Method</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="cancelPaymentEditBtn" style="display: none;">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Payment Methods List -->
+                <div class="card">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Existing Payment Methods
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadPaymentMethodsList()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="paymentMethodsListLoading" class="text-center py-3">
+                            <div class="spinner-border text-info" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 mb-0 text-muted">Loading payment methods...</p>
+                        </div>
+                        <div id="paymentMethodsList" class="list-group" style="display: none; max-height: 300px; overflow-y: auto;"></div>
+                        <div id="paymentMethodsEmpty" class="alert alert-info mb-0" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>No payment methods found. Add your first payment method above.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        let allDonorTypes = [];
+        let allDonationTypes = [];
+        let allPaymentMethods = [];
+
+        // Load Payment Methods from database
+        async function loadPaymentMethods() {
+            try {
+                console.log('Loading payment methods from API...');
+                const response = await fetch('/api/paymentmethods');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                allPaymentMethods = await response.json();
+                console.log('Loaded payment methods:', allPaymentMethods);
+                
+                const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+                const currentValue = paymentMethodSelect.value;
+                paymentMethodSelect.innerHTML = '<option value="">-- Select Method --</option>';
+                
+                allPaymentMethods.forEach(pm => {
+                    const option = document.createElement('option');
+                    option.value = pm.name;
+                    const displayText = pm.nameBn ? `${pm.name} / ${pm.nameBn}` : pm.name;
+                    option.textContent = pm.icon ? `${pm.icon} ${displayText}` : displayText;
+                    paymentMethodSelect.appendChild(option);
+                });
+                
+                // Restore previous selection if exists
+                if (currentValue) {
+                    paymentMethodSelect.value = currentValue;
+                }
+                
+                console.log('Payment methods dropdown populated successfully');
+            } catch (error) {
+                console.error('Error loading payment methods:', error);
+                const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+                paymentMethodSelect.innerHTML = '<option value="">Error loading payment methods</option>';
+            }
+        }
+
+        // Load Payment Methods List in Modal
+        async function loadPaymentMethodsList() {
+            const listContainer = document.getElementById('paymentMethodsList');
+            const loadingDiv = document.getElementById('paymentMethodsListLoading');
+            const emptyDiv = document.getElementById('paymentMethodsEmpty');
+
+            loadingDiv.style.display = 'block';
+            listContainer.style.display = 'none';
+            emptyDiv.style.display = 'none';
+            listContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/paymentmethods');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const paymentMethods = await response.json();
+                console.log('Received payment methods:', paymentMethods);
+                
+                loadingDiv.style.display = 'none';
+
+                if (paymentMethods && Array.isArray(paymentMethods) && paymentMethods.length > 0) {
+                    listContainer.style.display = 'block';
+                    
+                    paymentMethods.forEach(pm => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'list-group-item d-flex justify-content-between align-items-start';
+                        listItem.innerHTML = `
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">
+                                    ${pm.icon ? `<i class="${pm.icon} me-2"></i>` : ''}
+                                    ${escapeHtml(pm.name)}
+                                </div>
+                                ${pm.nameBn ? `<small class="text-muted">${escapeHtml(pm.nameBn)}</small>` : ''}
+                                ${pm.description ? `<div><small>${escapeHtml(pm.description)}</small></div>` : ''}
+                                ${pm.displayOrder ? `<span class="badge bg-secondary">Order: ${pm.displayOrder}</span>` : ''}
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="editPaymentMethod(${pm.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        `;
+                        listContainer.appendChild(listItem);
+                    });
+                } else {
+                    emptyDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading payment methods list:', error);
+                loadingDiv.style.display = 'none';
+                listContainer.innerHTML = `<div class="alert alert-danger mb-0">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Error loading payment methods:</strong> 
+                    <br><small>${error.message}</small>
+                </div>`;
+                listContainer.style.display = 'block';
+            }
+        }
+
+        // Edit Payment Method
+        async function editPaymentMethod(id) {
+            try {
+                const response = await fetch(`/api/paymentmethods/${id}`);
+                const paymentMethod = await response.json();
+                
+                document.getElementById('editPaymentMethodId').value = paymentMethod.id;
+                document.getElementById('newPaymentMethodName').value = paymentMethod.name;
+                document.getElementById('newPaymentMethodNameBn').value = paymentMethod.nameBn || '';
+                document.getElementById('newPaymentMethodDescription').value = paymentMethod.description || '';
+                document.getElementById('newPaymentMethodIcon').value = paymentMethod.icon || '';
+                document.getElementById('newPaymentMethodDisplayOrder').value = paymentMethod.displayOrder || 0;
+                
+                document.getElementById('savePaymentBtnText').textContent = 'Update Payment Method';
+                document.getElementById('cancelPaymentEditBtn').style.display = 'inline-block';
+                
+                document.querySelector('#addPaymentMethodForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                console.error('Error loading payment method:', error);
+                alert('Error loading payment method details');
+            }
+        }
+
+        // Cancel Payment Method Edit
+        document.getElementById('cancelPaymentEditBtn').addEventListener('click', function() {
+            document.getElementById('addPaymentMethodForm').reset();
+            document.getElementById('editPaymentMethodId').value = '';
+            document.getElementById('savePaymentBtnText').textContent = 'Add Payment Method';
+            this.style.display = 'none';
+        });
+
+        // Add/Update payment method
+        document.getElementById('savePaymentMethodBtn').addEventListener('click', async function() {
+            const paymentMethodName = document.getElementById('newPaymentMethodName').value.trim();
+            const paymentMethodNameBn = document.getElementById('newPaymentMethodNameBn').value.trim();
+            const paymentMethodDescription = document.getElementById('newPaymentMethodDescription').value.trim();
+            const paymentMethodIcon = document.getElementById('newPaymentMethodIcon').value.trim();
+            const displayOrder = parseInt(document.getElementById('newPaymentMethodDisplayOrder').value) || 0;
+            const editId = document.getElementById('editPaymentMethodId').value;
+
+            if (!paymentMethodName) {
+                return alert('Payment Method Name (English) is required');
+            }
+
+            const paymentMethodData = {
+                name: paymentMethodName,
+                nameBn: paymentMethodNameBn,
+                description: paymentMethodDescription,
+                icon: paymentMethodIcon,
+                displayOrder: displayOrder,
+                isActive: true
+            };
+
+            try {
+                let response;
+                
+                if (editId) {
+                    paymentMethodData.id = parseInt(editId);
+                    response = await fetch(`/api/paymentmethods/${editId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(paymentMethodData)
+                    });
+                } else {
+                    response = await fetch('/api/paymentmethods', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(paymentMethodData)
+                    });
+                }
+
+                if (response.ok) {
+                    await loadPaymentMethods();
+                    await loadPaymentMethodsList();
+
+                    if (!editId) {
+                        const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+                        paymentMethodSelect.value = paymentMethodName;
+                    }
+
+                    document.getElementById('addPaymentMethodForm').reset();
+                    document.getElementById('editPaymentMethodId').value = '';
+                    document.getElementById('savePaymentBtnText').textContent = 'Add Payment Method';
+                    document.getElementById('cancelPaymentEditBtn').style.display = 'none';
+
+                    alert(editId ? 'Payment method updated successfully!' : 'Payment method added successfully!');
+                } else {
+                    const error = await response.text();
+                    console.error('Error saving payment method:', error);
+                    alert('Failed to save payment method. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('An error occurred while saving payment method');
+            }
+        });
+
+        // Load Donor Types from database
+        async function loadDonorTypes() {
+            try {
+                console.log('Loading donor types from API...');
+                const response = await fetch('/api/donortypes');
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                allDonorTypes = await response.json();
+                console.log('Loaded donor types:', allDonorTypes);
+                
+                const donorTypeSelect = document.getElementById('donorTypeSelect');
+                donorTypeSelect.innerHTML = '<option value="">-- Select Donor Type --</option>';
+                
+                allDonorTypes.forEach(dt => {
+                    const option = document.createElement('option');
+                    option.value = dt.name;
+                    option.textContent = `${dt.name} / ${dt.nameBn || dt.name}`;
+                    donorTypeSelect.appendChild(option);
+                });
+                
+                console.log('Donor types dropdown populated successfully');
+            } catch (error) {
+                console.error('Error loading donor types:', error);
+                // Show error in dropdown
+                const donorTypeSelect = document.getElementById('donorTypeSelect');
+                donorTypeSelect.innerHTML = '<option value="">Error loading donor types</option>';
+            }
+        }
+
+        // Load Donation Types from database
+        async function loadDonationTypes() {
+            try {
+                console.log('Loading donation types from API...');
+                const response = await fetch('/api/donationtypes');
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                allDonationTypes = await response.json();
+                console.log('Loaded donation types:', allDonationTypes);
+                
+                const donationTypeSelect = document.getElementById('donationTypeSelect');
+                const currentValue = donationTypeSelect.value;
+                donationTypeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+                
+                allDonationTypes.forEach(dt => {
+                    const option = document.createElement('option');
+                    option.value = dt.id;
+                    option.textContent = dt.nameBn ? `${dt.name} / ${dt.nameBn}` : dt.name;
+                    donationTypeSelect.appendChild(option);
+                });
+                
+                // Restore previous selection if exists
+                if (currentValue) {
+                    donationTypeSelect.value = currentValue;
+                }
+                
+                console.log('Donation types dropdown populated successfully');
+            } catch (error) {
+                console.error('Error loading donation types:', error);
+                const donationTypeSelect = document.getElementById('donationTypeSelect');
+                donationTypeSelect.innerHTML = '<option value="">Error loading donation types</option>';
+            }
+        }
+
+        // Load Donor Types List in Modal
+        async function loadDonorTypesList() {
+            const listContainer = document.getElementById('donorTypesList');
+            const loadingDiv = document.getElementById('donorTypesListLoading');
+            const emptyDiv = document.getElementById('donorTypesEmpty');
+
+            loadingDiv.style.display = 'block';
+            listContainer.style.display = 'none';
+            emptyDiv.style.display = 'none';
+            listContainer.innerHTML = ''; // Clear previous content
+
+            try {
+                console.log('Fetching donor types from: /api/donortypes');
+                const response = await fetch('/api/donortypes');
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const textResponse = await response.text();
+                    console.error('Non-JSON response:', textResponse);
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+                const donorTypes = await response.json();
+                console.log('Received donor types:', donorTypes);
+                
+                loadingDiv.style.display = 'none';
+
+                if (donorTypes && Array.isArray(donorTypes) && donorTypes.length > 0) {
+                    listContainer.style.display = 'block';
+                    
+                    donorTypes.forEach(dt => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'list-group-item d-flex justify-content-between align-items-start';
+                        listItem.innerHTML = `
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">${escapeHtml(dt.name)}</div>
+                                ${dt.nameBn ? `<small class="text-muted">${escapeHtml(dt.nameBn)}</small>` : ''}
+                                ${dt.description ? `<div><small>${escapeHtml(dt.description)}</small></div>` : ''}
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="editDonorType(${dt.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteDonorType(${dt.id}, '${escapeHtml(dt.name).replace(/'/g, "\\'")}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        listContainer.appendChild(listItem);
+                    });
+                } else {
+                    console.log('No donor types found or empty array');
+                    emptyDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading donor types list:', error);
+                loadingDiv.style.display = 'none';
+                listContainer.innerHTML = `<div class="alert alert-danger mb-0">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Error loading donor types:</strong> 
+                    <br><small>${error.message}</small>
+                    <br><small class="mt-2 d-block">Please check:</small>
+                    <ul class="mb-0 mt-1" style="font-size: 0.85em;">
+                        <li>API endpoint is accessible at: <code>/api/donortypes</code></li>
+                        <li>Database connection is working</li>
+                        <li>DonorTypeCategories table exists and has data</li>
+                    </ul>
+                </div>`;
+                listContainer.style.display = 'block';
+            }
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        // Edit Donor Type
+        async function editDonorType(id) {
+            try {
+                const response = await fetch(`/api/donortypes/${id}`);
+                const donorType = await response.json();
+                
+                document.getElementById('editDonorTypeId').value = donorType.id;
+                document.getElementById('newDonorTypeName').value = donorType.name;
+                document.getElementById('newDonorTypeNameBn').value = donorType.nameBn || '';
+                document.getElementById('newDonorTypeDescription').value = donorType.description || '';
+                
+                document.getElementById('saveBtnText').textContent = 'Update Donor Type';
+                document.getElementById('cancelEditBtn').style.display = 'inline-block';
+                
+                // Scroll to form
+                document.querySelector('#addDonorTypeForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                console.error('Error loading donor type:', error);
+                alert('Error loading donor type details');
+            }
+        }
+
+        // Delete Donor Type
+        async function deleteDonorType(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/donortypes/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await loadDonorTypes();
+                    await loadDonorTypesList();
+                    alert('Donor type deleted successfully!');
+                } else {
+                    alert('Failed to delete donor type');
+                }
+            } catch (error) {
+                console.error('Error deleting donor type:', error);
+                alert('An error occurred while deleting donor type');
+            }
+        }
+
+        // Cancel Edit
+        document.getElementById('cancelEditBtn').addEventListener('click', function() {
+            document.getElementById('addDonorTypeForm').reset();
+            document.getElementById('editDonorTypeId').value = '';
+            document.getElementById('saveBtnText').textContent = 'Add Donor Type';
+            this.style.display = 'none';
+        });
+
+        // Load Programs based on selected SDG
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load donor types, donation types and payment methods on page load
+            loadDonorTypes();
+            loadDonationTypes();
+            loadPaymentMethods();
+
+            const sdgSelect = document.getElementById('sdgSelect');
+            const programSelect = document.getElementById('programSelect');
+
+            if (sdgSelect && programSelect) {
+                sdgSelect.addEventListener('change', async function() {
+                    const sdgId = this.value;
+                    
+                    if (!sdgId) {
+                        programSelect.disabled = true;
+                        programSelect.innerHTML = '<option value="">-- First Select SDG --</option>';
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/api/programs/by-sdg/${sdgId}`);
+                        const programs = await response.json();
+
+                        if (programs && programs.length > 0) {
+                            programSelect.disabled = false;
+                            programSelect.innerHTML = '<option value="">-- Select Programme --</option>';
+                            
+                            programs.forEach(program => {
+                                const option = document.createElement('option');
+                                option.value = program.id;
+                                option.textContent = program.title;
+                                programSelect.appendChild(option);
+                            });
+                        } else {
+                            programSelect.disabled = true;
+                            programSelect.innerHTML = '<option value="">-- No Programmes Found --</option>';
+                        }
+                    } catch (error) {
+                        console.error('Error loading programs:', error);
+                        programSelect.disabled = true;
+                        programSelect.innerHTML = '<option value="">-- Error Loading Programmes --</option>';
+                    }
+                });
+            }
+
+            // Load donor types list when modal is opened
+            const addDonorTypeModal = document.getElementById('addDonorTypeModal');
+            addDonorTypeModal.addEventListener('show.bs.modal', function() {
+                loadDonorTypesList();
+            });
+
+            // Load donation types list when modal is opened
+            const addDonationTypeModal = document.getElementById('addDonationTypeModal');
+            addDonationTypeModal.addEventListener('show.bs.modal', function() {
+                loadDonationTypesList();
+            });
+
+            // Load payment methods list when modal is opened
+            const addPaymentMethodModal = document.getElementById('addPaymentMethodModal');
+            addPaymentMethodModal.addEventListener('show.bs.modal', function() {
+                loadPaymentMethodsList();
+            });
+        });
+
+        // Add/Update donor type
+        document.getElementById('saveDonorTypeBtn').addEventListener('click', async function() {
+            const donorTypeName = document.getElementById('newDonorTypeName').value.trim();
+            const donorTypeNameBn = document.getElementById('newDonorTypeNameBn').value.trim();
+            const donorTypeDescription = document.getElementById('newDonorTypeDescription').value.trim();
+            const editId = document.getElementById('editDonorTypeId').value;
+
+            if (!donorTypeName) {
+                return alert('Donor Type Name (English) is required');
+            }
+
+            const donorTypeData = {
+                name: donorTypeName,
+                nameBn: donorTypeNameBn,
+                description: donorTypeDescription,
+                isActive: true,
+                isVisible: true
+            };
+
+            try {
+                let response;
+                
+                if (editId) {
+                    // Update existing donor type
+                    donorTypeData.id = parseInt(editId);
+                    response = await fetch(`/api/donortypes/${editId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donorTypeData)
+                    });
+                } else {
+                    // Add new donor type
+                    response = await fetch('/api/donortypes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donorTypeData)
+                    });
+                }
+
+                if (response.ok) {
+                    // Reload donor types
+                    await loadDonorTypes();
+                    await loadDonorTypesList();
+
+                    if (!editId) {
+                        // Select the newly added donor type
+                        const donorTypeSelect = document.getElementById('donorTypeSelect');
+                        donorTypeSelect.value = donorTypeName;
+                    }
+
+                    // Reset form
+                    document.getElementById('addDonorTypeForm').reset();
+                    document.getElementById('editDonorTypeId').value = '';
+                    document.getElementById('saveBtnText').textContent = 'Add Donor Type';
+                    document.getElementById('cancelEditBtn').style.display = 'none';
+
+                    // Show success message
+                    alert(editId ? 'Donor type updated successfully!' : 'Donor type added successfully!');
+                } else {
+                    const error = await response.text();
+                    console.error('Error saving donor type:', error);
+                    alert('Failed to save donor type. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('An error occurred while saving donor type');
+            }
+        });
+
+        // Donation Types
+
+        // Load Donation Types from database
+        async function loadDonationTypes() {
+            try {
+                console.log('Loading donation types from API...');
+                const response = await fetch('/api/donationtypes');
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                allDonationTypes = await response.json();
+                console.log('Loaded donation types:', allDonationTypes);
+                
+                const donationTypeSelect = document.getElementById('donationTypeSelect');
+                const currentValue = donationTypeSelect.value;
+                donationTypeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+                
+                allDonationTypes.forEach(dt => {
+                    const option = document.createElement('option');
+                    option.value = dt.id;
+                    option.textContent = dt.nameBn ? `${dt.name} / ${dt.nameBn}` : dt.name;
+                    donationTypeSelect.appendChild(option);
+                });
+                
+                // Restore previous selection if exists
+                if (currentValue) {
+                    donationTypeSelect.value = currentValue;
+                }
+                
+                console.log('Donation types dropdown populated successfully');
+            } catch (error) {
+                console.error('Error loading donation types:', error);
+                const donationTypeSelect = document.getElementById('donationTypeSelect');
+                donationTypeSelect.innerHTML = '<option value="">Error loading donation types</option>';
+            }
+        }
+
+        // Load Donation Types List in Modal
+        async function loadDonationTypesList() {
+            const listContainer = document.getElementById('donationTypesList');
+            const loadingDiv = document.getElementById('donationTypesListLoading');
+            const emptyDiv = document.getElementById('donationTypesEmpty');
+
+            loadingDiv.style.display = 'block';
+            listContainer.style.display = 'none';
+            emptyDiv.style.display = 'none';
+            listContainer.innerHTML = '';
+
+            try {
+                console.log('Fetching donation types from: /api/donationtypes');
+                const response = await fetch('/api/donationtypes');
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const textResponse = await response.text();
+                    console.error('Non-JSON response:', textResponse);
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+                const donationTypes = await response.json();
+                console.log('Received donation types:', donationTypes);
+                
+                loadingDiv.style.display = 'none';
+
+                if (donationTypes && Array.isArray(donationTypes) && donationTypes.length > 0) {
+                    listContainer.style.display = 'block';
+                    
+                    donationTypes.forEach(dt => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'list-group-item d-flex justify-content-between align-items-start';
+                        listItem.innerHTML = `
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">${escapeHtml(dt.name)}</div>
+                                ${dt.nameBn ? `<small class="text-muted">${escapeHtml(dt.nameBn)}</small>` : ''}
+                                ${dt.description ? `<div><small>${escapeHtml(dt.description)}</small></div>` : ''}
+                                ${dt.displayOrder ? `<span class="badge bg-secondary">Order: ${dt.displayOrder}</span>` : ''}
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="editDonationType(${dt.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        `;
+                        listContainer.appendChild(listItem);
+                    });
+                } else {
+                    console.log('No donation types found or empty array');
+                    emptyDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading donation types list:', error);
+                loadingDiv.style.display = 'none';
+                listContainer.innerHTML = `<div class="alert alert-danger mb-0">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Error loading donation types:</strong> 
+                    <br><small>${error.message}</small>
+                </div>`;
+                listContainer.style.display = 'block';
+            }
+        }
+
+        // Edit Donation Type
+        async function editDonationType(id) {
+            try {
+                const response = await fetch(`/api/donationtypes/${id}`);
+                const donationType = await response.json();
+                
+                document.getElementById('editDonationTypeId').value = donationType.id;
+                document.getElementById('newDonationTypeName').value = donationType.name;
+                document.getElementById('newDonationTypeNameBn').value = donationType.nameBn || '';
+                document.getElementById('newDonationTypeDescription').value = donationType.description || '';
+                document.getElementById('newDonationTypeDescriptionBn').value = donationType.descriptionBn || '';
+                document.getElementById('newDonationTypeDisplayOrder').value = donationType.displayOrder || 0;
+                
+                document.getElementById('saveDonationBtnText').textContent = 'Update Donation Type';
+                document.getElementById('cancelDonationEditBtn').style.display = 'inline-block';
+                
+                document.querySelector('#addDonationTypeForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                console.error('Error loading donation type:', error);
+                alert('Error loading donation type details');
+            }
+        }
+
+        // Cancel Donation Type Edit
+        document.getElementById('cancelDonationEditBtn').addEventListener('click', function() {
+            document.getElementById('addDonationTypeForm').reset();
+            document.getElementById('editDonationTypeId').value = '';
+            document.getElementById('saveDonationBtnText').textContent = 'Add Donation Type';
+            this.style.display = 'none';
+        });
+
+        // Add/Update donation type
+        document.getElementById('saveDonationTypeBtn').addEventListener('click', async function() {
+            const donationTypeName = document.getElementById('newDonationTypeName').value.trim();
+            const donationTypeNameBn = document.getElementById('newDonationTypeNameBn').value.trim();
+            const donationTypeDescription = document.getElementById('newDonationTypeDescription').value.trim();
+            const donationTypeDescriptionBn = document.getElementById('newDonationTypeDescriptionBn').value.trim();
+            const displayOrder = parseInt(document.getElementById('newDonationTypeDisplayOrder').value) || 0;
+            const editId = document.getElementById('editDonationTypeId').value;
+
+            if (!donationTypeName) {
+                return alert('Donation Type Name (English) is required');
+            }
+
+            const donationTypeData = {
+                name: donationTypeName,
+                nameBn: donationTypeNameBn,
+                description: donationTypeDescription,
+                descriptionBn: donationTypeDescriptionBn,
+                displayOrder: displayOrder,
+                isActive: true
+            };
+
+            try {
+                let response;
+                
+                if (editId) {
+                    donationTypeData.id = parseInt(editId);
+                    response = await fetch(`/api/donationtypes/${editId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donationTypeData)
+                    });
+                } else {
+                    response = await fetch('/api/donationtypes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donationTypeData)
+                    });
+                }
+
+                if (response.ok) {
+                    await loadDonationTypes();
+                    await loadDonationTypesList();
+
+                    if (!editId) {
+                        const data = await response.json();
+                        const donationTypeSelect = document.getElementById('donationTypeSelect');
+                        donationTypeSelect.value = data.id;
+                    }
+
+                    document.getElementById('addDonationTypeForm').reset();
+                    document.getElementById('editDonationTypeId').value = '';
+                    document.getElementById('saveDonationBtnText').textContent = 'Add Donation Type';
+                    document.getElementById('cancelDonationEditBtn').style.display = 'none';
+
+                    alert(editId ? 'Donation type updated successfully!' : 'Donation type added successfully!');
+                } else {
+                    const error = await response.text();
+                    console.error('Error saving donation type:', error);
+                    alert('Failed to save donation type. Please try again.');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('An error occurred while saving donation type');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,205 @@
+@model WBS.Web.Models.Slider
+
+@{
+    ViewData["Title"] = "Create Slider";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-plus-circle me-2"></i>Create New Slider</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" id="sliderForm">
+            <div asp-validation-summary="All" class="alert alert-danger" style="display: none;"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" id="Title" placeholder="e.g., WATER APPEAL" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <div class="invalid-feedback">Please enter a title in English.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TitleBn" class="form-label bangla-text">&#2486;&#2495;&#2480;&#2507;&#2472;&#2494;&#2478; (&#2476;&#2494;&#2434;&#2482;&#2494;)</label>
+                    <input asp-for="TitleBn" class="form-control bangla-text" placeholder="&#2479;&#2503;&#2478;&#2472;: &#2474;&#2494;&#2472;&#2495; &#2438;&#2476;&#2503;&#2470;&#2472;" style="font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', sans-serif;" />
+                    <span asp-validation-for="TitleBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Subtitle" class="form-label">Subtitle (English)</label>
+                    <input asp-for="Subtitle" class="form-control" placeholder="e.g., THE GIFT OF WATER IS THE GIFT OF LIFE" />
+                    <span asp-validation-for="Subtitle" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="SubtitleBn" class="form-label bangla-text">&#2441;&#2474;&#2486;&#2495;&#2480;&#2507;&#2472;&#2494;&#2478; (&#2476;&#2494;&#2434;&#2482;&#2494;)</label>
+                    <input asp-for="SubtitleBn" class="form-control bangla-text" placeholder="&#2479;&#2503;&#2478;&#2472;: &#2474;&#2494;&#2472;&#2495;&#2480; &#2441;&#2474;&#2489;&#2494;&#2480; &#2460;&#2496;&#2476;&#2472;&#2503;&#2480; &#2441;&#2474;&#2489;&#2494;&#2480;" style="font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', sans-serif;" />
+                    <span asp-validation-for="SubtitleBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Slider Image <span class="text-danger">*</span></label>
+                <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*" required />
+                <div class="invalid-feedback">Please select an image file.</div>
+                <small class="form-text text-muted">Recommended size: 1920x1080px. Supported formats: JPG, PNG</small>
+                <div id="imagePreview" class="mt-3" style="display: none;">
+                    <p class="text-success"><i class="fas fa-check-circle me-1"></i> <span id="fileName"></span></p>
+                    <img id="preview" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;" />
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h5 class="mb-3">Button Settings</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ButtonText" class="form-label">First Button Text</label>
+                    <input asp-for="ButtonText" class="form-control" placeholder="e.g., Donate now" />
+                    <span asp-validation-for="ButtonText" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ButtonTextBn" class="form-label bangla-text">&#2474;&#2509;&#2480;&#2469;&#2478; &#2476;&#2494;&#2463;&#2472; &#2463;&#2503;&#2453;&#2509;&#2488;&#2463; (&#2476;&#2494;&#2434;&#2482;&#2494;)</label>
+                    <input asp-for="ButtonTextBn" class="form-control bangla-text" placeholder="&#2479;&#2503;&#2478;&#2472;: &#2447;&#2454;&#2472;&#2439; &#2470;&#2494;&#2472; &#2453;&#2480;&#2497;&#2472;" style="font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', sans-serif;" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ButtonUrl" class="form-label">First Button URL</label>
+                <input asp-for="ButtonUrl" class="form-control" placeholder="e.g., /donation" />
+                <small class="form-text text-muted">Leave empty to hide the button</small>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="SecondButtonText" class="form-label">Second Button Text</label>
+                    <input asp-for="SecondButtonText" class="form-control" placeholder="e.g., Learn More" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="SecondButtonUrl" class="form-label">Second Button URL</label>
+                    <input asp-for="SecondButtonUrl" class="form-control" placeholder="e.g., /about" />
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h5 class="mb-3">Display Settings</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                    <input asp-for="DisplayOrder" type="number" class="form-control" value="1" min="1" />
+                    <small class="form-text text-muted">Lower numbers appear first</small>
+                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch mt-4">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                    <i class="fas fa-save me-2"></i>Create Slider
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Creating Slider...</h5>
+                <p class="text-muted">Please wait while we upload your image and save the slider.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const form = document.getElementById('sliderForm');
+        const imageFile = document.getElementById('imageFile');
+        const preview = document.getElementById('preview');
+        const previewDiv = document.getElementById('imagePreview');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+
+        imageFile.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                if (!file.type.match('image.*')) {
+                    alert('Please select a valid image file');
+                    e.target.value = '';
+                    previewDiv.style.display = 'none';
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image file size must be less than 5MB');
+                    e.target.value = '';
+                    previewDiv.style.display = 'none';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)';
+                    previewDiv.style.display = 'block';
+                    imageFile.classList.remove('is-invalid');
+                    imageFile.classList.add('is-valid');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const titleInput = document.getElementById('Title');
+            if (!titleInput.value.trim()) {
+                titleInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                titleInput.classList.remove('is-invalid');
+                titleInput.classList.add('is-valid');
+            }
+            if (!imageFile.files || imageFile.files.length === 0) {
+                imageFile.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                imageFile.classList.remove('is-invalid');
+                imageFile.classList.add('is-valid');
+            }
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields');
+                return false;
+            }
+            loadingModal.show();
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+        });
+    </script>
+}

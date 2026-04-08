@@ -1,0 +1,145 @@
+﻿@model Appeal
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    var title = isBangla && !string.IsNullOrEmpty(Model.TitleBn) ? Model.TitleBn : Model.Title;
+    var fullUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+}
+
+@if (!string.IsNullOrEmpty(Model.BannerImage))
+{
+    <section class="page-banner" style="background-image: url('@Model.BannerImage');">
+        <div class="banner-overlay"></div>
+        <div class="container">
+            <h1 class="text-white fw-bold">@title</h1>
+        </div>
+    </section>
+}
+else
+{
+    <section class="page-header bg-primary text-white py-5">
+        <div class="container">
+            @if (Model.IsUrgent)
+            {
+                <span class="badge bg-danger mb-2">
+                    @(isBangla ? "জরুরি আবেদন" : "URGENT APPEAL")
+                </span>
+            }
+            <h1 class="fw-bold">@title</h1>
+        </div>
+    </section>
+}
+
+<section class="appeal-details py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                {
+                    <img src="@Model.FeaturedImage" alt="@title" class="img-fluid rounded mb-4" />
+                }
+                
+                <div class="content">
+                    @if (isBangla && !string.IsNullOrEmpty(Model.ContentBn))
+                    {
+                        @Html.Raw(Model.ContentBn)
+                    }
+                    else
+                    {
+                        @Html.Raw(Model.Content)
+                    }
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow sticky-top" style="top: 100px;">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            @(isBangla ? "এই আবেদনে দান করুন" : "Donate to this Appeal")
+                        </h5>
+                        
+                        @if (Model.TargetAmount.HasValue)
+                        {
+                            var percentage = Model.TargetAmount > 0 ? (int)Math.Min(100, (Model.RaisedAmount / Model.TargetAmount.Value) * 100) : 0;
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold">৳@Model.RaisedAmount.ToString("N0")</span>
+                                    <span class="text-muted">
+                                        @(isBangla ? "লক্ষ্য" : "of") ৳@Model.TargetAmount?.ToString("N0")
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 12px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @percentage%">
+                                        @percentage%
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 amount-btn" data-amount="500">৳500</button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 amount-btn" data-amount="1000">৳1000</button>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-outline-primary w-100 amount-btn" data-amount="5000">৳5000</button>
+                            </div>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">৳</span>
+                            <input type="number" class="form-control" id="customAmount" placeholder="@(isBangla ? "নিজের পরিমাণ" : "Custom amount")" />
+                        </div>
+
+                        <a href="/donation?appealId=@Model.Id" class="btn btn-danger btn-lg w-100" id="donateBtn">
+                            <i class="fas fa-heart me-2"></i>
+                            @(isBangla ? "এখনই দান করুন" : "Donate Now")
+                        </a>
+
+                        <hr />
+
+                        <div class="text-center">
+                            <p class="mb-2">
+                                @(isBangla ? "এই আবেদন শেয়ার করুন:" : "Share this appeal:")
+                            </p>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(fullUrl)" target="_blank" class="btn btn-outline-primary btn-sm me-1">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(fullUrl)&text=@Uri.EscapeDataString(title)" target="_blank" class="btn btn-outline-info btn-sm me-1">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://wa.me/?text=@Uri.EscapeDataString($"{title} {fullUrl}")" target="_blank" class="btn btn-outline-success btn-sm">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active', 'btn-primary'));
+                this.classList.add('active', 'btn-primary');
+                document.getElementById('customAmount').value = this.dataset.amount;
+                updateDonateLink();
+            });
+        });
+
+        document.getElementById('customAmount').addEventListener('input', updateDonateLink);
+
+        function updateDonateLink() {
+            const amount = document.getElementById('customAmount').value;
+            const btn = document.getElementById('donateBtn');
+            const baseUrl = '/donation?appealId=@Model.Id';
+            btn.href = amount ? `${baseUrl}&amount=${amount}` : baseUrl;
+        }
+    </script>
+}

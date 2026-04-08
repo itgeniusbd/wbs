@@ -1,17 +1,19 @@
-@model IEnumerable<WBS.Web.Models.News>
-
+﻿@model IEnumerable<WBS.Web.Models.News>
+@using Microsoft.AspNetCore.Localization
 @{
     ViewData["Title"] = "News";
     var currentPage = ViewBag.CurrentPage as int? ?? 1;
     var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
 }
 
 <section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center text-white">
-                <h1 class="display-4 fw-bold mb-3">Latest News</h1>
-                <p class="lead">Stay informed about our recent activities and updates</p>
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "সংবাদ" : "Latest News")</h1>
+                <p class="lead">@(isBangla ? "আমাদের সর্বশেষ কার্যক্রম এবং আপডেট সম্পর্কে জানুন" : "Stay informed about our recent activities and updates")</p>
             </div>
         </div>
     </div>
@@ -19,13 +21,13 @@
 
 <section class="py-5">
     <div class="container">
-        <div class="row">
+        <div class="row g-4">
             @if (Model != null && Model.Any())
             {
                 foreach (var news in Model)
                 {
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm hover-lift">
                             @if (!string.IsNullOrEmpty(news.FeaturedImage))
                             {
                                 <img src="@news.FeaturedImage" class="card-img-top" alt="@news.Title" style="height: 250px; object-fit: cover;" />
@@ -36,22 +38,52 @@
                                     <i class="far fa-newspaper fa-4x text-muted"></i>
                                 </div>
                             }
-                            <div class="card-body">
-                                <h5 class="card-title">@news.Title</h5>
-                                @if (!string.IsNullOrEmpty(news.Summary))
-                                {
-                                    <p class="card-text text-muted">@news.Summary</p>
-                                }
-                                else if (!string.IsNullOrEmpty(news.Content))
-                                {
-                                    <p class="card-text text-muted">@(news.Content.Length > 150 ? news.Content.Substring(0, 150) + "..." : news.Content)</p>
-                                }
+                            <div class="card-body d-flex flex-column">
+                                <div class="mb-2">
+                                    @if (news.IsFeatured)
+                                    {
+                                        <span class="badge bg-danger me-2">@(isBangla ? "বৈশিষ্ট্যযুক্ত" : "Featured")</span>
+                                    }
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar me-1"></i>
+                                        @news.PublishedDate.ToString("MMM dd, yyyy")
+                                    </small>
+                                </div>
+                                <h5 class="card-title">
+                                    @if (isBangla && !string.IsNullOrEmpty(news.TitleBn))
+                                    {
+                                        @news.TitleBn
+                                    }
+                                    else
+                                    {
+                                        @news.Title
+                                    }
+                                </h5>
+                                <p class="card-text text-muted flex-grow-1">
+                                    @{
+                                        var summary = isBangla && !string.IsNullOrEmpty(news.SummaryBn) ? news.SummaryBn : news.Summary;
+                                        if (!string.IsNullOrEmpty(summary))
+                                        {
+                                            @(summary.Length > 150 ? summary.Substring(0, 150) + "..." : summary)
+                                        }
+                                        else if (!string.IsNullOrEmpty(news.Content))
+                                        {
+                                            var content = isBangla && !string.IsNullOrEmpty(news.ContentBn) ? news.ContentBn : news.Content;
+                                            @(content.Length > 150 ? content.Substring(0, 150) + "..." : content)
+                                        }
+                                    }
+                                </p>
+                                <div class="mt-auto">
+                                    <a href="/news/@news.Slug" class="btn btn-outline-primary">
+                                        @(isBangla ? "আরও পড়ুন" : "Read More") <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div class="card-footer bg-transparent">
                                 <small class="text-muted">
-                                    <i class="far fa-calendar me-1"></i>@news.PublishedAt.ToString("MMM dd, yyyy")
+                                    <i class="far fa-eye me-1"></i>
+                                    @news.ViewCount @(isBangla ? "বার" : "views")
                                 </small>
-                                <a href="/news/@news.Slug" class="btn btn-sm btn-outline-primary">Read More</a>
                             </div>
                         </div>
                     </div>
@@ -60,8 +92,10 @@
             else
             {
                 <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>No news available at the moment.
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2 fa-2x mb-3 d-block"></i>
+                        <h5>@(isBangla ? "কোনো সংবাদ পাওয়া যায়নি" : "No news available at the moment")</h5>
+                        <p class="mb-0">@(isBangla ? "শীঘ্রই নতুন সংবাদ যোগ করা হবে।" : "Check back soon for updates!")</p>
                     </div>
                 </div>
             }
@@ -69,7 +103,7 @@
 
         @if (totalPages > 1)
         {
-            <nav aria-label="News pagination" class="mt-4">
+            <nav aria-label="News pagination" class="mt-5">
                 <ul class="pagination justify-content-center">
                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                         <a class="page-link" href="/activities/news?page=@(currentPage - 1)" aria-label="Previous">
@@ -92,3 +126,14 @@
         }
     </div>
 </section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WBS.Web.Models
 {
@@ -13,21 +14,28 @@ namespace WBS.Web.Models
         [StringLength(300)]
         public string? TitleBn { get; set; }
 
-        [Required]
-        [StringLength(300)]
-        public string Slug { get; set; } = string.Empty;
-
         public string? Description { get; set; }
         public string? DescriptionBn { get; set; }
+
+        [StringLength(200)]
+        public string? Author { get; set; }
+
+        [StringLength(200)]
+        public string? AuthorBn { get; set; }
+
+        [StringLength(200)]
+        public string? Publisher { get; set; }
+
+        [StringLength(200)]
+        public string? PublisherBn { get; set; }
+
+        public string? Tags { get; set; }
 
         public string? CoverImage { get; set; }
         public string? FileUrl { get; set; }
 
-        public string? PublicationType { get; set; } // Blog, Research, Magazine, etc.
-
         public bool IsActive { get; set; } = true;
 
-        public DateTime PublishedAt { get; set; } = DateTime.UtcNow;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? PublishedDate { get; set; }
     }
 }

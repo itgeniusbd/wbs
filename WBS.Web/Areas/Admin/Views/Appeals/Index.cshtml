@@ -1,0 +1,175 @@
+@model IEnumerable<WBS.Web.Models.Appeal>
+@{
+    ViewData["Title"] = "Appeals Management";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-hands-helping me-2"></i>Appeals Management
+                </h2>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add New Appeal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Goal</th>
+                                <th>Raised</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appeal in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(appeal.FeaturedImage))
+                                        {
+                                            <img src="@appeal.FeaturedImage" alt="@appeal.Title" 
+                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                                 style="width: 60px; height: 60px; border-radius: 5px;">
+                                                <i class="fas fa-hands-helping text-muted"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@appeal.Title</strong>
+                                        @if (appeal.IsUrgent)
+                                        {
+                                            <br /><span class="badge bg-danger">URGENT</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (appeal.TargetAmount.HasValue)
+                                        {
+                                            <strong>Tk @appeal.TargetAmount?.ToString("N0")</strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No Goal</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">Tk @appeal.RaisedAmount.ToString("N0")</strong>
+                                    </td>
+                                    <td>
+                                        @if (appeal.TargetAmount.HasValue)
+                                        {
+                                            <div class="progress" style="height: 20px; min-width: 120px;">
+                                                <div class="progress-bar bg-success" 
+                                                     role="progressbar" 
+                                                     style="width: @appeal.DonationPercentage%"
+                                                     aria-valuenow="@appeal.DonationPercentage" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    @appeal.DonationPercentage%
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (appeal.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                        @if (appeal.IsFeatured)
+                                        {
+                                            <span class="badge bg-warning">Featured</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@appeal.Id" 
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal_@appeal.Id"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal_@appeal.Id" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete "<strong>@appeal.Title</strong>"?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form asp-action="Delete" asp-route-id="@appeal.Id" method="post" class="d-inline">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-hands-helping fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No appeals found. Click "Add New Appeal" to create one.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

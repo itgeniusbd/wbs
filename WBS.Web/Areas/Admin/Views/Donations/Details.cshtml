@@ -1,0 +1,187 @@
+@model WBS.Web.Models.Donation
+@{
+    ViewData["Title"] = "Donation Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-receipt me-2"></i>Donation #@Model.Id</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <a asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-secondary" target="_blank">
+            <i class="fas fa-file-invoice me-2"></i>Invoice
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Donor Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Donor Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong><br />@Model.DonorName 
+                            @if (Model.IsAnonymous)
+                            {
+                                <span class="badge bg-secondary">Anonymous</span>
+                            }
+                        </p>
+                        <p><strong>Email:</strong><br />@Model.Email</p>
+                        <p><strong>Phone:</strong><br />@Model.Phone</p>
+                        @if (!string.IsNullOrEmpty(Model.DonorType))
+                        {
+                            <p><strong>Donor Type:</strong><br />
+                                <span class="badge bg-primary">@Model.DonorType</span>
+                            </p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Address:</strong><br />@(Model.Address ?? "N/A")</p>
+                        <p><strong>Registered:</strong><br />@Model.CreatedAt.ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donation Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-donate me-2"></i>Donation Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Amount:</strong><br />
+                            <span class="h4 text-success">Tk @Model.Amount.ToString("N2")</span>
+                        </p>
+                        <p><strong>Currency:</strong> @Model.Currency</p>
+                        <p><strong>Type:</strong><br />
+                            <span class="badge bg-info">@(Model.DonationType?.Name ?? "N/A")</span>
+                        </p>
+                        @if (Model.Appeal != null)
+                        {
+                            <p><strong>Appeal:</strong><br />@Model.Appeal.Title</p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Payment Method:</strong><br />
+                            @if (Model.PaymentMethod == "bKash")
+                            {
+                                <span class="badge" style="background-color: #E2136E;">bKash</span>
+                            }
+                            else if (Model.PaymentMethod == "Nagad")
+                            {
+                                <span class="badge" style="background-color: #F47920;">Nagad</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.PaymentMethod</span>
+                            }
+                        </p>
+                        <p><strong>Transaction ID:</strong><br />@(Model.TransactionId ?? "N/A")</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <hr />
+                    <p><strong>Notes:</strong><br />@Model.Notes</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Status Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status</h5>
+            </div>
+            <div class="card-body text-center">
+                <h3>
+                    @if (Model.Status == WBS.Web.Models.DonationStatus.Pending)
+                    {
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    }
+                    else if (Model.Status == WBS.Web.Models.DonationStatus.Completed)
+                    {
+                        <span class="badge bg-success">Completed</span>
+                    }
+                    else if (Model.Status == WBS.Web.Models.DonationStatus.Failed)
+                    {
+                        <span class="badge bg-danger">Failed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Cancelled</span>
+                    }
+                </h3>
+
+                @if (Model.PaidAt.HasValue)
+                {
+                    <p class="mb-0 mt-3">
+                        <small><strong>Paid At:</strong><br />@Model.PaidAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</small>
+                    </p>
+                }
+
+                <hr />
+
+                @if (Model.Status == WBS.Web.Models.DonationStatus.Pending)
+                {
+                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="status" value="1" />
+                        <button type="submit" class="btn btn-success btn-sm w-100 mb-2" onclick="return confirm('Mark as completed?')">
+                            <i class="fas fa-check me-2"></i>Mark as Completed
+                        </button>
+                    </form>
+                }
+
+                <form asp-action="SendNotification" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-primary btn-sm w-100" onclick="return confirm('Send notification to donor?')">
+                        <i class="fas fa-paper-plane me-2"></i>Send Notification
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm w-100 mb-2" target="_blank">
+                    <i class="fas fa-file-invoice me-2"></i>View Invoice
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-sm w-100 mb-2">
+                    <i class="fas fa-edit me-2"></i>Edit Donation
+                </a>
+                <a href="mailto:@Model.Email" class="btn btn-outline-info btn-sm w-100 mb-2">
+                    <i class="fas fa-envelope me-2"></i>Send Email
+                </a>
+                <a href="tel:@Model.Phone" class="btn btn-outline-success btn-sm w-100">
+                    <i class="fas fa-phone me-2"></i>Call Donor
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

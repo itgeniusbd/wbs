@@ -1,0 +1,128 @@
+@model WBS.Web.Models.Career
+
+@{
+    ViewData["Title"] = "Edit Career Posting";
+}
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Edit Career Posting</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Title" class="form-label">Job Title (English) *</label>
+                            <input asp-for="Title" class="form-control" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TitleBn" class="form-label">Job Title (Bangla)</label>
+                            <input asp-for="TitleBn" class="form-control bangla-text" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                            <span asp-validation-for="TitleBn" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Department" class="form-label">Department</label>
+                            <input asp-for="Department" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Location" class="form-label">Location</label>
+                            <input asp-for="Location" class="form-control" placeholder="e.g., Dhaka, Bangladesh" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="JobType" class="form-label">Job Type</label>
+                            <select asp-for="JobType" class="form-select">
+                                <option value="">Select Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Temporary">Temporary</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SalaryRange" class="form-label">Salary Range</label>
+                            <input asp-for="SalaryRange" class="form-control" placeholder="e.g., ?40,000 - ?60,000" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Deadline" class="form-label">Application Deadline</label>
+                            <input asp-for="Deadline" type="date" class="form-control" value="@(Model.Deadline?.ToString("yyyy-MM-dd"))" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Job Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="8"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Job Description (Bangla)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control" rows="8" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Requirements" class="form-label">Requirements & Qualifications (English)</label>
+                        <textarea asp-for="Requirements" class="form-control" rows="8"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="RequirementsBn" class="form-label">Requirements & Qualifications (Bangla)</label>
+                        <textarea asp-for="RequirementsBn" class="form-control" rows="8" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Benefits" class="form-label">Benefits</label>
+                        <textarea asp-for="Benefits" class="form-control" rows="6"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ApplicationEmail" class="form-label">Application Email</label>
+                            <input asp-for="ApplicationEmail" type="email" class="form-control" placeholder="careers@wbs.org" />
+                            <small class="form-text text-muted">Email to receive applications</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ApplicationUrl" class="form-label">Application URL</label>
+                            <input asp-for="ApplicationUrl" type="url" class="form-control" placeholder="https://..." />
+                            <small class="form-text text-muted">Optional: External application form link</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Career Posting
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WBS.Web.Models
 {
@@ -22,19 +23,19 @@ namespace WBS.Web.Models
         public string? Phone { get; set; }
 
         public string? Address { get; set; }
-        public string? City { get; set; }
-        public string? Country { get; set; }
-
-        public string? Occupation { get; set; }
         public string? Skills { get; set; }
 
-        public string? Availability { get; set; } // Part-time, Full-time, Weekends
+        public int? SDGProjectId { get; set; }
+        
+        [ForeignKey("SDGProjectId")]
+        public SDGProject? SDGProject { get; set; }
 
         public string? Message { get; set; }
 
-        public VolunteerStatus Status { get; set; } = VolunteerStatus.Pending;
+        [StringLength(50)]
+        public string Status { get; set; } = "Pending";
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime AppliedDate { get; set; } = DateTime.UtcNow;
     }
 
     public enum VolunteerStatus

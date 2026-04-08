@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;700&display=swap" rel="stylesheet">
+    @await RenderSectionAsync("Styles", required: false)
+    <style>
+        :root {
+            --sidebar-width: 250px;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Bengali font support */
+        input[style*="SolaimanLipi"],
+        textarea[style*="SolaimanLipi"],
+        input[style*="Noto Sans Bengali"],
+        textarea[style*="Noto Sans Bengali"],
+        .bangla-text {
+            font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', sans-serif !important;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: #2c3e50;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .sidebar .brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar .brand a {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link i {
+            width: 25px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link[data-bs-toggle="collapse"] {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar .nav-link[data-bs-toggle="collapse"] .fa-chevron-down {
+            transition: transform 0.3s ease;
+            width: auto;
+            margin-right: 0;
+        }
+        .sidebar .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        .sidebar .collapse .nav-link {
+            background: rgba(0,0,0,0.1);
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        .top-navbar {
+            background: #fff;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .content-wrapper {
+            padding: 30px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .stat-card {
+            border-left: 4px solid;
+        }
+        .stat-card.primary { border-color: #0d6efd; }
+        .stat-card.success { border-color: #198754; }
+        .stat-card.warning { border-color: #ffc107; }
+        .stat-card.danger { border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="brand">
+            <a href="/admin">WBS Admin</a>
+        </div>
+        <nav class="nav flex-column">
+            <!-- Dashboard - Available for all authenticated users -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" href="/admin">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            
+            <!-- Content Management -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Menus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "active" : "")" 
+               href="#contentManagementMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Menus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "true" : "false")" 
+               aria-controls="contentManagementMenu">
+                <i class="fas fa-file-alt"></i> Content Management
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Menus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "show" : "")" id="contentManagementMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Menus" ? "active" : "")" href="/admin/menus" style="font-size: 0.9rem;">
+                    <i class="fas fa-bars"></i> Menus
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "active" : "")" href="/admin/pages" style="font-size: 0.9rem;">
+                    <i class="fas fa-file"></i> Pages
+                </a>
+            </div>
+            
+            <!-- About WBS -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "LegalStatus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Partner" || ViewContext.RouteData.Values["controller"]?.ToString() == "History" || ViewContext.RouteData.Values["controller"]?.ToString() == "AboutSDGs" || ViewContext.RouteData.Values["controller"]?.ToString() == "Districts" || ViewContext.RouteData.Values["controller"]?.ToString() == "Upazilas" ? "active" : "")" 
+               href="#aboutWbsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "LegalStatus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Partner" || ViewContext.RouteData.Values["controller"]?.ToString() == "History" || ViewContext.RouteData.Values["controller"]?.ToString() == "AboutSDGs" || ViewContext.RouteData.Values["controller"]?.ToString() == "Districts" || ViewContext.RouteData.Values["controller"]?.ToString() == "Upazilas" ? "true" : "false")" 
+               aria-controls="aboutWbsMenu">
+                <i class="fas fa-info-circle"></i> About WBS
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "LegalStatus" || ViewContext.RouteData.Values["controller"]?.ToString() == "Partner" || ViewContext.RouteData.Values["controller"]?.ToString() == "History" || ViewContext.RouteData.Values["controller"]?.ToString() == "AboutSDGs" || ViewContext.RouteData.Values["controller"]?.ToString() == "Districts" || ViewContext.RouteData.Values["controller"]?.ToString() == "Upazilas" ? "show" : "")" id="aboutWbsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "History" ? "active" : "")" href="/admin/history" style="font-size: 0.9rem;">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "AboutSDGs" ? "active" : "")" href="/admin/aboutsdgs" style="font-size: 0.9rem;">
+                    <i class="fas fa-globe"></i> About SDGs
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "LegalStatus" ? "active" : "")" href="/admin/legalstatus" style="font-size: 0.9rem;">
+                    <i class="fas fa-certificate"></i> Legal Status
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Partner" ? "active" : "")" href="/admin/partner" style="font-size: 0.9rem;">
+                    <i class="fas fa-handshake"></i> Partners & Sponsors
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Districts" ? "active" : "")" href="/admin/districts" style="font-size: 0.9rem;">
+                    <i class="fas fa-map-marked-alt"></i> Districts
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Upazilas" ? "active" : "")" href="/admin/upazilas" style="font-size: 0.9rem;">
+                    <i class="fas fa-map-marker-alt"></i> Upazilas
+                </a>
+            </div>
+            
+            <!-- Media -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sliders" || ViewContext.RouteData.Values["controller"]?.ToString() == "Galleries" || ViewContext.RouteData.Values["controller"]?.ToString() == "VideoGalleries" ? "active" : "")" 
+               href="#mediaMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sliders" || ViewContext.RouteData.Values["controller"]?.ToString() == "Galleries" || ViewContext.RouteData.Values["controller"]?.ToString() == "VideoGalleries" ? "true" : "false")" 
+               aria-controls="mediaMenu">
+                <i class="fas fa-images"></i> Media
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sliders" || ViewContext.RouteData.Values["controller"]?.ToString() == "Galleries" || ViewContext.RouteData.Values["controller"]?.ToString() == "VideoGalleries" ? "show" : "")" id="mediaMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sliders" ? "active" : "")" href="/admin/sliders" style="font-size: 0.9rem;">
+                    <i class="fas fa-sliders-h"></i> Sliders
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Galleries" ? "active" : "")" href="/admin/galleries" style="font-size: 0.9rem;">
+                    <i class="fas fa-images"></i> Photo Galleries
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "VideoGalleries" ? "active" : "")" href="/admin/videogalleries" style="font-size: 0.9rem;">
+                    <i class="fab fa-youtube text-danger"></i> Video Galleries
+                </a>
+            </div>
+            
+            <!-- SDG Management -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGs" ? "active" : "")" href="/admin/sdgs">
+                <i class="fas fa-globe"></i> SDGs
+            </a>
+            
+            <!-- SDG Programs -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGPrograms" ? "active" : "")" 
+               href="#sdgProgramsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGPrograms" ? "true" : "false")" 
+               aria-controls="sdgProgramsMenu">
+                <i class="fas fa-sitemap"></i> SDG Programs
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGPrograms" ? "show" : "")" id="sdgProgramsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGPrograms" && ViewContext.RouteData.Values["action"]?.ToString() != "Rohingya" ? "active" : "")" href="/admin/sdgprograms" style="font-size: 0.9rem;">
+                    <i class="fas fa-sitemap"></i> All Programs
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGPrograms" && ViewContext.RouteData.Values["action"]?.ToString() == "Rohingya" ? "active" : "")" href="/admin/sdgprograms?filterRohingya=true" style="font-size: 0.9rem;">
+                    <i class="fas fa-hands-helping"></i> Rohingya Programs
+                </a>
+            </div>
+            
+            <!-- Program Events -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGProjects" ? "active" : "")" 
+               href="#programEventsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGProjects" ? "true" : "false")" 
+               aria-controls="programEventsMenu">
+                <i class="fas fa-calendar-check"></i> Program Events
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGProjects" ? "show" : "")" id="programEventsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGProjects" && ViewContext.RouteData.Values["action"]?.ToString() != "Rohingya" ? "active" : "")" href="/admin/sdgprojects" style="font-size: 0.9rem;">
+                    <i class="fas fa-calendar-alt"></i> All Events
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SDGProjects" && ViewContext.RouteData.Values["action"]?.ToString() == "Rohingya" ? "active" : "")" href="/admin/sdgprojects?filterRohingya=true" style="font-size: 0.9rem;">
+                    <i class="fas fa-hands-helping"></i> Rohingya Events
+                </a>
+            </div>
+            
+            <!-- Activities -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "News" || ViewContext.RouteData.Values["controller"]?.ToString() == "Stories" || ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")" 
+               href="#activitiesMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "News" || ViewContext.RouteData.Values["controller"]?.ToString() == "Stories" || ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "true" : "false")" 
+               aria-controls="activitiesMenu">
+                <i class="fas fa-newspaper"></i> Activities
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "News" || ViewContext.RouteData.Values["controller"]?.ToString() == "Stories" || ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "show" : "")" id="activitiesMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "News" ? "active" : "")" href="/admin/news" style="font-size: 0.9rem;">
+                    <i class="fas fa-newspaper"></i> News
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")" href="/admin/events" style="font-size: 0.9rem;">
+                    <i class="fas fa-calendar-alt"></i> Events
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stories" ? "active" : "")" href="/admin/stories" style="font-size: 0.9rem;">
+                    <i class="fas fa-book-open"></i> Success Stories
+                </a>
+            </div>
+            
+            <!-- Documents -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Policies" || ViewContext.RouteData.Values["controller"]?.ToString() == "AnnualReports" || ViewContext.RouteData.Values["controller"]?.ToString() == "Publications" ? "active" : "")" 
+               href="#documentsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Policies" || ViewContext.RouteData.Values["controller"]?.ToString() == "AnnualReports" || ViewContext.RouteData.Values["controller"]?.ToString() == "Publications" ? "true" : "false")" 
+               aria-controls="documentsMenu">
+                <i class="fas fa-folder-open"></i> Documents
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Policies" || ViewContext.RouteData.Values["controller"]?.ToString() == "AnnualReports" || ViewContext.RouteData.Values["controller"]?.ToString() == "Publications" ? "show" : "")" id="documentsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Publications" ? "active" : "")" href="/admin/publications" style="font-size: 0.9rem;">
+                    <i class="fas fa-book"></i> Publications
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Policies" ? "active" : "")" href="/admin/policies" style="font-size: 0.9rem;">
+                    <i class="fas fa-shield-alt"></i> Policies & Guidelines
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "AnnualReports" ? "active" : "")" href="/admin/annualreports" style="font-size: 0.9rem;">
+                    <i class="fas fa-file-pdf"></i> Annual Reports
+                </a>
+            </div>
+            
+            <!-- Fundraising -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appeals" || ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" || ViewContext.RouteData.Values["controller"]?.ToString() == "OtherIncomes" || ViewContext.RouteData.Values["controller"]?.ToString() == "GeneralExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProgramExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "Accounts" || ViewContext.RouteData.Values["controller"]?.ToString() == "FinancialReports" ? "active" : "")" 
+               href="#fundraisingMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Appeals" || ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" || ViewContext.RouteData.Values["controller"]?.ToString() == "OtherIncomes" || ViewContext.RouteData.Values["controller"]?.ToString() == "GeneralExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProgramExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "Accounts" || ViewContext.RouteData.Values["controller"]?.ToString() == "FinancialReports" ? "true" : "false")" 
+               aria-controls="fundraisingMenu">
+                <i class="fas fa-hand-holding-usd"></i> Fundraising
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appeals" || ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" || ViewContext.RouteData.Values["controller"]?.ToString() == "OtherIncomes" || ViewContext.RouteData.Values["controller"]?.ToString() == "GeneralExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProgramExpenses" || ViewContext.RouteData.Values["controller"]?.ToString() == "Accounts" || ViewContext.RouteData.Values["controller"]?.ToString() == "FinancialReports" ? "show" : "")" id="fundraisingMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Appeals" ? "active" : "")" href="/admin/appeals" style="font-size: 0.9rem;">
+                    <i class="fas fa-hand-holding-heart"></i> Appeals
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" ? "active" : "")" href="/admin/donations" style="font-size: 0.9rem;">
+                    <i class="fas fa-donate"></i> Donations
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Accounts" ? "active" : "")" href="/admin/accounts" style="font-size: 0.9rem;">
+                    <i class="fas fa-university"></i> Accounts
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "OtherIncomes" ? "active" : "")" href="/admin/otherincomes" style="font-size: 0.9rem;">
+                    <i class="fas fa-coins"></i> Other Incomes
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "GeneralExpenses" ? "active" : "")" href="/admin/generalexpenses" style="font-size: 0.9rem;">
+                    <i class="fas fa-money-bill-wave"></i> General Expenses
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ProgramExpenses" ? "active" : "")" href="/admin/programexpenses" style="font-size: 0.9rem;">
+                    <i class="fas fa-project-diagram"></i> Program Expenses
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "FinancialReports" ? "active" : "")" href="/admin/financialreports" style="font-size: 0.9rem;">
+                    <i class="fas fa-chart-line"></i> Financial Reports
+                </a>
+            </div>
+            
+            <!-- Community -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteers" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "active" : "")" 
+               href="#communityMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteers" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "true" : "false")" 
+               aria-controls="communityMenu">
+                <i class="fas fa-users"></i> Community
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteers" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "show" : "")" id="communityMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteers" ? "active" : "")" href="/admin/volunteers" style="font-size: 0.9rem;">
+                    <i class="fas fa-hands-helping"></i> Volunteers
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "active" : "")" href="/admin/contactmessages" style="font-size: 0.9rem;">
+                    <i class="fas fa-envelope"></i> Contact Messages
+                    @if (ViewBag.UnreadMessagesCount != null && ViewBag.UnreadMessagesCount > 0)
+                    {
+                        <span class="badge bg-danger ms-2">@ViewBag.UnreadMessagesCount</span>
+                    }
+                </a>
+            </div>
+            
+            <!-- Careers -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Careers" || ViewContext.RouteData.Values["controller"]?.ToString() == "CVApplications" ? "active" : "")" 
+               href="#careersMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Careers" || ViewContext.RouteData.Values["controller"]?.ToString() == "CVApplications" ? "true" : "false")" 
+               aria-controls="careersMenu">
+                <i class="fas fa-briefcase"></i> Careers
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Careers" || ViewContext.RouteData.Values["controller"]?.ToString() == "CVApplications" ? "show" : "")" id="careersMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Careers" ? "active" : "")" href="/admin/careers" style="font-size: 0.9rem;">
+                    <i class="fas fa-briefcase"></i> Career Postings
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "CVApplications" ? "active" : "")" href="/admin/cvapplications" style="font-size: 0.9rem;">
+                    <i class="fas fa-file-alt"></i> CV Applications
+                </a>
+            </div>
+            
+            <!-- SMS Management -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SMS" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactLists" ? "active" : "")" 
+               href="#smsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "SMS" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactLists" ? "true" : "false")" 
+               aria-controls="smsMenu">
+                <i class="fas fa-sms"></i> SMS Management
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "SMS" || ViewContext.RouteData.Values["controller"]?.ToString() == "ContactLists" ? "show" : "")" id="smsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SMS" && ViewContext.RouteData.Values["action"]?.ToString() == "SendSMS" ? "active" : "")" href="/admin/sms/sendsms" style="font-size: 0.9rem;">
+                    <i class="fas fa-paper-plane"></i> Send SMS
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "ContactLists" ? "active" : "")" href="/admin/contactlists" style="font-size: 0.9rem;">
+                    <i class="fas fa-address-book"></i> Contact Lists
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SMS" && ViewContext.RouteData.Values["action"]?.ToString() == "SMSSentRecords" ? "active" : "")" href="/admin/sms/smssentrecords" style="font-size: 0.9rem;">
+                    <i class="fas fa-history"></i> SMS Sent Records
+                </a>
+            </div>
+            
+            <!-- User Management -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" || ViewContext.RouteData.Values["controller"]?.ToString() == "Roles" ? "active" : "")" 
+               href="#userManagementMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" || ViewContext.RouteData.Values["controller"]?.ToString() == "Roles" ? "true" : "false")" 
+               aria-controls="userManagementMenu">
+                <i class="fas fa-users-cog"></i> User Management
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" || ViewContext.RouteData.Values["controller"]?.ToString() == "Roles" ? "show" : "")" id="userManagementMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" href="/admin/users" style="font-size: 0.9rem;">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Roles" ? "active" : "")" href="/admin/roles" style="font-size: 0.9rem;">
+                    <i class="fas fa-user-shield"></i> Roles & Permissions
+                </a>
+            </div>
+            
+            <!-- Settings -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" || ViewContext.RouteData.Values["controller"]?.ToString() == "NotificationTest" ? "active" : "")" 
+               href="#settingsMenu" 
+               data-bs-toggle="collapse" 
+               role="button" 
+               aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" || ViewContext.RouteData.Values["controller"]?.ToString() == "NotificationTest" ? "true" : "false")" 
+               aria-controls="settingsMenu">
+                <i class="fas fa-cog"></i> Settings
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" || ViewContext.RouteData.Values["controller"]?.ToString() == "NotificationTest" ? "show" : "")" id="settingsMenu">
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" href="/admin/settings" style="font-size: 0.9rem;">
+                    <i class="fas fa-cog"></i> Site Settings
+                </a>
+                <a class="nav-link ps-5 @(ViewContext.RouteData.Values["controller"]?.ToString() == "NotificationTest" ? "active" : "")" href="/admin/notificationtest/templates" style="font-size: 0.9rem;">
+                    <i class="fas fa-envelope"></i> SMS & Email Templates
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">@ViewData["Title"]</h5>
+            <div class="d-flex align-items-center">
+                <a href="/" target="_blank" class="btn btn-outline-secondary btn-sm me-3">
+                    <i class="fas fa-external-link-alt me-1"></i> View Site
+                </a>
+                <div class="dropdown">
+                    <a class="btn btn-light dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i> @User.Identity?.Name
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-wrapper">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

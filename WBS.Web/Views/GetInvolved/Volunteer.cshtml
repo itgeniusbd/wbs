@@ -1,0 +1,139 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Volunteer";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    @(isBangla ? "স্বেচ্ছাসেবক হন" : "Become a Volunteer")
+                </h1>
+                <p class="lead">
+                    @(isBangla ? "আমাদের দলে যোগ দিন এবং আপনার সম্প্রদায়ে পরিবর্তন আনুন" : "Join our team and make a difference in your community")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-5">
+                        <h2 class="mb-4">@(isBangla ? "কেন স্বেচ্ছাসেবক হবেন?" : "Why Volunteer?")</h2>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i> 
+                                @(isBangla ? "সম্প্রদায়ে প্রকৃত প্রভাব ফেলুন" : "Make a real impact in communities")
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i> 
+                                @(isBangla ? "নতুন দক্ষতা এবং অভিজ্ঞতা অর্জন করুন" : "Develop new skills and experience")
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i> 
+                                @(isBangla ? "সমমনা মানুষদের সাথে দেখা করুন" : "Meet like-minded people")
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i> 
+                                @(isBangla ? "অর্থপূর্ণ কাজে অবদান রাখুন" : "Contribute to meaningful causes")
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h3 class="mb-4">@(isBangla ? "স্বেচ্ছাসেবক আবেদন ফর্ম" : "Volunteer Application Form")</h3>
+                        <form method="post" asp-action="Volunteer">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        @(isBangla ? "নামের প্রথম অংশ" : "First Name") <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="FirstName" class="form-control" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        @(isBangla ? "নামের শেষ অংশ" : "Last Name") <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="LastName" class="form-control" required />
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        @(isBangla ? "ইমেইল" : "Email") <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" name="Email" class="form-control" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        @(isBangla ? "ফোন" : "Phone") <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" name="Phone" class="form-control" required />
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">@(isBangla ? "ঠিকানা" : "Address")</label>
+                                <textarea name="Address" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">@(isBangla ? "দক্ষতা" : "Skills")</label>
+                                <textarea name="Skills" class="form-control" rows="2" placeholder="@(isBangla ? "আপনার দক্ষতা এবং অভিজ্ঞতা লিখুন" : "Enter your skills and experience")"></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">@(isBangla ? "প্রকল্প/ইভেন্ট নির্বাচন করুন" : "Select Project/Event")</label>
+                                <select name="EventId" class="form-select" id="projectSelect">
+                                    <option value="">@(isBangla ? "নির্বাচন করুন..." : "Select...")</option>
+                                    @if (ViewBag.Projects != null)
+                                    {
+                                        foreach (var project in ViewBag.Projects)
+                                        {
+                                            var projectTitle = isBangla && !string.IsNullOrEmpty(project.TitleBn) ? project.TitleBn : project.Title;
+                                            var location = isBangla && !string.IsNullOrEmpty(project.DistrictBn) ? project.DistrictBn : project.District;
+                                            var village = isBangla && !string.IsNullOrEmpty(project.VillageBn) ? project.VillageBn : project.Village;
+                                            <option value="@project.Id">@projectTitle - @location, @village</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    @(isBangla ? "আপনি কেন স্বেচ্ছাসেবক হতে চান?" : "Why do you want to volunteer?")
+                                </label>
+                                <textarea name="Message" class="form-control" rows="4"></textarea>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    @(isBangla ? "আবেদন জমা দিন" : "Submit Application")
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

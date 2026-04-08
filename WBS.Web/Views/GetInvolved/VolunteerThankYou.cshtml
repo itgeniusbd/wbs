@@ -1,0 +1,135 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Thank You";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #28a745 0%, #00a99d 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle" style="font-size: 80px; opacity: 0.9;"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3">
+                    @(isBangla ? "ধন্যবাদ!" : "Thank You!")
+                </h1>
+                <p class="lead">
+                    @(isBangla ? "আপনার আবেদন সফলভাবে জমা হয়েছে" : "Your application has been submitted successfully")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body p-5 text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-heart text-danger" style="font-size: 60px;"></i>
+                        </div>
+                        
+                        <h2 class="mb-4">
+                            @(isBangla ? "আপনার আগ্রহের জন্য ধন্যবাদ!" : "Thank you for your interest in volunteering!")
+                        </h2>
+                        
+                        <p class="lead mb-4">
+                            @(isBangla 
+                                ? "আমরা আপনার আবেদন পেয়েছি এবং শীঘ্রই এটি পর্যালোচনা করব।" 
+                                : "We have received your application and will review it shortly.")
+                        </p>
+                        
+                        <div class="alert alert-info text-start mb-4">
+                            <h5 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla ? "পরবর্তী কি?" : "What's Next?")
+                            </h5>
+                            <hr>
+                            <ul class="mb-0">
+                                <li class="mb-2">
+                                    @(isBangla 
+                                        ? "আমাদের দল ২-৩ কার্যদিবসের মধ্যে আপনার আবেদন পর্যালোচনা করবে।" 
+                                        : "Our team will review your application within 2-3 business days.")
+                                </li>
+                                <li class="mb-2">
+                                    @(isBangla 
+                                        ? "যদি আপনার আবেদন অনুমোদিত হয়, আমরা আপনাকে ইমেইলের মাধ্যমে যোগাযোগ করব।" 
+                                        : "If your application is approved, we will contact you via email.")
+                                </li>
+                                <li>
+                                    @(isBangla 
+                                        ? "আমরা শীঘ্রই আপনার সাথে আরও বিস্তারিত তথ্য শেয়ার করব।" 
+                                        : "We will share more details with you soon.")
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-home me-2"></i>
+                                @(isBangla ? "হোম পেজে ফিরে যান" : "Return to Home")
+                            </a>
+                        </div>
+                        
+                        <div class="mt-5 pt-4 border-top">
+                            <h5 class="mb-3">
+                                @(isBangla ? "আমাদের সাথে যুক্ত থাকুন" : "Stay Connected")
+                            </h5>
+                            <p class="text-muted mb-3">
+                                @(isBangla 
+                                    ? "আমাদের সোশ্যাল মিডিয়ায় ফলো করুন এবং আমাদের কার্যক্রম সম্পর্কে আপডেট পান" 
+                                    : "Follow us on social media to stay updated about our activities")
+                            </p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-info btn-sm">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-danger btn-sm">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-primary btn-sm">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <p class="text-muted small mb-0">
+                                @(isBangla 
+                                    ? "কোন প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন" 
+                                    : "If you have any questions, please contact us")
+                                <br>
+                                <a href="mailto:info@wbs.org">info@wbs-bd.org</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .page-header {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+        background-size: cover;
+    }
+</style>

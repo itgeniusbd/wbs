@@ -1,0 +1,144 @@
+﻿@model WBS.Web.Models.History
+
+@{
+    ViewData["Title"] = "Edit History";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Edit History</h1>
+            <p class="text-muted">Update history entry</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                                <input asp-for="Title" class="form-control" placeholder="Enter title in English" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TitleBn" class="form-label">Title (Bengali)</label>
+                                <input asp-for="TitleBn" class="form-control" placeholder="শিরোনাম বাংলাতে লিখুন" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                                <span asp-validation-for="TitleBn" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Featured Image</label>
+                            
+                            @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.FeaturedImage" alt="Current Image" class="img-thumbnail" style="max-height: 200px;" />
+                                    <p class="text-muted mt-1"><small>Current image (leave blank to keep)</small></p>
+                                </div>
+                            }
+                            
+                            <input type="file" name="featuredImage" class="form-control" accept="image/*" id="featuredImage" />
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Recommended size: 1920x600px. Maximum file size: 5MB. Leave empty to keep current image.
+                            </small>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="preview" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Content (English) <span class="text-danger">*</span></label>
+                            <textarea asp-for="Content" class="form-control tinymce-editor" rows="10"></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContentBn" class="form-label">Content (Bengali)</label>
+                            <textarea asp-for="ContentBn" class="form-control tinymce-editor" rows="10" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                            <span asp-validation-for="ContentBn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Active
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Only active history will be displayed on the website</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update History
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.tiny.cloud/1/n1fpf3wpeclihcz9psst291ddqjsarc29lxbuozp1k93o5iu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        // Initialize TinyMCE for English content
+        tinymce.init({
+            selector: 'textarea[asp-for="Content"]',
+            height: 400,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            content_style: 'body { font-family: Helvetica, Arial, sans-serif; font-size: 14px }',
+            branding: false,
+            promotion: false
+        });
+
+        // Initialize TinyMCE for Bengali content with Bengali font
+        tinymce.init({
+            selector: 'textarea[asp-for="ContentBn"]',
+            height: 400,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            content_style: "body { font-family: 'Noto Sans Bengali', sans-serif; font-size: 16px; }",
+            branding: false,
+            promotion: false
+        });
+
+        // Image preview
+        document.getElementById('featuredImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

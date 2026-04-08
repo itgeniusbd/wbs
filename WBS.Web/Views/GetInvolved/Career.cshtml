@@ -1,0 +1,307 @@
+@model IEnumerable<WBS.Web.Models.Career>
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Career Opportunities";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "?????????? ?????" : "Career Opportunities")</h1>
+                <p class="lead">@(isBangla ? "?????? ???? ??? ??? ??? ???????? ????" : "Join us and make a difference")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        
+        @if (Model != null && Model.Any())
+        {
+            <div class="row">
+                @foreach (var career in Model)
+                {
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h4 class="card-title mb-0">@(isBangla && !string.IsNullOrEmpty(career.TitleBn) ? career.TitleBn : career.Title)</h4>
+                                    @if (!string.IsNullOrEmpty(career.JobType))
+                                    {
+                                        <span class="badge bg-primary">@career.JobType</span>
+                                    }
+                                </div>
+                                
+                                <div class="mb-3">
+                                    @if (!string.IsNullOrEmpty(career.Department))
+                                    {
+                                        <p class="mb-1">
+                                            <i class="fas fa-building text-primary me-2"></i>
+                                            <strong>@(isBangla ? "?????" : "Department"):</strong> @career.Department
+                                        </p>
+                                    }
+                                    
+                                    @if (!string.IsNullOrEmpty(career.Location))
+                                    {
+                                        <p class="mb-1">
+                                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                            <strong>@(isBangla ? "???????" : "Location"):</strong> @career.Location
+                                        </p>
+                                    }
+                                    
+                                    @if (!string.IsNullOrEmpty(career.SalaryRange))
+                                    {
+                                        <p class="mb-1">
+                                            <i class="fas fa-money-bill-wave text-primary me-2"></i>
+                                            <strong>@(isBangla ? "???? ????" : "Salary Range"):</strong> @career.SalaryRange
+                                        </p>
+                                    }
+                                    
+                                    @if (career.Deadline.HasValue)
+                                    {
+                                        <p class="mb-1">
+                                            <i class="far fa-calendar text-primary me-2"></i>
+                                            <strong>@(isBangla ? "????????" : "Deadline"):</strong> @career.Deadline.Value.ToString("MMM dd, yyyy")
+                                        </p>
+                                    }
+                                </div>
+                                
+                                @if (!string.IsNullOrEmpty(career.Description) || !string.IsNullOrEmpty(career.DescriptionBn))
+                                {
+                                    var description = isBangla && !string.IsNullOrEmpty(career.DescriptionBn) ? career.DescriptionBn : career.Description;
+                                    <p class="card-text text-muted">
+                                        @(description != null && description.Length > 200 ? Html.Raw(description.Substring(0, 200)) : Html.Raw(description ?? ""))...
+                                    </p>
+                                }
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="/career/@career.Slug" class="btn btn-primary">
+                                        <i class="fas fa-eye me-2"></i>@(isBangla ? "????????? ?????" : "View Details")
+                                    </a>
+                                    
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#applyModal" 
+                                            data-career-id="@career.Id" data-career-title="@career.Title">
+                                        <i class="fas fa-paper-plane me-2"></i>@(isBangla ? "????? ????" : "Apply Now")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <h4>@(isBangla ? "???????? ??? ?????? ????? ???" : "No Job Openings Available")</h4>
+                        <p class="mb-0">@(isBangla ? "???? ???????? ??? ??? ?????? ?????? ??? ??????? ??????? ???? ???? ??????" : "We are not currently hiring for any positions. Please check back later for future opportunities.")</p>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body text-center py-4">
+                        <h5 class="mb-3">@(isBangla ? "?????? ???? ??? ???? ???????" : "Interested in Working With Us?")</h5>
+                        <p class="mb-3">@(isBangla ? "????? CV ????? ??? ????????? ??????? ???? ?????? ???????? ??????" : "Send us your CV and be in our database for future opportunities.")</p>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyModal" 
+                                data-career-id="" data-career-title="General Application">
+                            <i class="fas fa-paper-plane me-2"></i>@(isBangla ? "CV ?????" : "Send Your CV")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Application Modal -->
+<div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="applyModalLabel">
+                    <i class="fas fa-briefcase me-2"></i>@(isBangla ? "?????? ???? ????? ????" : "Apply for Position")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="GetInvolved" asp-action="ApplyForCareer" method="post" enctype="multipart/form-data" id="applicationForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="positionInfo">@(isBangla ? "??????? ??? ????? ?????? ???? ????" : "Please fill out the form below")</span>
+                    </div>
+                    
+                    <input type="hidden" name="CareerIdAppliedFor" id="careerIdInput" />
+                    <input type="hidden" name="PositionAppliedFor" id="positionInput" />
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "????? ???" : "Full Name") <span class="text-danger">*</span></label>
+                            <input type="text" name="FullName" class="form-control" required 
+                                   placeholder="@(isBangla ? "????? ????? ??? ?????" : "Enter your full name")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "?????" : "Email") <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control" required 
+                                   placeholder="@(isBangla ? "????? ????? ??????" : "your@email.com")" />
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "??? ?????" : "Phone Number")</label>
+                            <input type="tel" name="Phone" class="form-control" 
+                                   placeholder="@(isBangla ? "???XXXXXXXXX" : "+880 1XXXXXXXXX")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "??????" : "Address")</label>
+                            <input type="text" name="Address" class="form-control" 
+                                   placeholder="@(isBangla ? "????? ??????" : "Your address")" />
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "???????? ???????" : "Education")</label>
+                            <input type="text" name="Education" class="form-control" 
+                                   placeholder="@(isBangla ? "????: ??????, MBA" : "e.g., Bachelor's, MBA")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "???????? (???)" : "Experience (Years)")</label>
+                            <input type="text" name="Experience" class="form-control" 
+                                   placeholder="@(isBangla ? "????: ? ???" : "e.g., 5 years")" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "??????" : "Skills")</label>
+                        <textarea name="Skills" class="form-control" rows="2" 
+                                  placeholder="@(isBangla ? "????? ??? ?????????? ?????" : "List your key skills")"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "CV ????? ????" : "Upload CV") <span class="text-danger">*</span></label>
+                        <input type="file" name="cvFile" id="cvFileInput" class="form-control" 
+                               accept=".pdf,.doc,.docx" required />
+                        <small class="form-text text-muted">
+                            @(isBangla ? "PDF, DOC, ???? DOCX (???????? 5MB)" : "PDF, DOC, or DOCX (Max 5MB)")
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "???? ????? (??????)" : "Cover Letter (Optional)")</label>
+                        <textarea name="CoverLetter" class="form-control" rows="4" 
+                                  placeholder="@(isBangla ? "??? ???? ?? ???? ???? ??????? ?? ????..." : "Tell us why you're a good fit for this position...")"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>@(isBangla ? "?????" : "Cancel")
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>@(isBangla ? "????? ??? ???" : "Submit Application")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Handle modal open and populate career info
+        $('#applyModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var careerId = button.data('career-id');
+            var careerTitle = button.data('career-title');
+            
+            console.log('Opening modal for:', careerTitle, 'ID:', careerId);
+            
+            var modal = $(this);
+            modal.find('#careerIdInput').val(careerId || '');
+            modal.find('#positionInput').val(careerTitle || 'General Application');
+            
+            if (careerTitle && careerTitle !== 'General Application') {
+                modal.find('#positionInfo').text('@(isBangla ? "????? ?????:" : "Applying for:") ' + careerTitle);
+            } else {
+                modal.find('#positionInfo').text('@(isBangla ? "?????? ????? - ????????? ??????? ????" : "General Application - For Future Opportunities")');
+            }
+        });
+        
+        // File upload validation
+        $('#cvFileInput').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                // Check file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('@(isBangla ? "?????? ???? ?????? ?MB ?? ?? ??? ???!" : "File size must be less than 5MB!")');
+                    $(this).val('');
+                    return;
+                }
+                
+                // Check file type
+                var allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('@(isBangla ? "????????? PDF, DOC, ???? DOCX ???? ????? ????!" : "Please upload only PDF, DOC, or DOCX files!")');
+                    $(this).val('');
+                    return;
+                }
+                
+                console.log('CV file selected:', file.name, 'Size:', file.size, 'bytes');
+            }
+        });
+        
+        // Form submission
+        $('#applicationForm').on('submit', function(e) {
+            console.log('Submitting application...');
+            
+            // Validate CV file
+            var cvFile = $('#cvFileInput')[0].files[0];
+            if (!cvFile) {
+                e.preventDefault();
+                alert('@(isBangla ? "??????? ??? ????? CV ????? ????!" : "Please upload your CV!")');
+                return false;
+            }
+            
+            // Show loading indicator
+            $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@(isBangla ? "??? ?????? ?????..." : "Submitting...")');
+        });
+    </script>
+}

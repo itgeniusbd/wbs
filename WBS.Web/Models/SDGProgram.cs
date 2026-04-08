@@ -33,6 +33,8 @@ namespace WBS.Web.Models
 
         public bool IsFeatured { get; set; } = false;
 
+        public bool IsRohingyaProgram { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }

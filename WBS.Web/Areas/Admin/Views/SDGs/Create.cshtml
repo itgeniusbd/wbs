@@ -1,0 +1,139 @@
+﻿@model WBS.Web.Models.SDG
+@{
+    ViewData["Title"] = "Create SDG";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-plus-circle me-2"></i>Create New SDG
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Number" class="form-label">SDG Number *</label>
+                                <input asp-for="Number" class="form-control" placeholder="e.g., 1" />
+                                <span asp-validation-for="Number" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DisplayOrder" class="form-label">Display Order *</label>
+                                <input asp-for="DisplayOrder" class="form-control" placeholder="e.g., 1" />
+                                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Name (English) *</label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g., No Poverty" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NameBn" class="form-label">Name (বাংলা) *</label>
+                            <input asp-for="NameBn" class="form-control" placeholder="e.g., দারিদ্র্য বিমোচন" />
+                            <span asp-validation-for="NameBn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description (English)</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Brief description in English"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                            <textarea asp-for="DescriptionBn" class="form-control" rows="3" placeholder="সংক্ষিপ্ত বিবরণ বাংলায়"></textarea>
+                            <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Color" class="form-label">Color *</label>
+                            <div class="input-group">
+                                <input asp-for="Color" type="color" class="form-control form-control-color" value="#E5243B" />
+                                <input asp-for="Color" type="text" class="form-control" placeholder="#E5243B" />
+                            </div>
+                            <small class="text-muted">Pick a color or enter hex code (e.g., #E5243B)</small>
+                            <span asp-validation-for="Color" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imageFile" class="form-label">SDG Image</label>
+                            <input type="file" class="form-control" id="imageFile" name="imageFile" accept="image/*" />
+                            <small class="text-muted">Upload SDG icon/image (PNG, JPG, max 2MB)</small>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Create SDG
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>SDG Details</h6>
+                    <ul class="small">
+                        <li><strong>Number:</strong> Official UN SDG number (1-17)</li>
+                        <li><strong>Display Order:</strong> Order to show on website</li>
+                        <li><strong>Names:</strong> Provide both English and Bengali</li>
+                        <li><strong>Color:</strong> Official SDG color code</li>
+                        <li><strong>Image:</strong> Upload SDG icon (square recommended)</li>
+                    </ul>
+
+                    <hr />
+
+                    <h6>Official SDG Colors</h6>
+                    <ul class="small list-unstyled">
+                        <li>1. <span class="badge" style="background-color: #E5243B;">#E5243B</span></li>
+                        <li>2. <span class="badge" style="background-color: #DDA63A;">#DDA63A</span></li>
+                        <li>3. <span class="badge" style="background-color: #4C9F38;">#4C9F38</span></li>
+                        <li>4. <span class="badge" style="background-color: #C5192D;">#C5192D</span></li>
+                        <li>6. <span class="badge" style="background-color: #26BDE2;">#26BDE2</span></li>
+                        <li>7. <span class="badge" style="background-color: #FCC30B;">#FCC30B</span></li>
+                        <li>11. <span class="badge" style="background-color: #FD9D24;">#FD9D24</span></li>
+                        <li>13. <span class="badge" style="background-color: #3F7E44;">#3F7E44</span></li>
+                        <li>14. <span class="badge" style="background-color: #0A97D9;">#0A97D9</span></li>
+                        <li>15. <span class="badge" style="background-color: #56C02B;">#56C02B</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

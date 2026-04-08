@@ -1,0 +1,226 @@
+@model IEnumerable<WBS.Web.Models.CVApplication>
+
+@{
+    ViewData["Title"] = "CV Applications";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "All";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-alt me-2"></i>CV Applications</h2>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Applications</h6>
+                        <h3 class="mb-0">@ViewBag.TotalCount</h3>
+                    </div>
+                    <i class="fas fa-file-alt fa-2x text-primary opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Pending Review</h6>
+                        <h3 class="mb-0">@ViewBag.PendingCount</h3>
+                    </div>
+                    <i class="fas fa-clock fa-2x text-warning opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Shortlisted</h6>
+                        <h3 class="mb-0">@ViewBag.ShortlistedCount</h3>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Rejected</h6>
+                        <h3 class="mb-0">@ViewBag.RejectedCount</h3>
+                    </div>
+                    <i class="fas fa-times-circle fa-2x text-danger opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="btn-group" role="group">
+            <a href="?status=All" class="btn @(currentStatus == "All" ? "btn-primary" : "btn-outline-primary")">
+                All (@ViewBag.TotalCount)
+            </a>
+            <a href="?status=Pending" class="btn @(currentStatus == "Pending" ? "btn-warning" : "btn-outline-warning")">
+                Pending (@ViewBag.PendingCount)
+            </a>
+            <a href="?status=Reviewed" class="btn @(currentStatus == "Reviewed" ? "btn-info" : "btn-outline-info")">
+                Reviewed (@ViewBag.ReviewedCount)
+            </a>
+            <a href="?status=Shortlisted" class="btn @(currentStatus == "Shortlisted" ? "btn-success" : "btn-outline-success")">
+                Shortlisted (@ViewBag.ShortlistedCount)
+            </a>
+            <a href="?status=Rejected" class="btn @(currentStatus == "Rejected" ? "btn-danger" : "btn-outline-danger")">
+                Rejected (@ViewBag.RejectedCount)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Applications Table -->
+<div class="card">
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Applied Date</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Position</th>
+                            <th>Status</th>
+                            <th>CV</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.AppliedDate.ToString("MMM dd, yyyy")</td>
+                                <td>@item.FullName</td>
+                                <td>
+                                    <a href="mailto:@item.Email">@item.Email</a>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Phone))
+                                    {
+                                        <a href="tel:@item.Phone">@item.Phone</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.CareerIdAppliedFor.HasValue)
+                                    {
+                                        <span class="badge bg-info">Career ID: @item.CareerIdAppliedFor</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.PositionAppliedFor))
+                                    {
+                                        <small class="d-block text-muted">@item.PositionAppliedFor</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">General Application</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Status == "Pending")
+                                    {
+                                        <span class="badge bg-warning">@item.Status</span>
+                                    }
+                                    else if (item.Status == "Reviewed")
+                                    {
+                                        <span class="badge bg-info">@item.Status</span>
+                                    }
+                                    else if (item.Status == "Shortlisted")
+                                    {
+                                        <span class="badge bg-success">@item.Status</span>
+                                    }
+                                    else if (item.Status == "Rejected")
+                                    {
+                                        <span class="badge bg-danger">@item.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.CVFilePath))
+                                    {
+                                        <a href="@item.CVFilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No CV</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="?status=@currentStatus&page=@(currentPage - 1)">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" href="?status=@currentStatus&page=@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a class="page-link" href="?status=@currentStatus&page=@(currentPage + 1)">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @if (currentStatus == "All")
+                {
+                    <text>No CV applications submitted yet.</text>
+                }
+                else
+                {
+                    <text>No @currentStatus.ToLower() applications found.</text>
+                }
+            </div>
+        }
+    </div>
+</div>

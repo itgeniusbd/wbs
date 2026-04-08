@@ -1,0 +1,167 @@
+@model WBS.Web.Models.Volunteer
+@{
+    ViewData["Title"] = "Volunteer Details";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="mb-4">
+    <a href="@Url.Action("Index")" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Volunteer Application Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Name:</strong>
+                        <p>@Model.FirstName @Model.LastName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email:</strong>
+                        <p>@Model.Email</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Phone:</strong>
+                        <p>@Model.Phone</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Applied Date:</strong>
+                        <p>@Model.AppliedDate.ToString("MMMM dd, yyyy")</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Address:</strong>
+                            <p>@Model.Address</p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Skills))
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Skills:</strong>
+                            <p>@Model.Skills</p>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.SDGProject != null)
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>SDG Project of Interest:</strong>
+                            <p>
+                                <span class="badge bg-info">@Model.SDGProject.Title</span>
+                                <br />
+                                <small class="text-muted">
+                                    @if (Model.SDGProject.StartDate.HasValue)
+                                    {
+                                        <i class="far fa-calendar me-1"></i>
+                                        @Model.SDGProject.StartDate.Value.ToString("MMMM dd, yyyy")
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.SDGProject.District))
+                                    {
+                                        <span class="ms-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i>@Model.SDGProject.District, @Model.SDGProject.Village
+                                        </span>
+                                    }
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Message))
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Message:</strong>
+                            <p class="border p-3 bg-light">@Model.Message</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Status</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Current Status:</strong>
+                    @switch (Model.Status)
+                    {
+                        case "Pending":
+                            <span class="badge bg-warning">Pending</span>
+                            break;
+                        case "Approved":
+                            <span class="badge bg-success">Approved</span>
+                            break;
+                        case "Rejected":
+                            <span class="badge bg-danger">Rejected</span>
+                            break;
+                    }
+                </p>
+
+                <form method="post" asp-action="UpdateStatus" asp-route-id="@Model.Id">
+                    <div class="mb-3">
+                        <label class="form-label">Update Status:</label>
+                        <select name="status" class="form-select">
+                            <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+                            <option value="Approved" selected="@(Model.Status == "Approved")">Approved</option>
+                            <option value="Rejected" selected="@(Model.Status == "Rejected")">Rejected</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-1"></i> Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Once deleted, this application cannot be recovered.</p>
+                <button class="btn btn-danger w-100" onclick="deleteVolunteer(@Model.Id)">
+                    <i class="fas fa-trash me-1"></i> Delete Application
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="deleteForm" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        function deleteVolunteer(id) {
+            if (confirm('Are you sure you want to delete this volunteer application? This action cannot be undone.')) {
+                var form = document.getElementById('deleteForm');
+                form.action = '/admin/volunteers/delete/' + id;
+                form.submit();
+            }
+        }
+    </script>
+}

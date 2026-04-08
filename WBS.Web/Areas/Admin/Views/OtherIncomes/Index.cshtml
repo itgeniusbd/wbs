@@ -1,0 +1,406 @@
+﻿@model IEnumerable<WBS.Web.Models.OtherIncome>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "অন্যান্য আয়";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    decimal totalIncome = Model?.Sum(i => i.Amount) ?? 0;
+    var categories = ViewBag.Categories as List<WBS.Web.Models.IncomeCategory>;
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2><i class="fas fa-coins me-2"></i>@(isBangla ? "অন্যান্য আয়" : "Other Incomes")</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                <i class="fas fa-tags me-1"></i>@(isBangla ? "ক্যাটাগরি" : "Categories")
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#incomeModal" onclick="openAddIncomeModal()">
+                <i class="fas fa-plus me-1"></i>@(isBangla ? "আয় যুক্ত করুন" : "Add Income")
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">@(isBangla ? "ক্যাটাগরি" : "Category")</label>
+                    <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                        <option value="">@(isBangla ? "সব" : "All")</option>
+                        @if (categories != null)
+                        {
+                            foreach (var cat in categories.Where(c => c.IsActive))
+                            {
+                                var isSelected = ViewBag.SelectedCategoryId == cat.Id;
+                                <option value="@cat.Id" selected="@isSelected">
+                                    @(isBangla && !string.IsNullOrEmpty(cat.NameBn) ? cat.NameBn : cat.Name)
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">@(isBangla ? "শুরুর তারিখ" : "From Date")</label>
+                    <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate" onchange="this.form.submit()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">@(isBangla ? "শেষ তারিখ" : "To Date")</label>
+                    <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate" onchange="this.form.submit()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <a href="/admin/otherincomes" class="btn btn-secondary w-100">
+                        <i class="fas fa-redo me-1"></i>@(isBangla ? "রিসেট" : "Reset")
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Total -->
+    <div class="alert alert-success">
+        <strong>@(isBangla ? "মোট আয়:" : "Total Income:")</strong> <span class="fs-4">৳@totalIncome.ToString("N2")</span>
+    </div>
+
+    <!-- Income List -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>@(isBangla ? "আইডি" : "ID")</th>
+                                <th>@(isBangla ? "তারিখ" : "Date")</th>
+                                <th>@(isBangla ? "ক্যাটাগরি" : "Category")</th>
+                                <th>@(isBangla ? "বিবরণ" : "Details")</th>
+                                <th>@(isBangla ? "একাউন্ট" : "Account")</th>
+                                <th class="text-end">@(isBangla ? "পরিমাণ" : "Amount")</th>
+                                <th>@(isBangla ? "তৈরি করেছেন" : "Created By")</th>
+                                <th>@(isBangla ? "তৈরির তারিখ" : "Created At")</th>
+                                <th>@(isBangla ? "আপডেট তারিখ" : "Updated At")</th>
+                                <th class="text-center">@(isBangla ? "অ্যাকশন" : "Actions")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var income in Model)
+                            {
+                                <tr>
+                                    <td>@income.Id</td>
+                                    <td>@income.IncomeDate.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @if (income.IncomeCategory != null)
+                                        {
+                                            <span class="badge bg-info">
+                                                @(isBangla && !string.IsNullOrEmpty(income.IncomeCategory.NameBn) ? income.IncomeCategory.NameBn : income.IncomeCategory.Name)
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@income.Description</td>
+                                    <td>
+                                        @if (income.Account != null)
+                                        {
+                                            @(isBangla && !string.IsNullOrEmpty(income.Account.AccountNameBn) ? income.Account.AccountNameBn : income.Account.AccountName)
+                                        }
+                                    </td>
+                                    <td class="text-end"><strong class="text-success">৳@income.Amount.ToString("N2")</strong></td>
+                                    <td>@income.CreatedBy</td>
+                                    <td>@income.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td>@(income.UpdatedAt.HasValue ? income.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm") : "-")</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-warning" onclick="editIncome(@income.Id)" title="@(isBangla ? "সম্পাদনা" : "Edit")">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteIncome(@income.Id)" title="@(isBangla ? "মুছুন" : "Delete")">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <th colspan="5" class="text-end">@(isBangla ? "মোট:" : "Total:")</th>
+                                <th class="text-end"><strong class="text-success fs-5">৳@totalIncome.ToString("N2")</strong></th>
+                                <th colspan="4"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">@(isBangla ? "কোনো আয় পাওয়া যায়নি" : "No income records found")</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@(isBangla ? "ক্যাটাগরি ম্যানেজমেন্ট" : "Category Management")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm" class="row mb-3">
+                    <input type="hidden" id="categoryId" value="0" />
+                    <div class="col-md-8">
+                        <input type="text" id="categoryName" class="form-control" placeholder="@(isBangla ? "ক্যাটাগরির নাম" : "Category Name")" />
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary w-100" onclick="saveCategory()">
+                            <i class="fas fa-save me-1"></i><span id="categorySaveBtn">@(isBangla ? "সংরক্ষণ" : "Save")</span>
+                        </button>
+                    </div>
+                </form>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>@(isBangla ? "নাম" : "Name")</th>
+                                <th class="text-center">@(isBangla ? "স্ট্যাটাস" : "Status")</th>
+                                <th class="text-center">@(isBangla ? "অ্যাকশন" : "Actions")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryList">
+                            @if (categories != null)
+                            {
+                                foreach (var cat in categories)
+                                {
+                                    <tr data-id="@cat.Id">
+                                        <td>@cat.Name</td>
+                                        <td class="text-center">
+                                            @if (cat.IsActive)
+                                            {
+                                                <span class="badge bg-success">@(isBangla ? "সক্রিয়" : "Active")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@(isBangla ? "নিষ্ক্রিয়" : "Inactive")</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-warning me-1" onclick="editCategory(@cat.Id, '@cat.Name')" title="@(isBangla ? "সম্পাদনা" : "Edit")">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteCategory(@cat.Id)" title="@(isBangla ? "মুছে ফেলুন" : "Delete")">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Income Modal -->
+<div class="modal fade" id="incomeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incomeModalTitle">@(isBangla ? "আয় যুক্ত করুন" : "Add Income")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="incomeForm">
+                    <input type="hidden" id="incomeId" name="Id" value="0" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "ক্যাটাগরি" : "Category") <span class="text-danger">*</span></label>
+                        <select id="incomeCategoryId" name="IncomeCategoryId" class="form-select" required>
+                            <option value="">@(isBangla ? "নির্বাচন করুন" : "Select")</option>
+                            @if (categories != null)
+                            {
+                                foreach (var cat in categories.Where(c => c.IsActive))
+                                {
+                                    <option value="@cat.Id">@(isBangla && !string.IsNullOrEmpty(cat.NameBn) ? cat.NameBn : cat.Name)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "পরিমাণ (৳)" : "Amount (৳)") <span class="text-danger">*</span></label>
+                        <input type="number" id="incomeAmount" name="Amount" class="form-control" step="0.01" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "তারিখ" : "Payment Add Date") <span class="text-danger">*</span></label>
+                        <input type="date" id="incomeDate" name="IncomeDate" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Details")</label>
+                        <textarea id="incomeDescription" name="Description" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "একাউন্ট" : "Account") <span class="text-danger">*</span></label>
+                        <select id="incomeAccountId" name="AccountId" class="form-select" required>
+                            <option value="">@(isBangla ? "নির্বাচন করুন" : "Select")</option>
+                            @{
+                                var accounts = ViewBag.Accounts as List<WBS.Web.Models.Account>;
+                                if (accounts != null)
+                                {
+                                    foreach (var acc in accounts)
+                                    {
+                                        <option value="@acc.Id">@(isBangla && !string.IsNullOrEmpty(acc.AccountNameBn) ? acc.AccountNameBn : acc.AccountName)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isBangla ? "বাতিল" : "Cancel")</button>
+                <button type="button" class="btn btn-primary" onclick="saveIncome()">
+                    <i class="fas fa-save me-1"></i>@(isBangla ? "সংরক্ষণ" : "Save")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const isBangla = @(isBangla ? "true" : "false");
+
+    // Category Functions
+    function saveCategory() {
+        const id = document.getElementById('categoryId').value;
+        const name = document.getElementById('categoryName').value.trim();
+        
+        if (!name) {
+            alert(isBangla ? 'ক্যাটাগরির নাম দিন' : 'Enter category name');
+            return;
+        }
+
+        const url = id === '0' ? '/admin/otherincomes/createcategory' : '/admin/otherincomes/updatecategory';
+        const data = id === '0' 
+            ? { Name: name, NameBn: name, IsActive: true, DisplayOrder: 0 }
+            : { Id: parseInt(id), Name: name, NameBn: name, IsActive: true, DisplayOrder: 0 };
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    function editCategory(id, name) {
+        document.getElementById('categoryId').value = id;
+        document.getElementById('categoryName').value = name;
+        document.getElementById('categorySaveBtn').innerText = isBangla ? 'আপডেট' : 'Update';
+    }
+
+    function deleteCategory(id) {
+        if (!confirm(isBangla ? 'আপনি কি নিশ্চিত?' : 'Are you sure?')) return;
+
+        fetch('/admin/otherincomes/deletecategory?id=' + id, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    // Income Functions
+    function openAddIncomeModal() {
+        document.getElementById('incomeModalTitle').innerText = isBangla ? 'আয় যুক্ত করুন' : 'Add Income';
+        document.getElementById('incomeForm').reset();
+        document.getElementById('incomeId').value = '0';
+        document.getElementById('incomeDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    function editIncome(id) {
+        fetch(`/admin/otherincomes/getincome?id=${id}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const data = result.data;
+                document.getElementById('incomeModalTitle').innerText = isBangla ? 'আয় সম্পাদনা' : 'Edit Income';
+                document.getElementById('incomeId').value = data.id;
+                document.getElementById('incomeCategoryId').value = data.incomeCategoryId;
+                document.getElementById('incomeAmount').value = data.amount;
+                document.getElementById('incomeDate').value = data.incomeDate.split('T')[0];
+                document.getElementById('incomeDescription').value = data.description || '';
+                document.getElementById('incomeAccountId').value = data.accountId;
+                
+                const modal = new bootstrap.Modal(document.getElementById('incomeModal'));
+                modal.show();
+            }
+        });
+    }
+
+    function saveIncome() {
+        const form = document.getElementById('incomeForm');
+        const formData = new FormData(form);
+        
+        const id = document.getElementById('incomeId').value;
+        const url = id === '0' ? '/admin/otherincomes/createincome' : '/admin/otherincomes/updateincome';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+
+    function deleteIncome(id) {
+        if (!confirm(isBangla ? 'আপনি কি নিশ্চিত?' : 'Are you sure?')) return;
+
+        fetch('/admin/otherincomes/deleteincome?id=' + id, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+</script>
+}

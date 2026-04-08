@@ -1,0 +1,272 @@
+﻿@model WBS.Web.Models.Donation
+@{
+    ViewData["Title"] = "Edit Donation";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Edit Donation #@Model.Id
+                </h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <h5 class="border-bottom pb-2 mb-3">Donor Information</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonorName" class="form-label">Donor Name *</label>
+                            <input asp-for="DonorName" class="form-control" required />
+                            <span asp-validation-for="DonorName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">Email *</label>
+                            <input asp-for="Email" type="email" class="form-control" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label">Phone *</label>
+                            <input asp-for="Phone" class="form-control" required />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonorType" class="form-label">Donor Type</label>
+                            <select asp-for="DonorType" class="form-select">
+                                <option value="">-- Select Donor Type --</option>
+                                <option value="Regular">Regular / সাধারণ দাতা</option>
+                                <option value="Monthly">Monthly / মাসিক দাতা</option>
+                                <option value="Daily">Daily / দৈনিক দাতা</option>
+                                <option value="Yearly">Yearly / বার্ষিক দাতা</option>
+                                <option value="Lifetime">Lifetime / লাইফটাইম দাতা</option>
+                                <option value="Corporate">Corporate / প্রাতিষ্ঠানিক দাতা</option>
+                                <option value="OneTime">One Time / এককালীন দাতা</option>
+                            </select>
+                            <small class="form-text text-muted">Specify donor category for better tracking</small>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsAnonymous" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsAnonymous" class="form-check-label">
+                            Make this donation anonymous
+                        </label>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">Donation Details</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Amount" class="form-label">Amount (Tk) *</label>
+                            <input asp-for="Amount" type="number" step="0.01" class="form-control" required />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Currency" class="form-label">Currency</label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="BDT">BDT (Tk)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DonationTypeId" class="form-label">Donation Type *</label>
+                            <select asp-for="DonationTypeId" class="form-select" required>
+                                <option value="">-- Select Type --</option>
+                                @foreach (var item in (ViewBag.DonationTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == Model.DonationTypeId.ToString())">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DonationTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AppealId" class="form-label">Appeal (Optional)</label>
+                            <select asp-for="AppealId" class="form-select">
+                                <option value="">-- General Donation --</option>
+                                @foreach (var item in (ViewBag.Appeals as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == Model.AppealId?.ToString())">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SDGId" class="form-label">SDG Goal *</label>
+                            <select asp-for="SDGId" class="form-select" id="sdgSelect" required>
+                                <option value="">-- Select SDG --</option>
+                                @foreach (var item in (ViewBag.SDGs as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == Model.SDGId?.ToString())">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SDGId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ProgramId" class="form-label">Program *</label>
+                            <select asp-for="ProgramId" class="form-select" id="programSelect" required>
+                                <option value="">-- Select Programme --</option>
+                            </select>
+                            <span asp-validation-for="ProgramId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <h5 class="border-bottom pb-2 mb-3 mt-4">Payment Information</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AccountId" class="form-label">Account *</label>
+                            <select asp-for="AccountId" class="form-select" required>
+                                <option value="">-- Select Account --</option>
+                                @foreach (var item in (ViewBag.Accounts as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>) ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == Model.AccountId?.ToString())">@item.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="AccountId" class="text-danger"></span>
+                            <small class="form-text text-muted">Select the account where this donation will be recorded</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PaymentMethod" class="form-label">Payment Method *</label>
+                            <input asp-for="PaymentMethod" class="form-control" readonly />
+                            <small class="form-text text-muted">Payment method cannot be changed</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TransactionId" class="form-label">Transaction ID</label>
+                            <input asp-for="TransactionId" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Transaction Date</label>
+                            <input type="text" class="form-control" value="@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")" readonly />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Payment Status</label>
+                            <input type="text" class="form-control" value="@(Model.PaymentStatus ?? "N/A")" readonly />
+                            <small class="form-text text-muted">Auto-set when donation is marked as Completed</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Payment Date</label>
+                            <input type="text" class="form-control" value="@(Model.PaymentDate.HasValue ? Model.PaymentDate.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt") : "N/A")" readonly />
+                            <small class="form-text text-muted">Auto-set when donation is marked as Completed</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Status" class="form-label">Status *</label>
+                            <select asp-for="Status" class="form-select" required>
+                                <option value="0">Pending</option>
+                                <option value="1">Completed</option>
+                                <option value="2">Failed</option>
+                                <option value="3">Cancelled</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save me-2"></i>Update Donation
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Load Programs based on selected SDG
+        document.addEventListener('DOMContentLoaded', function() {
+            const sdgSelect = document.getElementById('sdgSelect');
+            const programSelect = document.getElementById('programSelect');
+            const initialSDGId = '@Model.SDGId';
+            const initialProgramId = '@Model.ProgramId';
+
+            // Load programs for initially selected SDG
+            if (initialSDGId && sdgSelect && programSelect) {
+                loadPrograms(initialSDGId, initialProgramId);
+            }
+
+            if (sdgSelect && programSelect) {
+                sdgSelect.addEventListener('change', async function() {
+                    const sdgId = this.value;
+                    
+                    if (!sdgId) {
+                        programSelect.disabled = true;
+                        programSelect.innerHTML = '<option value="">-- First Select SDG --</option>';
+                        return;
+                    }
+
+                    await loadPrograms(sdgId, null);
+                });
+            }
+
+            async function loadPrograms(sdgId, selectedProgramId) {
+                try {
+                    const response = await fetch(`/api/programs/by-sdg/${sdgId}`);
+                    const programs = await response.json();
+
+                    if (programs && programs.length > 0) {
+                        programSelect.disabled = false;
+                        programSelect.innerHTML = '<option value="">-- Select Programme --</option>';
+                        
+                        programs.forEach(program => {
+                            const option = document.createElement('option');
+                            option.value = program.id;
+                            option.textContent = program.title;
+                            if (selectedProgramId && program.id == selectedProgramId) {
+                                option.selected = true;
+                            }
+                            programSelect.appendChild(option);
+                        });
+                    } else {
+                        programSelect.disabled = true;
+                        programSelect.innerHTML = '<option value="">-- No Programmes Found --</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading programs:', error);
+                    programSelect.disabled = true;
+                    programSelect.innerHTML = '<option value="">-- Error Loading Programmes --</option>';
+                }
+            }
+        });
+    </script>
+}

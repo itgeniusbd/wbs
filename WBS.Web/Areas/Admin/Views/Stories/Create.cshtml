@@ -1,0 +1,178 @@
+﻿@model WBS.Web.Models.Story
+@{
+    ViewData["Title"] = "Create Success Story";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Success Stories</a></li>
+            <li class="breadcrumb-item active">Create New</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Create Success Story</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <!-- English Fields -->
+                    <h5 class="mb-3 text-primary"><i class="fas fa-language me-2"></i>English Content</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label asp-for="Title" class="form-label">Title <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" id="Title" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Slug" class="form-label">URL Slug</label>
+                            <input asp-for="Slug" class="form-control" id="Slug" />
+                            <small class="text-muted">Leave empty for auto-generation</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BeneficiaryName" class="form-label">Beneficiary Name</label>
+                            <input asp-for="BeneficiaryName" class="form-control" placeholder="Name of the person" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Location" class="form-label">Location</label>
+                            <input asp-for="Location" class="form-control" placeholder="City, District" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Summary" class="form-label">Summary</label>
+                        <textarea asp-for="Summary" class="form-control" rows="3" placeholder="Brief summary of the story"></textarea>
+                        <small class="text-muted">A short description for preview cards</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Full Story Content</label>
+                        <textarea asp-for="Content" class="form-control" rows="8" placeholder="Write the complete story here..."></textarea>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Bangla Fields -->
+                    <h5 class="mb-3 text-primary"><i class="fas fa-language me-2"></i>বাংলা কন্টেন্ট</h5>
+                    
+                    <div class="mb-3">
+                        <label asp-for="TitleBn" class="form-label">শিরোনাম (বাংলা)</label>
+                        <input asp-for="TitleBn" class="form-control" placeholder="বাংলা শিরোনাম লিখুন" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BeneficiaryNameBn" class="form-label">সুবিধাভোগীর নাম (বাংলা)</label>
+                            <input asp-for="BeneficiaryNameBn" class="form-control" placeholder="ব্যক্তির নাম" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LocationBn" class="form-label">স্থান (বাংলা)</label>
+                            <input asp-for="LocationBn" class="form-control" placeholder="শহর, জেলা" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SummaryBn" class="form-label">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
+                        <textarea asp-for="SummaryBn" class="form-control" rows="3" placeholder="গল্পের সংক্ষিপ্ত বিবরণ"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ContentBn" class="form-label">সম্পূর্ণ গল্প (বাংলা)</label>
+                        <textarea asp-for="ContentBn" class="form-control" rows="8" placeholder="সম্পূর্ণ গল্প এখানে লিখুন..."></textarea>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Media -->
+                    <h5 class="mb-3 text-primary"><i class="fas fa-image me-2"></i>Media</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Featured Image</label>
+                            <input type="file" name="featuredImage" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload a main image for the story</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="VideoUrl" class="form-label">Video URL (Optional)</label>
+                            <input asp-for="VideoUrl" class="form-control" placeholder="https://youtube.com/..." />
+                            <small class="text-muted">YouTube or other video link</small>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Settings -->
+                    <h5 class="mb-3 text-primary"><i class="fas fa-cog me-2"></i>Settings</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label">Active</label>
+                            </div>
+                            <small class="text-muted">Show this story on the website</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsFeatured" class="form-check-label">Featured</label>
+                            </div>
+                            <small class="text-muted">Display on homepage</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Create Story
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Auto-generate slug from title
+        document.getElementById('Title').addEventListener('input', function() {
+            const title = this.value;
+            const slugInput = document.getElementById('Slug');
+            
+            // Only auto-generate if slug field is empty
+            if (!slugInput.value || slugInput.dataset.autoGenerated === 'true') {
+                let slug = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+                    .replace(/\s+/g, '-')          // Replace spaces with hyphens
+                    .replace(/-+/g, '-')           // Replace multiple hyphens with single
+                    .trim();
+                
+                slugInput.value = slug;
+                slugInput.dataset.autoGenerated = 'true';
+            }
+        });
+        
+        // Mark as manually edited if user types in slug field
+        document.getElementById('Slug').addEventListener('input', function() {
+            if (this.value) {
+                this.dataset.autoGenerated = 'false';
+            }
+        });
+    </script>
+}

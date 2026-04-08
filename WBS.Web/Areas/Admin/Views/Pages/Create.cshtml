@@ -1,0 +1,161 @@
+@model WBS.Web.Models.Page
+
+@{
+    ViewData["Title"] = "Create Page";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-plus-circle me-2"></i>Create New Page</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic" type="button">Basic Info</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#content" type="button">Content</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#images" type="button">Images</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#seo" type="button">SEO</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Basic Info Tab -->
+                <div class="tab-pane fade show active" id="basic">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TitleBn" class="form-label">Title (Bangla)</label>
+                            <input asp-for="TitleBn" class="form-control" />
+                            <span asp-validation-for="TitleBn" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label">Slug (URL) <span class="text-danger">*</span></label>
+                        <input asp-for="Slug" class="form-control" placeholder="e.g., about-us" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <small class="form-text text-muted">This will be used in the URL: /page/your-slug</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="ShowInFooter" class="form-check-input" type="checkbox" />
+                                <label asp-for="ShowInFooter" class="form-check-label">Show in Footer</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Tab -->
+                <div class="tab-pane fade" id="content">
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Content (English)</label>
+                        <textarea asp-for="Content" class="form-control" rows="10"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ContentBn" class="form-label">Content (Bangla)</label>
+                        <textarea asp-for="ContentBn" class="form-control" rows="10"></textarea>
+                        <span asp-validation-for="ContentBn" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Images Tab -->
+                <div class="tab-pane fade" id="images">
+                    <div class="mb-3">
+                        <label class="form-label">Featured Image</label>
+                        <input type="file" name="featuredImage" class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Recommended size: 1200x630px</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Banner Image</label>
+                        <input type="file" name="bannerImage" class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Recommended size: 1920x500px</small>
+                    </div>
+                </div>
+
+                <!-- SEO Tab -->
+                <div class="tab-pane fade" id="seo">
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                        <input asp-for="MetaTitle" class="form-control" maxlength="60" />
+                        <small class="form-text text-muted">Recommended length: 50-60 characters</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3" maxlength="160"></textarea>
+                        <small class="form-text text-muted">Recommended length: 150-160 characters</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaKeywords" class="form-label">Meta Keywords</label>
+                        <input asp-for="MetaKeywords" class="form-control" />
+                        <small class="form-text text-muted">Separate keywords with commas</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Page
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#Content'))
+            .catch(error => {
+                console.error(error);
+            });
+
+        ClassicEditor
+            .create(document.querySelector('#ContentBn'))
+            .catch(error => {
+                console.error(error);
+            });
+
+        // Auto-generate slug from title
+        document.querySelector('#Title').addEventListener('input', function(e) {
+            var slug = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            document.querySelector('#Slug').value = slug;
+        });
+    </script>
+}

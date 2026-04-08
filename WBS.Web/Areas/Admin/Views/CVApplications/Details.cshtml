@@ -1,0 +1,241 @@
+@model WBS.Web.Models.CVApplication
+
+@{
+    ViewData["Title"] = "CV Application Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-alt me-2"></i>Application Details</h2>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="row">
+    <!-- Main Application Details -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Applicant Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Full Name:</strong>
+                        <p>@Model.FullName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email:</strong>
+                        <p><a href="mailto:@Model.Email">@Model.Email</a></p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Phone:</strong>
+                        <p>
+                            @if (!string.IsNullOrEmpty(Model.Phone))
+                            {
+                                <a href="tel:@Model.Phone">@Model.Phone</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not provided</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Address:</strong>
+                        <p>@(Model.Address ?? "Not provided")</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Education:</strong>
+                        <p>@(Model.Education ?? "Not provided")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Experience:</strong>
+                        <p>@(Model.Experience ?? "Not provided")</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Skills))
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Skills:</strong>
+                            <p>@Model.Skills</p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.CoverLetter))
+                {
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Cover Letter:</strong>
+                            <div class="border p-3 mt-2" style="white-space: pre-wrap;">@Model.CoverLetter</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Review Notes -->
+        @if (!string.IsNullOrEmpty(Model.ReviewNotes))
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Review Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p style="white-space: pre-wrap;">@Model.ReviewNotes</p>
+                    @if (Model.ReviewedDate.HasValue)
+                    {
+                        <small class="text-muted">Reviewed on: @Model.ReviewedDate.Value.ToString("MMM dd, yyyy hh:mm tt")</small>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Current Status:</strong>
+                    <p>
+                        @if (Model.Status == "Pending")
+                        {
+                            <span class="badge bg-warning fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Reviewed")
+                        {
+                            <span class="badge bg-info fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Shortlisted")
+                        {
+                            <span class="badge bg-success fs-6">@Model.Status</span>
+                        }
+                        else if (Model.Status == "Rejected")
+                        {
+                            <span class="badge bg-danger fs-6">@Model.Status</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary fs-6">@Model.Status</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Applied Date:</strong>
+                    <p>@Model.AppliedDate.ToString("MMMM dd, yyyy")</p>
+                    <small class="text-muted">@Model.AppliedDate.ToString("hh:mm tt")</small>
+                </div>
+
+                @if (Model.CareerIdAppliedFor.HasValue)
+                {
+                    <div class="mb-3">
+                        <strong>Career Position ID:</strong>
+                        <p>@Model.CareerIdAppliedFor</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.PositionAppliedFor))
+                {
+                    <div class="mb-3">
+                        <strong>Position:</strong>
+                        <p>@Model.PositionAppliedFor</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.CVFilePath))
+                {
+                    <div class="mb-3">
+                        <strong>CV Document:</strong>
+                        <p>
+                            <a href="@Model.CVFilePath" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-download me-2"></i>Download CV
+                            </a>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Update Status Form -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Update Status</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="UpdateStatus" asp-route-id="@Model.Id">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
+                            <option value="Reviewed" selected="@(Model.Status == "Reviewed")">Reviewed</option>
+                            <option value="Shortlisted" selected="@(Model.Status == "Shortlisted")">Shortlisted</option>
+                            <option value="Rejected" selected="@(Model.Status == "Rejected")">Rejected</option>
+                            <option value="Hired" selected="@(Model.Status == "Hired")">Hired</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reviewNotes" class="form-label">Review Notes</label>
+                        <textarea class="form-control" id="reviewNotes" name="reviewNotes" rows="4" placeholder="Add notes about this application...">@Model.ReviewNotes</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i>Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Button -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Deleting this application is permanent and cannot be undone.</p>
+                <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="fas fa-trash me-2"></i>Delete Application
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this application from <strong>@Model.FullName</strong>?</p>
+                <p class="text-danger mb-0"><i class="fas fa-exclamation-triangle me-2"></i>This action cannot be undone!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" asp-action="Delete" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Yes, Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

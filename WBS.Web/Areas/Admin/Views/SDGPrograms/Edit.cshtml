@@ -1,0 +1,142 @@
+﻿@model WBS.Web.Models.SDGProgram
+@{
+    ViewData["Title"] = "Edit SDG Program";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-edit me-2"></i>Edit SDG Program</h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="FeaturedImage" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <input type="hidden" asp-for="CreatedBy" />
+
+                    <div class="mb-3">
+                        <label asp-for="SDGId" class="form-label">SDG *</label>
+                        <select asp-for="SDGId" class="form-select" asp-items="ViewBag.SDGs">
+                            <option value="">-- Select SDG --</option>
+                        </select>
+                        <span asp-validation-for="SDGId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Program Title (English) *</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TitleBn" class="form-label">Program Title (বাংলা)</label>
+                        <input asp-for="TitleBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                        <span asp-validation-for="TitleBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control" rows="4" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                        <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Current Image</label>
+                            <div>
+                                <img src="@Model.FeaturedImage" alt="Current Image" style="max-width: 300px; border-radius: 8px;" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Change Featured Image</label>
+                        <input type="file" name="featuredImage" class="form-control" accept="image/*" />
+                        <small class="text-muted">Recommended size: 800x600px. Leave empty to keep current image.</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" type="number" class="form-control" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="IsActive" class="form-label">Status</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">Active</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="IsFeatured" class="form-label">Featured</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsFeatured" class="form-check-label">Show on Home Page</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsRohingyaProgram" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsRohingyaProgram" class="form-check-label">
+                                <strong>This is a Rohingya Program</strong> / <span style="font-family: 'Noto Sans Bengali', sans-serif;">এটি একটি রোহিঙ্গা কর্মসূচি</span>
+                            </label>
+                        </div>
+                        <small class="text-muted">Check this if this program should appear on the Rohingya Response page</small>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Program
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Program Info</h5>
+            </div>
+            <div class="card-body">
+                <p class="small mb-2"><strong>Created:</strong> @Model.CreatedAt.ToString("dd MMM yyyy")</p>
+                @if (Model.UpdatedAt.HasValue)
+                {
+                    <p class="small mb-2"><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToString("dd MMM yyyy")</p>
+                }
+                <p class="small mb-0"><strong>Created By:</strong> @Model.CreatedBy</p>
+
+                <hr />
+
+                <div class="alert alert-info mb-0">
+                    <small><i class="fas fa-lightbulb me-1"></i>Manage events for this program from the "Program Events" menu.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,181 @@
+﻿@model IEnumerable<WBS.Web.Models.Partner>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Our Partners";
+    var requestCultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCultureFeature?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    var isEnglish = currentCulture == "en";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "Our Partners & Sponsors" : "আমাদের অংশীদার ও পৃষ্ঠপোষক")
+                </h1>
+                <p class="lead" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "Working together to create sustainable impact" : "টেকসই প্রভাব তৈরিতে একসাথে কাজ করছি")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-4" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "Building Strategic Partnerships" : "কৌশলগত অংশীদারিত্ব তৈরি")
+                </h2>
+                <p class="text-muted" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? 
+                        "We collaborate with diverse organizations, government agencies, and international bodies to maximize our impact and reach. Together, we're creating lasting change in communities across Bangladesh." : 
+                        "আমরা বৈচিত্র্যময় সংস্থা, সরকারি সংস্থা এবং আন্তর্জাতিক সংস্থাগুলির সাথে সহযোগিতা করি যাতে আমাদের প্রভাব এবং পৌঁছানো সর্বাধিক করা যায়। একসাথে, আমরা বাংলাদেশের সমগ্র সম্প্রদায়ে দীর্ঘস্থায়ী পরিবর্তন তৈরি করছি।")
+                </p>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-4 justify-content-center">
+                @foreach (var partner in Model)
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="card h-100 shadow-sm hover-lift">
+                            <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                                @if (!string.IsNullOrEmpty(partner.Logo))
+                                {
+                                    <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                                        <img src="@partner.Logo" alt="@partner.Name" class="img-fluid" style="max-height: 120px; max-width: 100%; object-fit: contain;" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mb-3" style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-handshake fa-4x text-muted"></i>
+                                    </div>
+                                }
+                                
+                                <h5 class="card-title text-center mb-3" style="@(!isEnglish && !string.IsNullOrEmpty(partner.NameBn) ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                    @if (!isEnglish && !string.IsNullOrEmpty(partner.NameBn))
+                                    {
+                                        @partner.NameBn
+                                    }
+                                    else
+                                    {
+                                        @partner.Name
+                                    }
+                                </h5>
+
+                                @* Social Media Icons *@
+                                @if (!string.IsNullOrEmpty(partner.FacebookUrl) || !string.IsNullOrEmpty(partner.TwitterUrl) || 
+                                     !string.IsNullOrEmpty(partner.LinkedInUrl) || !string.IsNullOrEmpty(partner.InstagramUrl) || 
+                                     !string.IsNullOrEmpty(partner.YouTubeUrl))
+                                {
+                                    <div class="d-flex gap-2 justify-content-center mb-3">
+                                        @if (!string.IsNullOrEmpty(partner.FacebookUrl))
+                                        {
+                                            <a href="@partner.FacebookUrl" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="Facebook">
+                                                <i class="fab fa-facebook-f"></i>
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(partner.TwitterUrl))
+                                        {
+                                            <a href="@partner.TwitterUrl" target="_blank" class="btn btn-sm btn-outline-info rounded-circle" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="Twitter">
+                                                <i class="fab fa-twitter"></i>
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(partner.LinkedInUrl))
+                                        {
+                                            <a href="@partner.LinkedInUrl" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="LinkedIn">
+                                                <i class="fab fa-linkedin-in"></i>
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(partner.InstagramUrl))
+                                        {
+                                            <a href="@partner.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="Instagram">
+                                                <i class="fab fa-instagram"></i>
+                                            </a>
+                                        }
+                                        @if (!string.IsNullOrEmpty(partner.YouTubeUrl))
+                                        {
+                                            <a href="@partner.YouTubeUrl" target="_blank" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;" title="YouTube">
+                                                <i class="fab fa-youtube"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(partner.Website))
+                                {
+                                    <a href="@partner.Website" target="_blank" class="btn btn-sm btn-outline-primary w-100" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        <i class="fas fa-globe me-2"></i>@(isEnglish ? "Visit Website" : "ওয়েবসাইট দেখুন")
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-handshake fa-3x mb-3"></i>
+                        <h4 style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                            @(isEnglish ? "No partners listed at the moment" : "এই মুহূর্তে কোন অংশীদার তালিকাভুক্ত নেই")
+                        </h4>
+                        <p class="mb-0" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                            @(isEnglish ? "We're constantly building new partnerships. Check back soon!" : "আমরা ক্রমাগত নতুন অংশীদারিত্ব তৈরি করছি। শীঘ্রই ফিরে আসুন!")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="mb-4" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "Become a Partner" : "অংশীদার হন")
+                </h2>
+                <p class="lead mb-4" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? 
+                        "Interested in partnering with us? Let's work together to create positive change." : 
+                        "আমাদের সাথে অংশীদারিত্ব করতে আগ্রহী? ইতিবাচক পরিবর্তন তৈরিতে একসাথে কাজ করি।")
+                </p>
+                <a href="/about/contact" class="btn btn-light btn-lg" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    <i class="fas fa-envelope me-2"></i>@(isEnglish ? "Contact Us" : "যোগাযোগ করুন")
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    
+    /* Ensure Bengali font is loaded */
+    @@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;700&display=swap');
+    
+    /* Social media button hover effects */
+    .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-danger:hover {
+        transform: scale(1.1);
+        transition: all 0.2s ease;
+    }
+</style>

@@ -1,0 +1,425 @@
+@model WBS.Web.Models.Donation
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Payment Information";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header bg-primary text-white py-5">
+    <div class="container">
+        <h1 class="fw-bold">@(isBangla ? "??????? ????" : "Payment Information")</h1>
+        <p class="lead mb-0">@(isBangla ? "????? ????? ???? ???????" : "Thank you for your generous donation")</p>
+    </div>
+</section>
+
+<section class="payment-info py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Donation Summary -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow sticky-top" style="top: 20px;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-invoice me-2"></i>
+                            @(isBangla ? "??? ??????????" : "Donation Summary")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@(isBangla ? "??????" : "Amount"):</span>
+                            <strong class="text-primary fs-4">?@Model.Amount.ToString("N0")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@(isBangla ? "???" : "Type"):</span>
+                            <span>@Model.DonationType?.Name</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@(isBangla ? "????? ???" : "Donor"):</span>
+                            <span>@Model.DonorName</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@(isBangla ? "?????" : "Email"):</span>
+                            <span class="small">@Model.Email</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Phone))
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>@(isBangla ? "???" : "Phone"):</span>
+                                <span>@Model.Phone</span>
+                            </div>
+                        }
+                        <hr />
+                        <div class="d-flex justify-content-between">
+                            <strong>@(isBangla ? "??????? ??????" : "Payment Method"):</strong>
+                            <span class="badge bg-info">@Model.PaymentMethod</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Instructions -->
+            <div class="col-lg-8">
+                @if (Model.PaymentMethod == "bKash")
+                {
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-danger text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-mobile-alt me-2"></i>
+                                @(isBangla ? "????? ???????" : "bKash Payment")
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla 
+                                    ? "????? ????????? ?????? ??? ??????? ??????? ????" 
+                                    : "Please follow the instructions below to complete your payment")
+                            </div>
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "??????? ???????:" : "Payment Steps:")</h5>
+                            <ol class="payment-steps">
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "????? ????? ????? ????? ??? \"????? ????\" ???????? ????" 
+                                        : "Open your bKash app and select \"Send Money\"")
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla ? "????? ?????? ???? ?????:" : "Send money to the following number:")
+                                    <div class="card bg-light mt-2 p-3">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <small class="text-muted d-block">@(isBangla ? "????? ?????" : "bKash Number")</small>
+                                                <h3 class="mb-0 text-danger" id="bkashNumber">01XXX-XXXXXX</h3>
+                                            </div>
+                                            <button class="btn btn-outline-danger" onclick="copyToClipboard('bkashNumber')">
+                                                <i class="fas fa-copy"></i> @(isBangla ? "???" : "Copy")
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "??????: <strong>?" + Model.Amount.ToString("N0") + "</strong>" 
+                                        : "Amount: <strong>?" + Model.Amount.ToString("N0") + "</strong>")
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "????????? ?????? ????? ??? ?????: <strong>" + Model.DonorName + "</strong>" 
+                                        : "Enter your name as reference: <strong>" + Model.DonorName + "</strong>")
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "??????? ??????? ???? ??? Transaction ID ??????? ????" 
+                                        : "Complete the payment and save the Transaction ID")
+                                </li>
+                            </ol>
+
+                            <hr class="my-4" />
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "Transaction ID ??? ???:" : "Submit Transaction ID:")</h5>
+                            <form asp-action="ConfirmPayment" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <div class="mb-3">
+                                    <label class="form-label">@(isBangla ? "Transaction ID" : "Transaction ID")</label>
+                                    <input type="text" name="transactionId" class="form-control form-control-lg" 
+                                           placeholder="@(isBangla ? "????: 8A5F9X2P1Q" : "e.g., 8A5F9X2P1Q")" required />
+                                </div>
+                                <button type="submit" class="btn btn-danger btn-lg w-100">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    @(isBangla ? "??????? ??????? ????" : "Confirm Payment")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else if (Model.PaymentMethod == "Nagad")
+                {
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h4 class="mb-0">
+                                <i class="fas fa-mobile-alt me-2"></i>
+                                @(isBangla ? "??? ???????" : "Nagad Payment")
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla 
+                                    ? "????? ????????? ?????? ??? ??????? ??????? ????" 
+                                    : "Please follow the instructions below to complete your payment")
+                            </div>
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "??????? ???????:" : "Payment Steps:")</h5>
+                            <ol class="payment-steps">
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "????? ??? ????? ????? ??? \"????? ????\" ???????? ????" 
+                                        : "Open your Nagad app and select \"Send Money\"")
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla ? "????? ?????? ???? ?????:" : "Send money to the following number:")
+                                    <div class="card bg-light mt-2 p-3">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <small class="text-muted d-block">@(isBangla ? "??? ?????" : "Nagad Number")</small>
+                                                <h3 class="mb-0 text-warning" id="nagadNumber">01XXX-XXXXXX</h3>
+                                            </div>
+                                            <button class="btn btn-outline-warning" onclick="copyToClipboard('nagadNumber')">
+                                                <i class="fas fa-copy"></i> @(isBangla ? "???" : "Copy")
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "??????: <strong>?" + Model.Amount.ToString("N0") + "</strong>" 
+                                        : "Amount: <strong>?" + Model.Amount.ToString("N0") + "</strong>")
+                                </li>
+                                <li class="mb-3">
+                                    @(isBangla 
+                                        ? "??????? ??????? ???? ??? Transaction ID ??????? ????" 
+                                        : "Complete the payment and save the Transaction ID")
+                                </li>
+                            </ol>
+
+                            <hr class="my-4" />
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "Transaction ID ??? ???:" : "Submit Transaction ID:")</h5>
+                            <form asp-action="ConfirmPayment" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <div class="mb-3">
+                                    <label class="form-label">@(isBangla ? "Transaction ID" : "Transaction ID")</label>
+                                    <input type="text" name="transactionId" class="form-control form-control-lg" 
+                                           placeholder="@(isBangla ? "Transaction ID ?????" : "Enter Transaction ID")" required />
+                                </div>
+                                <button type="submit" class="btn btn-warning btn-lg w-100">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    @(isBangla ? "??????? ??????? ????" : "Confirm Payment")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else if (Model.PaymentMethod == "Bank Transfer")
+                {
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-university me-2"></i>
+                                @(isBangla ? "?????? ??????????" : "Bank Transfer")
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla 
+                                    ? "????? ?????? ???????? ?????? ???? ?????" 
+                                    : "Transfer money directly to the following bank account")
+                            </div>
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "?????? ????:" : "Bank Details:")</h5>
+
+                            <!-- Bank Account 1 -->
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-success">
+                                        <i class="fas fa-landmark me-2"></i>
+                                        @(isBangla ? "?????? ???????" : "Primary Account")
+                                    </h6>
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "?????? ???:" : "Bank Name:")</td>
+                                            <td id="bankName1">Dutch-Bangla Bank Limited</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('bankName1')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "??????? ???:" : "Account Name:")</td>
+                                            <td id="accName1">Working Bangladesh Society</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('accName1')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "??????? ?????:" : "Account Number:")</td>
+                                            <td id="accNum1" class="fs-5 text-success">XXXX XXXX XXXX XXXX</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('accNum1')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "????:" : "Branch:")</td>
+                                            <td id="branch1">Dhaka Main Branch</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('branch1')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "?????? ?????:" : "Routing Number:")</td>
+                                            <td id="routing1">XXXXXXXXX</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard('routing1')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Bank Account 2 -->
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-primary">
+                                        <i class="fas fa-landmark me-2"></i>
+                                        @(isBangla ? "?????? ???????" : "Alternative Account")
+                                    </h6>
+                                    <table class="table table-borderless mb-0">
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "?????? ???:" : "Bank Name:")</td>
+                                            <td id="bankName2">Islami Bank Bangladesh Limited</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('bankName2')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "??????? ???:" : "Account Name:")</td>
+                                            <td id="accName2">Working Bangladesh Society</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('accName2')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "??????? ?????:" : "Account Number:")</td>
+                                            <td id="accNum2" class="fs-5 text-primary">XXXX XXXX XXXX XXXX</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('accNum2')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@(isBangla ? "????:" : "Branch:")</td>
+                                            <td id="branch2">Gulshan Branch</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('branch2')">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>@(isBangla ? "???? ??? ??? ??????:" : "Please Note:")</strong>
+                                @(isBangla 
+                                    ? "??????? ??????? ???? ?? ??????? ??? ????? ??????? ?????/????????? ??? Transaction ID ?????? ?????? ?????: <strong>finance@wbs.org</strong>" 
+                                    : "After completing the payment, please send your payment slip/screenshot and Transaction ID to our email: <strong>finance@wbs.org</strong>")
+                            </div>
+
+                            <hr class="my-4" />
+
+                            <h5 class="fw-bold mb-3">@(isBangla ? "??????? ??????????:" : "Payment Confirmation:")</h5>
+                            <form asp-action="ConfirmPayment" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <div class="mb-3">
+                                    <label class="form-label">@(isBangla ? "Transaction/Reference ID" : "Transaction/Reference ID")</label>
+                                    <input type="text" name="transactionId" class="form-control form-control-lg" 
+                                           placeholder="@(isBangla ? "?????? Transaction ID ?????" : "Enter Bank Transaction ID")" required />
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        @(isBangla 
+                                            ? "???? ???? ?????? <strong>01XXX-XXXXXX</strong> ?????? SMS ???? ????? Transaction ID ??" 
+                                            : "Or you can SMS us at <strong>01XXX-XXXXXX</strong> with your Transaction ID")
+                                    </small>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    @(isBangla ? "??????? ??????? ????" : "Confirm Payment")
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+                <!-- Need Help -->
+                <div class="card shadow border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-question-circle text-primary me-2"></i>
+                            @(isBangla ? "??????? ?????????" : "Need Help?")
+                        </h5>
+                        <p class="mb-3">
+                            @(isBangla 
+                                ? "??? ????? ??? ?????? ??? ?? ?????? ????, ?????? ???? ??????? ????" 
+                                : "If you have any issues or questions, please contact us")
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="tel:+8801XXX-XXXXXX" class="btn btn-outline-primary">
+                                <i class="fas fa-phone me-2"></i>
+                                @(isBangla ? "?? ????" : "Call Us")
+                            </a>
+                            <a href="mailto:info@wbs.org" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i>
+                                @(isBangla ? "????? ????" : "Email Us")
+                            </a>
+                            <a href="https://wa.me/8801XXXXXXXXX" target="_blank" class="btn btn-outline-success">
+                                <i class="fab fa-whatsapp me-2"></i>
+                                WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show toast notification
+                const toast = document.createElement('div');
+                toast.className = 'position-fixed top-0 end-0 p-3';
+                toast.style.zIndex = '9999';
+                toast.innerHTML = `
+                    <div class="toast show" role="alert">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong class="me-auto">@(isBangla ? "??? ??????!" : "Copied!")</strong>
+                            <button type="button" class="btn-close" onclick="this.parentElement.parentElement.parentElement.remove()"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${text}
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+}

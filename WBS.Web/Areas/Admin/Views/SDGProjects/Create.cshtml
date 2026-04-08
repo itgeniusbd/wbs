@@ -1,0 +1,374 @@
+﻿@model WBS.Web.Models.SDGProject
+@{
+    ViewData["Title"] = "Create SDG Project";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+<style>
+    /* Bengali font support for all input fields */
+    input[asp-for*="Bn"],
+    textarea[asp-for*="Bn"],
+    input[name*="Bn"],
+    textarea[name*="Bn"],
+    input[placeholder*="বাংলা"],
+    input[placeholder*="জেলা"],
+    input[placeholder*="থানা"],
+    input[placeholder*="ইউনিয়ন"],
+    input[placeholder*="গ্রাম"],
+    input[placeholder*="প্রকল্প"],
+    textarea[placeholder*="বিবরণ"] {
+        font-family: 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', sans-serif !important;
+    }
+</style>
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-plus-circle me-2"></i>Create New SDG Project (Event)
+            </h2>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Project Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="SDGId" class="form-label">Select SDG *</label>
+                            <select asp-for="SDGId" class="form-select" asp-items="ViewBag.SDGs" id="sdgDropdown">
+                                <option value="">-- Select SDG --</option>
+                            </select>
+                            <span asp-validation-for="SDGId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SDGProgramId" class="form-label">Select Program *</label>
+                            <select asp-for="SDGProgramId" class="form-select" id="programDropdown">
+                                <option value="">-- First Select SDG --</option>
+                            </select>
+                            <span asp-validation-for="SDGProgramId" class="text-danger"></span>
+                            <small class="text-muted">Select a program under the chosen SDG</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Project Title (English) *</label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g., Clean Water Project" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Project Title (বাংলা)</label>
+                            <input asp-for="TitleBn" class="form-control" placeholder="প্রকল্পের নাম লিখুন" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description (English)</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" 
+                                      placeholder="Describe the project..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description (বিবরণ)</label>
+                            <textarea asp-for="DescriptionBn" class="form-control" rows="4" 
+                                      placeholder="প্রকল্পের বিবরণ লিখুন..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Location Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DistrictId" class="form-label">District (English) *</label>
+                                <select asp-for="DistrictId" class="form-select" asp-items="ViewBag.Districts" id="districtDropdown">
+                                    <option value="">-- Select District --</option>
+                                </select>
+                                <span asp-validation-for="DistrictId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">District (জেলা) - Auto-filled</label>
+                                <input asp-for="DistrictBn" class="form-control" readonly style="background-color: #e9ecef;" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="UpazilaId" class="form-label">Thana/Upazila (English) *</label>
+                                <select asp-for="UpazilaId" class="form-select" id="upazilaDropdown">
+                                    <option value="">-- First Select District --</option>
+                                </select>
+                                <span asp-validation-for="UpazilaId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Thana (থানা) - Auto-filled</label>
+                                <input asp-for="ThanaBn" class="form-control" readonly style="background-color: #e9ecef;" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Union" class="form-label">Union (English)</label>
+                                <input asp-for="Union" class="form-control" placeholder="e.g., Baisakanda" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Union (ইউনিয়ন)</label>
+                                <input asp-for="UnionBn" class="form-control" placeholder="ইউনিয়নের নাম" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Village" class="form-label">Village (English)</label>
+                                <input asp-for="Village" class="form-control" placeholder="e.g., Uttarpara" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Village (গ্রাম)</label>
+                                <input asp-for="VillageBn" class="form-control" placeholder="গ্রামের নাম লিখুন" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Images</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="featuredImage" class="form-label">Featured Image *</label>
+                            <input type="file" class="form-control" id="featuredImage" name="featuredImage" 
+                                   accept="image/*" required />
+                            <small class="text-muted">Main project image (JPG, PNG, max 5MB)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="projectImages" class="form-label">Additional Images (Gallery)</label>
+                            <input type="file" class="form-control" id="projectImages" name="projectImages" 
+                                   accept="image/*" multiple />
+                            <small class="text-muted">Upload multiple images for project gallery</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">Project Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="BeneficiaryCount" class="form-label">Beneficiary Count *</label>
+                            <input asp-for="BeneficiaryCount" type="number" class="form-control" min="0" value="0" />
+                            <span asp-validation-for="BeneficiaryCount" class="text-danger"></span>
+                            <small class="text-muted">Total number of beneficiaries</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StartDate" class="form-label">Start Date</label>
+                            <input asp-for="StartDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EndDate" class="form-label">End Date</label>
+                            <input asp-for="EndDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" type="number" class="form-control" value="0" />
+                            <small class="text-muted">Lower numbers appear first</small>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsFeatured" class="form-check-label">
+                                Featured Project
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsRohingyaEvent" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsRohingyaEvent" class="form-check-label">
+                                <strong>Rohingya Event</strong> / রোহিঙ্গা ইভেন্ট
+                            </label>
+                            <small class="d-block text-muted">Check if this event is part of Rohingya Response</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Help</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small mb-2"><strong>Required Fields:</strong></p>
+                        <ul class="small">
+                            <li>SDG Selection</li>
+                            <li>Program Selection</li>
+                            <li>Project Title (English)</li>
+                            <li>Featured Image</li>
+                            <li>Beneficiary Count</li>
+                        </ul>
+                        <hr />
+                        <p class="small mb-0"><strong>Tips:</strong></p>
+                        <ul class="small mb-0">
+                            <li>Provide both English and Bengali names</li>
+                            <li>Add location details for better tracking</li>
+                            <li>Upload high-quality images</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-1"></i>Create Project
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Cascading dropdown: Load programs when SDG is selected
+            $('#sdgDropdown').change(function() {
+                var sdgId = $(this).val();
+                var programDropdown = $('#programDropdown');
+                
+                // Clear and disable program dropdown
+                programDropdown.empty();
+                programDropdown.append('<option value="">-- Loading... --</option>');
+                programDropdown.prop('disabled', true);
+                
+                if (sdgId) {
+                    // Fetch programs for selected SDG
+                    $.ajax({
+                        url: '/Admin/SDGProjects/GetProgramsBySDG',
+                        type: 'GET',
+                        data: { sdgId: sdgId },
+                        success: function(data) {
+                            programDropdown.empty();
+                            
+                            if (data.length > 0) {
+                                programDropdown.append('<option value="">-- Select Program --</option>');
+                                $.each(data, function(index, program) {
+                                    programDropdown.append(
+                                        $('<option></option>')
+                                            .val(program.value)
+                                            .text(program.text)
+                                    );
+                                });
+                            } else {
+                                programDropdown.append('<option value="">-- No Programs Available --</option>');
+                            }
+                            
+                            programDropdown.prop('disabled', false);
+                        },
+                        error: function() {
+                            programDropdown.empty();
+                            programDropdown.append('<option value="">-- Error Loading Programs --</option>');
+                            programDropdown.prop('disabled', false);
+                        }
+                    });
+                } else {
+                    programDropdown.empty();
+                    programDropdown.append('<option value="">-- First Select SDG --</option>');
+                    programDropdown.prop('disabled', false);
+                }
+            });
+
+            // Cascading dropdown: Load upazilas when District is selected
+            $('#districtDropdown').change(function() {
+                var districtId = $(this).val();
+                var upazilaDropdown = $('#upazilaDropdown');
+                var districtBnInput = $('input[name="DistrictBn"]');
+                var thanaBnInput = $('input[name="ThanaBn"]');
+                
+                // Clear upazila dropdown and Bengali fields
+                upazilaDropdown.empty();
+                upazilaDropdown.append('<option value="">-- Loading... --</option>');
+                upazilaDropdown.prop('disabled', true);
+                districtBnInput.val('');
+                thanaBnInput.val('');
+                
+                if (districtId) {
+                    // Get selected district's Bengali name
+                    var selectedOption = $(this).find('option:selected');
+                    var districtName = selectedOption.text();
+                    
+                    // Fetch upazilas for selected district
+                    $.ajax({
+                        url: '/Admin/SDGProjects/GetUpazilasByDistrict',
+                        type: 'GET',
+                        data: { districtId: districtId },
+                        success: function(data) {
+                            upazilaDropdown.empty();
+                            
+                            if (data.length > 0) {
+                                upazilaDropdown.append('<option value="">-- Select Upazila --</option>');
+                                $.each(data, function(index, upazila) {
+                                    var option = $('<option></option>')
+                                        .val(upazila.value)
+                                        .text(upazila.text)
+                                        .attr('data-bn', upazila.textBn);
+                                    upazilaDropdown.append(option);
+                                });
+                            } else {
+                                upazilaDropdown.append('<option value="">-- No Upazilas Available --</option>');
+                            }
+                            
+                            upazilaDropdown.prop('disabled', false);
+                        },
+                        error: function() {
+                            upazilaDropdown.empty();
+                            upazilaDropdown.append('<option value="">-- Error Loading Upazilas --</option>');
+                            upazilaDropdown.prop('disabled', false);
+                        }
+                    });
+                } else {
+                    upazilaDropdown.empty();
+                    upazilaDropdown.append('<option value="">-- First Select District --</option>');
+                    upazilaDropdown.prop('disabled', false);
+                }
+            });
+
+            // Update Upazila Bengali name when upazila is selected
+            $('#upazilaDropdown').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var thanaBn = selectedOption.attr('data-bn');
+                $('input[name="ThanaBn"]').val(thanaBn || '');
+            });
+        });
+    </script>
+}

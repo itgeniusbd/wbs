@@ -13,6 +13,7 @@ namespace WBS.Web.Models
         [StringLength(200)]
         public string? TitleBn { get; set; }
 
+        [Required]
         public int Year { get; set; }
 
         public string? Description { get; set; }
@@ -20,7 +21,6 @@ namespace WBS.Web.Models
 
         public string? CoverImage { get; set; }
 
-        [Required]
         public string FileUrl { get; set; } = string.Empty;
 
         public bool IsActive { get; set; } = true;

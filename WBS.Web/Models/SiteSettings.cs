@@ -16,6 +16,8 @@ namespace WBS.Web.Models
         public string? LogoWhite { get; set; }
         public string? Favicon { get; set; }
 
+        public string? AboutUsImage { get; set; }
+
         public string? AboutUs { get; set; }
         public string? AboutUsBn { get; set; }
 
@@ -58,6 +60,43 @@ namespace WBS.Web.Models
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
         public string? MetaKeywords { get; set; }
+
+        // Organization Information
+        [StringLength(200)]
+        public string? OrganizationFullName { get; set; }
+        
+        [StringLength(200)]
+        public string? OrganizationFullNameBn { get; set; }
+        
+        [StringLength(100)]
+        public string? RegistrationNumber { get; set; }
+        
+        [StringLength(100)]
+        public string? RegistrationType { get; set; } // RJSC, NGO Bureau, etc.
+        
+        public int? EstablishedYear { get; set; }
+        
+        public string? OrganizationType { get; set; }
+        public string? OrganizationTypeBn { get; set; }
+        
+        public string? ManagementInfo { get; set; }
+        public string? ManagementInfoBn { get; set; }
+
+        // Refund & Return Policy
+        [StringLength(500)]
+        public string? RefundPolicyTimeframe { get; set; }
+        
+        [StringLength(500)]
+        public string? RefundPolicyTimeframeBn { get; set; }
+
+        // Payment Gateway Banner
+        public string? PaymentGatewayBanner { get; set; }
+
+        // Rohingya Statistics (Manual Override)
+        public int? RohingyaCampsReached { get; set; }
+        public int? RohingyaTotalBeneficiaries { get; set; }
+        public int? RohingyaActivePrograms { get; set; }
+        public int? RohingyaEventsConducted { get; set; }
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }

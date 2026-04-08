@@ -1,0 +1,85 @@
+@model Dictionary<string, object>
+
+@{
+    ViewData["Title"] = "System Diagnostics";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WBS Bangladesh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background: #f8f9fa; }
+        .diagnostic-item { margin-bottom: 20px; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        pre { background: #fff; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">?? WBS System Diagnostics</h1>
+        
+        <div class="alert alert-info">
+            <strong>Server Time:</strong> @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        </div>
+
+        @foreach (var item in Model)
+        {
+            <div class="card diagnostic-item">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@item.Key</h5>
+                </div>
+                <div class="card-body">
+                    @if (item.Value == null)
+                    {
+                        <p class="text-muted">NULL</p>
+                    }
+                    else if (item.Value is string str)
+                    {
+                        if (str.StartsWith("?"))
+                        {
+                            <p class="success"><strong>@str</strong></p>
+                        }
+                        else if (str.StartsWith("?"))
+                        {
+                            <p class="error"><strong>@str</strong></p>
+                        }
+                        else if (str.Contains("Exception") || str.Contains("Error"))
+                        {
+                            <pre class="error">@str</pre>
+                        }
+                        else
+                        {
+                            <p>@str</p>
+                        }
+                    }
+                    else if (item.Value is int || item.Value is decimal)
+                    {
+                        <p><strong>@item.Value</strong></p>
+                    }
+                    else if (item.Value is System.Collections.IEnumerable enumerable && !(item.Value is string))
+                    {
+                        <pre>@System.Text.Json.JsonSerializer.Serialize(item.Value, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })</pre>
+                    }
+                    else
+                    {
+                        <pre>@System.Text.Json.JsonSerializer.Serialize(item.Value, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })</pre>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-primary">Go to Home</a>
+            <a href="/Donation" class="btn btn-success">Go to Donation Page</a>
+            <a href="/Diagnostics" class="btn btn-secondary">Refresh</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+@model WBS.Web.Models.VideoGallery
+@{
+    ViewData["Title"] = "Add Video";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fab fa-youtube text-danger me-2"></i>Add New Video</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title (English) *</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TitleBn" class="form-label">Title (Bangla)</label>
+                        <input asp-for="TitleBn" class="form-control bangla-text" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                        <span asp-validation-for="TitleBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Description (Bangla)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control bangla-text" rows="3" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                        <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="YouTubeUrl" class="form-label">YouTube URL *</label>
+                        <input asp-for="YouTubeUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                        <span asp-validation-for="YouTubeUrl" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Supported formats: 
+                            <code>youtube.com/watch?v=...</code>, 
+                            <code>youtu.be/...</code>, 
+                            <code>youtube.com/embed/...</code>
+                        </small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                                <input asp-for="DisplayOrder" class="form-control" type="number" value="0" />
+                                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                    <label asp-for="IsActive" class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsFeatured" class="form-check-label">Featured</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Video
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>YouTube URL Formats:</h6>
+                <ul class="small">
+                    <li><code>https://www.youtube.com/watch?v=VIDEO_ID</code></li>
+                    <li><code>https://youtu.be/VIDEO_ID</code></li>
+                    <li><code>https://www.youtube.com/embed/VIDEO_ID</code></li>
+                </ul>
+                
+                <hr>
+                
+                <h6>Tips:</h6>
+                <ul class="small">
+                    <li>Video thumbnail will be automatically fetched from YouTube</li>
+                    <li>Video ID will be extracted automatically</li>
+                    <li>Use Display Order to control video sequence</li>
+                    <li>Mark videos as Featured to highlight them</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

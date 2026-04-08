@@ -1,0 +1,188 @@
+@model IEnumerable<WBS.Web.Models.SDGProject>
+@{
+    ViewData["Title"] = "SDG Projects (Events)";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    
+    var sdgs = ViewBag.SDGs as List<WBS.Web.Models.SDG> ?? new List<WBS.Web.Models.SDG>();
+    var selectedSDGId = ViewBag.SelectedSDGId as int?;
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="fas fa-calendar-alt me-2"></i>@(ViewBag.FilterRohingya == true ? "Rohingya Events" : "SDG Projects (Events)")
+                    </h2>
+                    @if (ViewBag.FilterRohingya == true)
+                    {
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-filter me-1"></i> Showing only Rohingya Events
+                            <a href="/admin/sdgprojects" class="ms-2 btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Clear Filter
+                            </a>
+                        </p>
+                    }
+                </div>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add New Event
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- SDG Filter -->
+    <div class="card shadow mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filter by SDG</label>
+                    <select name="sdgId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All SDGs</option>
+                        @foreach (var sdg in sdgs)
+                        {
+                            <option value="@sdg.Id" selected="@(selectedSDGId == sdg.Id)">
+                                SDG @sdg.Number - @sdg.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>SDG</th>
+                                <th>Program</th>
+                                <th>Location</th>
+                                <th>Beneficiaries</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.FeaturedImage))
+                                        {
+                                            <img src="@item.FeaturedImage" alt="@item.Title" 
+                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                                 style="width: 60px; height: 60px; border-radius: 5px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@item.Title</strong><br />
+                                        <small class="text-muted">@item.TitleBn</small>
+                                    </td>
+                                    <td>
+                                        @if (item.SDG != null)
+                                        {
+                                            <span class="badge" style="background-color: @item.SDG.Color;">
+                                                SDG @item.SDG.Number
+                                            </span>
+                                            <br />
+                                            <small>@item.SDG.Name</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.SDGProgram != null)
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-project-diagram me-1"></i>
+                                                @item.SDGProgram.Title
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">No Program</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.District))
+                                        {
+                                            <span class="badge bg-light text-dark">@item.District</span>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Thana))
+                                        {
+                                            <span class="badge bg-light text-dark">@item.Thana</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@item.BeneficiaryCount.ToString("N0")</strong>
+                                    </td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                        @if (item.IsFeatured)
+                                        {
+                                            <br />
+                                            <span class="badge bg-warning">Featured</span>
+                                        }
+                                        @if (item.IsRohingyaEvent)
+                                        {
+                                            <br />
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-hands-helping me-1"></i>Rohingya
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" 
+                                               class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No events found. Click "Add New Event" to create one.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

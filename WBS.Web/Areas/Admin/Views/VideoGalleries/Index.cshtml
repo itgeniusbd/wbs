@@ -1,0 +1,149 @@
+@model IEnumerable<WBS.Web.Models.VideoGallery>
+@{
+    ViewData["Title"] = "Video Gallery Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fab fa-youtube text-danger me-2"></i>Video Gallery</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Add New Video
+    </a>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Thumbnail</th>
+                            <th>Title</th>
+                            <th>YouTube URL</th>
+                            <th style="width: 100px;">Display Order</th>
+                            <th style="width: 100px;">Status</th>
+                            <th style="width: 100px;">Featured</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var video in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(video.ThumbnailUrl))
+                                    {
+                                        <img src="@video.ThumbnailUrl" alt="@video.Title" class="img-thumbnail" style="width: 80px; height: 60px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 60px;">
+                                            <i class="fab fa-youtube fa-2x text-danger"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <strong>@video.Title</strong>
+                                    @if (!string.IsNullOrEmpty(video.TitleBn))
+                                    {
+                                        <br><small class="text-muted bangla-text">@video.TitleBn</small>
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@video.YouTubeUrl" target="_blank" class="text-decoration-none">
+                                        <i class="fab fa-youtube text-danger me-1"></i>
+                                        <small>@(video.YouTubeVideoId ?? "N/A")</small>
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@video.DisplayOrder</span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-toggle-status @(video.IsActive ? "btn-success" : "btn-secondary")" 
+                                            data-id="@video.Id" 
+                                            data-active="@video.IsActive.ToString().ToLower()">
+                                        @(video.IsActive ? "Active" : "Inactive")
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-toggle-featured @(video.IsFeatured ? "btn-warning" : "btn-outline-secondary")" 
+                                            data-id="@video.Id" 
+                                            data-featured="@video.IsFeatured.ToString().ToLower()">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Edit" asp-route-id="@video.Id" class="btn btn-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVideo(@video.Id)" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        No videos found. <a asp-action="Create" class="alert-link">Add your first video</a>
+    </div>
+}
+
+<form id="deleteForm" asp-action="Delete" method="post" style="display: none;">
+    <input type="hidden" name="id" id="deleteId" />
+</form>
+
+@section Scripts {
+    <script>
+        function deleteVideo(id) {
+            if (confirm('Are you sure you want to delete this video?')) {
+                document.getElementById('deleteId').value = id;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+
+        // Toggle Active Status
+        $(document).on('click', '.btn-toggle-status', function() {
+            const btn = $(this);
+            const videoId = btn.data('id');
+            
+            $.post('@Url.Action("ToggleActive")', { id: videoId }, function(response) {
+                if (response.success) {
+                    if (response.isActive) {
+                        btn.removeClass('btn-secondary').addClass('btn-success').text('Active');
+                    } else {
+                        btn.removeClass('btn-success').addClass('btn-secondary').text('Inactive');
+                    }
+                    btn.data('active', response.isActive);
+                }
+            });
+        });
+
+        // Toggle Featured
+        $(document).on('click', '.btn-toggle-featured', function() {
+            const btn = $(this);
+            const videoId = btn.data('id');
+            
+            $.post('@Url.Action("ToggleFeatured")', { id: videoId }, function(response) {
+                if (response.success) {
+                    if (response.isFeatured) {
+                        btn.removeClass('btn-outline-secondary').addClass('btn-warning');
+                    } else {
+                        btn.removeClass('btn-warning').addClass('btn-outline-secondary');
+                    }
+                    btn.data('featured', response.isFeatured);
+                }
+            });
+        });
+    </script>
+}

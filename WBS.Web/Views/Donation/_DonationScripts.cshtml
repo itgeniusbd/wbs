@@ -1,0 +1,273 @@
+@{
+    var currentCulture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<script>
+    // Debug: Check if jQuery is available
+    console.log('=== Donation Page Script Debug ===');
+    console.log('jQuery available:', typeof jQuery !== 'undefined');
+    if (typeof jQuery !== 'undefined') {
+        console.log('jQuery version:', jQuery.fn.jquery);
+    }
+</script>
+
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<style>
+    /* Donation Type Card Styles */
+    .donation-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #fff;
+    }
+    
+    .donation-type-card:hover {
+        border-color: #0d6efd !important;
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-check:checked + .donation-type-card {
+        border-color: #0d6efd !important;
+        background-color: #e7f1ff;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .btn-check:checked + .donation-type-card strong {
+        color: #0d6efd;
+    }
+    
+    .btn-check:checked + .donation-type-card i {
+        color: #0d6efd;
+    }
+    
+    /* Payment Method Button Styles */
+    .payment-method-label {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-width: 2px !important;
+    }
+    
+    .payment-method-label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .btn-check:checked + .payment-method-label {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25) !important;
+        border-width: 3px !important;
+    }
+    
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+    
+    .btn-check:checked + .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-check:checked + label i {
+        color: white !important;
+    }
+    
+    .btn-check:checked + label small {
+        color: rgba(255,255,255,0.9) !important;
+    }
+</style>
+
+<script>
+    // Wait for validation scripts to load
+    function initDonationForm() {
+        console.log('Initializing donation form...');
+        console.log('$.validator:', typeof $.validator !== 'undefined' ? 'Available' : 'NOT Available');
+        console.log('$.validator.unobtrusive:', typeof $.validator !== 'undefined' && typeof $.validator.unobtrusive !== 'undefined' ? 'Available' : 'NOT Available');
+        
+        try {
+            const isBangla = @(isBangla ? "true" : "false");
+
+            // Amount buttons
+            const amountButtons = document.querySelectorAll('.amount-btn');
+            const amountInput = document.querySelector('input[name="Amount"]');
+            
+            if (amountButtons && amountInput) {
+                amountButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        try {
+                            amountButtons.forEach(b => {
+                                b.classList.remove('active');
+                                b.classList.remove('btn-danger');
+                                b.classList.add('btn-outline-danger');
+                            });
+                            this.classList.add('active');
+                            this.classList.remove('btn-outline-danger');
+                            this.classList.add('btn-danger');
+                            
+                            const amount = this.getAttribute('data-amount');
+                            if (amount && amountInput) {
+                                amountInput.value = amount;
+                            }
+                        } catch (err) {
+                            console.error('Error handling amount button click:', err);
+                        }
+                    });
+                });
+            }
+
+            // Payment Method Radio Buttons
+            const paymentRadios = document.querySelectorAll('input[name="PaymentMethod"]');
+            const onlinePaymentInfo = document.getElementById('onlinePaymentInfo');
+            const manualPaymentInfo = document.getElementById('manualPaymentInfo');
+
+            if (paymentRadios && paymentRadios.length > 0) {
+                paymentRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        try {
+                            if (onlinePaymentInfo && manualPaymentInfo) {
+                                if (this.value === 'Online') {
+                                    onlinePaymentInfo.style.display = 'block';
+                                    manualPaymentInfo.style.display = 'none';
+                                } else {
+                                    onlinePaymentInfo.style.display = 'none';
+                                    manualPaymentInfo.style.display = 'block';
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error handling payment method change:', err);
+                        }
+                    });
+                });
+
+                // Trigger change event on page load if a payment method is already selected
+                const selectedRadio = document.querySelector('input[name="PaymentMethod"]:checked');
+                if (selectedRadio) {
+                    selectedRadio.dispatchEvent(new Event('change'));
+                }
+            }
+            
+            console.log('? Donation form initialized successfully');
+        } catch (err) {
+            console.error('Error initializing donation form:', err);
+        }
+    }
+    
+    // Wait for validation scripts to be fully loaded
+    var validationCheckInterval = setInterval(function() {
+        if (typeof $ !== 'undefined' && typeof $.validator !== 'undefined' && typeof $.validator.unobtrusive !== 'undefined') {
+            clearInterval(validationCheckInterval);
+            console.log('? All validation scripts loaded');
+            initDonationForm();
+        }
+    }, 100);
+    
+    // Fallback: initialize after 3 seconds even if validation not loaded
+    setTimeout(function() {
+        clearInterval(validationCheckInterval);
+        if (typeof initDonationForm === 'function') {
+            console.log('Fallback initialization...');
+            initDonationForm();
+        }
+    }, 3000);
+    
+    // Add form submission handler for debugging and validation
+    $(document).ready(function() {
+        $('#donationForm').on('submit', function(e) {
+            console.log('=== Form Submission Debug ===');
+            
+            // Get form values
+            const amount = $('input[name="Amount"]').val();
+            const donationTypeId = $('select[name="DonationTypeId"]').val();
+            const donorType = $('select[name="DonorType"]').val();
+            const donorName = $('input[name="DonorName"]').val();
+            const email = $('input[name="Email"]').val();
+            const phone = $('input[name="Phone"]').val();
+            const paymentMethod = $('input[name="PaymentMethod"]:checked').val();
+            const acceptTerms = $('#acceptTerms').is(':checked');
+            
+            console.log('Amount:', amount);
+            console.log('DonationTypeId:', donationTypeId);
+            console.log('DonorType:', donorType);
+            console.log('DonorName:', donorName);
+            console.log('Email:', email);
+            console.log('Phone:', phone);
+            console.log('PaymentMethod:', paymentMethod);
+            console.log('AcceptTerms:', acceptTerms);
+            
+            // Manual validation checks
+            let hasError = false;
+            let errorMessages = [];
+            
+            if (!amount || parseFloat(amount) < 10) {
+                console.error('? Amount is invalid');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "????? ?????? ??????? ??? ??? ???" : "Minimum donation amount is ?10")');
+            }
+            
+            if (!donationTypeId || donationTypeId === '') {
+                console.error('? Donation Type is not selected');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "????? ??? ???????? ????" : "Please select a donation type")');
+            }
+            
+            if (!donorType || donorType === '') {
+                console.error('? Donor Type is not selected');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "????? ??? ???????? ????" : "Please select a donor type")');
+            }
+            
+            if (!donorName || donorName.trim() === '') {
+                console.error('? Donor Name is empty');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "????? ??? ?????" : "Please enter your name")');
+            }
+            
+            if (!email || email.trim() === '') {
+                console.error('? Email is empty');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "????? ?????? ?????" : "Please enter your email")');
+            }
+            
+            if (!phone || phone.trim() === '') {
+                console.error('? Phone is empty');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "??? ????? ?????" : "Please enter your phone number")');
+            }
+            
+            if (!paymentMethod) {
+                console.error('? Payment Method is not selected');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "??????? ?????? ???????? ????? ???? ??? ??????? ?????? ???? ?? ???? ??????? ?????? ??????? ?????" : "Select to initiate payment. Please try again or use another payment method.")');
+            }
+            
+            // Check Terms & Conditions checkbox (SSLCommerz requirement)
+            if (!acceptTerms) {
+                console.error('? Terms & Conditions not accepted');
+                hasError = true;
+                errorMessages.push('@(isBangla ? "?????? ?????? ???? ?????? ????????, ????????? ???? ??? ??????? ???? ???? ????? ??? ????" : "You must read and agree to the Terms & Conditions, Privacy Policy, and Return Refund Policy to proceed.")');
+            }
+            
+            if (hasError) {
+                console.error('? Form validation failed!');
+                e.preventDefault();
+                
+                // Show all error messages
+                const errorMsg = errorMessages.join('\n\n');
+                alert(errorMsg);
+                
+                // Scroll to top to show error messages
+                $('html, body').animate({ scrollTop: 0 }, 'slow');
+                
+                return false;
+            }
+            
+            console.log('? Form validation passed, submitting...');
+        });
+    });
+</script>

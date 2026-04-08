@@ -1,0 +1,334 @@
+﻿@model WBS.Web.ViewModels.StatisticsViewModel
+@using Microsoft.AspNetCore.Localization
+@inject WBS.Web.Services.IContentService ContentService
+@{
+    ViewData["Title"] = "Who We Are";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    var siteSettings = await ContentService.GetSiteSettingsAsync();
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 120px 0 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-3 fw-bold mb-3">@(isBangla ? "আমরা কারা" : "Who We Are")</h1>
+                <p class="lead fs-4">@(isBangla ? "আমাদের মিশন, দৃষ্টিভঙ্গি এবং মূল্যবোধ সম্পর্কে জানুন" : "Learn about our mission, vision, and values")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                @{
+                    var aboutImage = !string.IsNullOrEmpty(siteSettings?.AboutUsImage) 
+                        ? siteSettings.AboutUsImage 
+                        : "https://res.cloudinary.com/dybngfiu0/image/upload/v1234567890/wbs/about-us.jpg";
+                }
+                <img src="@aboutImage" 
+                     alt="@(isBangla ? "WBS সম্পর্কে" : "About WBS")" 
+                     class="img-fluid rounded shadow-lg" 
+                     onerror="this.src='https://res-console.cloudinary.com/dybnglfu0/thumbnails/v1/image/upload/v1766922767/c2FtcGxlcy96b29t/preview'" />
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">@(isBangla ? "WBS সম্পর্কে" : "About WBS")</h2>
+                <p class="lead text-muted mb-4">
+                    @if (isBangla && !string.IsNullOrEmpty(siteSettings?.AboutUsBn))
+                    {
+                        @Html.Raw(siteSettings.AboutUsBn)
+                    }
+                    else if (!string.IsNullOrEmpty(siteSettings?.AboutUs))
+                    {
+                        @Html.Raw(siteSettings.AboutUs)
+                    }
+                    else
+                    {
+                        if (isBangla)
+                        {
+                            <text>
+                                ওয়েলবিয়িং বাংলাদেশ সোসাইটি (ডব্লিউবিএস) একটি অলাভজনক, অরাজনৈতিক সমাজসেবামূলক সংস্থা
+
+                                ২০২০ সালের ফেব্রুয়ারিতে প্রতিষ্ঠিত। এটি প্রাথমিকভাবে আরজেএসসির অধীনে একটি সোসাইটি হিসেবে নিবন্ধিত হয়েছিল
+
+                                নম্বর S-13324 নিবন্ধন সহ। ২০২৫ সালে, ডব্লিউবিএস এনজিও অ্যাফেয়ার্স ব্যুরো থেকে এনজিও সার্টিফিকেশন পেয়েছে
+
+                                নম্বর ৩৫১৬ নিবন্ধন সহ। শুরু থেকেই, ডব্লিউবিএস মানুষের দুর্ভোগ লাঘব করতে এবং
+                                কষ্ট, অবহেলা বা সামাজিক বৈষম্যের সম্মুখীন ব্যক্তিদের সহায়তা করার জন্য নিবেদিতপ্রাণ। মূল মানবিক মান
+
+                                (CHS) এবং জাতিসংঘের টেকসই উন্নয়ন লক্ষ্য (SDGs) ২০৩০ দ্বারা পরিচালিত, সংস্থাটি
+
+                                দারিদ্র্য বিমোচন, সমতা প্রচার এবং জীবনযাত্রার মান উন্নত করে দুর্বল সম্প্রদায়ের উন্নয়নের জন্য কাজ করে।
+
+                                ডব্লিউবিএস শিক্ষা, খাদ্য নিরাপত্তা, স্বাস্থ্য ও পুষ্টি, জীবিকা এবং
+
+                                স্থিতিস্থাপকতা, আশ্রয় ও সুরক্ষা, মৌসুমী উদ্যোগ এবং ওয়াশ সুবিধা জুড়ে বিভিন্ন প্রকল্প বাস্তবায়ন করে। এই কর্মসূচিগুলি
+                                গৃহহীন ব্যক্তি, দিনমজুর এবং দুর্দশাগ্রস্ত সম্প্রদায়কে সহায়তা করার জন্য ডিজাইন করা হয়েছে, বিশেষ করে
+                                দুঃস্থ নারী, বিধবা, এতিম এবং প্রতিবন্ধী ব্যক্তিদের উপর।
+                                এই সংস্থাটি একটি ন্যায়সঙ্গত, অন্তর্ভুক্তিমূলক এবং ন্যায়সঙ্গত সমাজের দৃষ্টিভঙ্গি দ্বারা পরিচালিত হয় যেখানে ব্যক্তিরা
+                                শিখতে, বেড়ে উঠতে, উদ্ভাবন করতে এবং মর্যাদাপূর্ণ জীবনযাপন করার সুযোগ পাবে। WBS বিশ্বাস করে যে উপযুক্ত
+                                এবং সময়োপযোগী সুযোগের মাধ্যমে, এমনকি সবচেয়ে প্রান্তিক সম্প্রদায়গুলিও সমৃদ্ধ হতে পারে। এই বিশ্বাস সংগঠনটি অনুসরণ করে এমন প্রতিটি
+                                প্রকল্প, সিদ্ধান্ত এবং হস্তক্ষেপকে পরিচালিত করে।
+                                একটি পরিষেবা-কেন্দ্রিক সংস্থা হিসাবে, WBS
+                                জাতীয় অগ্রাধিকার এবং বিশ্বব্যাপী মানবিক মান সম্পর্কে দৃঢ় ধারণা, স্বচ্ছতা, জবাবদিহিতা এবং বাংলাদেশ সরকারের আইন ও বিধিবিধানের পূর্ণ
+                                সম্মতি বজায় রেখে কর্মসূচি পরিকল্পনা এবং বিতরণ করে।
+                                মানবতার প্রতি সহানুভূতি এবং প্রতিশ্রুতির সাথে, ওয়েলবিয়িং বাংলাদেশ সোসাইটি
+                                যারা প্রায়শই ভুলে যায় তাদের পক্ষে কথা বলে চলেছে।
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                The Wellbeing Bangladesh Society (WBS) is a non-profit, non-political social service organization
+                                founded in February 2020. It was initially registered as a Society under the RJSC with registration
+                                number S-13324. In 2025, WBS obtained NGO certification from NGO Affairs Bureau with registration
+                                number 3516. From the very beginning, WBS has been devoted to ease human suffering and support
+                                individuals facing hardship, neglect, or social disparity. Guided by the Core Humanitarian Standards
+                                (CHS) and the United Nations’ Sustainable Development Goals (SDGs) 2030, the organization works
+                                to uplift vulnerable communities by alleviating poverty, promoting equality, and improving living
+                                standards.
+                                WBS executes diverse projects across Education, Food Security, Health and Nutrition, Livelihoods and
+                                Resilience, Shelter and Protection, Seasonal Initiatives, and WASH facilities. These programs are
+                                designed to support homeless individuals, day labourers, and distressed communities, with special focus
+                                on destitute women, widows, orphans, and persons with disabilities.
+                                The organization is driven by a vision of a just, inclusive, and equitable society where individuals have
+                                the opportunity to learn, grow, innovate, and lead dignified lives. WBS believes that with the appropriate
+                                and timely opportunities, even the most marginalized communities can prosper. This belief guides every
+                                project, decision, and intervention the organisation pursues.
+                                As a service-focused organisation, WBS plans and delivers programmes with a strong understanding of
+                                national priorities and global humanitarian standards, maintaining transparency, accountability, and full
+                                compliance with the laws and regulations of the Government of Bangladesh.
+                                With compassion and commitment to humanity, Wellbeing Bangladesh Society continues to speak on
+                                behalf of those too often forgotten..
+                            </text>
+                        }
+                    }
+                </p>
+                <p class="text-muted">
+                    @(isBangla ? "২০২০ সালে প্রতিষ্ঠিত হওয়ার পর থেকে, আমরা বাংলাদেশের সম্প্রদায়গুলিতে ইতিবাচক পরিবর্তন আনতে নিরলসভাবে কাজ করে যাচ্ছি। বছরের পর বছর ধরে, আমরা আমাদের প্রোগ্রাম সম্প্রসারিত করেছি এবং হাজার হাজার পরিবারের কাছে পৌঁছেছি।" 
+                    : "Founded in 2020, WBS has been working tirelessly to bring positive change to communities across Bangladesh. Over the years, we have expanded our programs and reached thousands of families with life-changing support.")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission, Vision, Values -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card" style="transition: transform 0.3s;">
+                    <div class="card-body text-center p-5">
+                        <div class="icon-circle bg-primary text-white mx-auto mb-4" style="width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-bullseye fa-3x"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">@(isBangla ? "আমাদের মিশন" : "Our Mission")</h3>
+                        <p class="text-muted">
+                            @(isBangla 
+                                ? "টেকসই উন্নয়ন কর্মসূচির মাধ্যমে সম্প্রদায়কে ক্ষমতায়ন করা এবং বাংলাদেশের সবচেয়ে ঝুঁকিপূর্ণ মানুষদের জীবনে দীর্ঘস্থায়ী প্রভাব সৃষ্টি করা।" 
+                                : "To empower communities through sustainable development programs and create lasting impact in the lives of Bangladesh's most vulnerable people.")
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card" style="transition: transform 0.3s;">
+                    <div class="card-body text-center p-5">
+                        <div class="icon-circle bg-success text-white mx-auto mb-4" style="width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-eye fa-3x"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">@(isBangla ? "আমাদের দৃষ্টিভঙ্গি" : "Our Vision")</h3>
+                        <p class="text-muted">
+                            @(isBangla 
+                                ? "একটি বাংলাদেশ যেখানে প্রত্যেকের সমান সুযোগ রয়েছে, মর্যাদাপূর্ণ জীবনযাপন করতে পারে এবং তাদের সম্পূর্ণ সম্ভাবনা উপলব্ধি করতে পারে।" 
+                                : "A Bangladesh where everyone has equal opportunities, can live with dignity, and realize their full potential.")
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm hover-card" style="transition: transform 0.3s;">
+                    <div class="card-body text-center p-5">
+                        <div class="icon-circle bg-info text-white mx-auto mb-4" style="width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-heart fa-3x"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">@(isBangla ? "আমাদের মূল্যবোধ" : "Our Values")</h3>
+                        <p class="text-muted">
+                            @(isBangla 
+                                ? "সততা, সহানুভূতি, জবাবদিহিতা, স্বচ্ছতা এবং উৎকর্ষতার প্রতি প্রতিশ্রুতি আমাদের সমস্ত কাজে।" 
+                                : "Integrity, compassion, accountability, transparency, and commitment to excellence in all our work.")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Impact Statistics -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">@(isBangla ? "আমাদের প্রভাব" : "Our Impact")</h2>
+            <p class="lead">@(isBangla ? "সংখ্যায় আমাদের কাজ" : "Our work in numbers")</p>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-sm-6">
+                <div class="p-4">
+                    <i class="fas fa-calendar-alt fa-3x mb-3 opacity-75"></i>
+                    <h2 class="display-4 fw-bold mb-2">13+</h2>
+                    <p class="fs-5 mb-0">@(isBangla ? "বছরের সেবা" : "Years of Service")</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-4">
+                    <i class="fas fa-users fa-3x mb-3 opacity-75"></i>
+                    <h2 class="display-4 fw-bold mb-2">@(Model.TotalBeneficiaries > 0 ? (Model.TotalBeneficiaries >= 1000 ? (Model.TotalBeneficiaries / 1000).ToString("0") + "K+" : Model.TotalBeneficiaries.ToString("N0")) : "100K+")</h2>
+                    <p class="fs-5 mb-0">@(isBangla ? "সুবিধাভোগী জীবন" : "Beneficiaries")</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-4">
+                    <i class="fas fa-tasks fa-3x mb-3 opacity-75"></i>
+                    <h2 class="display-4 fw-bold mb-2">@(Model.TotalPrograms > 0 ? Model.TotalPrograms + "+" : "50+")</h2>
+                    <p class="fs-5 mb-0">@(isBangla ? "সক্রিয় প্রোগ্রাম" : "Active Programs")</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="p-4">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3 opacity-75"></i>
+                    <h2 class="display-4 fw-bold mb-2">@(Model.TotalDistricts > 0 ? Model.TotalDistricts + "+" : "30+")</h2>
+                    <p class="fs-5 mb-0">@(isBangla ? "জেলা কভার করা হয়েছে" : "Districts Covered")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Values Details -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold mb-3">@(isBangla ? "আমাদের মূল মূল্যবোধ" : "Our Core Values")</h2>
+                    <p class="lead text-muted">@(isBangla ? "যে নীতিগুলি আমাদের কাজকে গাইড করে" : "The principles that guide our work")</p>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle bg-primary text-white me-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <h4 class="mb-0">@(isBangla ? "সততা" : "Integrity")</h4>
+                                </div>
+                                <p class="text-muted">
+                                    @(isBangla 
+                                        ? "আমরা সর্বোচ্চ নৈতিক মান বজায় রাখি এবং আমাদের সকল কাজে স্বচ্ছতা নিশ্চিত করি।" 
+                                        : "We maintain the highest ethical standards and ensure transparency in all our operations.")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle bg-success text-white me-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-hands-helping"></i>
+                                    </div>
+                                    <h4 class="mb-0">@(isBangla ? "সহানুভূতি" : "Compassion")</h4>
+                                </div>
+                                <p class="text-muted">
+                                    @(isBangla 
+                                        ? "আমরা যাদের সেবা করি তাদের প্রতি সহানুভূতি এবং সম্মান নিয়ে কাজ করি।" 
+                                        : "We work with empathy and respect for the dignity of those we serve.")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle bg-info text-white me-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-balance-scale"></i>
+                                    </div>
+                                    <h4 class="mb-0">@(isBangla ? "জবাবদিহিতা" : "Accountability")</h4>
+                                </div>
+                                <p class="text-muted">
+                                    @(isBangla 
+                                        ? "আমরা আমাদের দাতা, সুবিধাভোগী এবং অংশীদারদের কাছে দায়বদ্ধ।" 
+                                        : "We are accountable to our donors, beneficiaries, and partners.")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle bg-warning text-white me-3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <h4 class="mb-0">@(isBangla ? "উৎকর্ষতা" : "Excellence")</h4>
+                                </div>
+                                <p class="text-muted">
+                                    @(isBangla 
+                                        ? "আমরা আমাদের সকল কর্মসূচিতে সর্বোচ্চ মানের সেবা প্রদানের জন্য প্রচেষ্টা করি।" 
+                                        : "We strive for the highest quality in all our programs and services.")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold mb-4">@(isBangla ? "আমাদের সাথে যুক্ত হন" : "Join Us in Our Mission")</h2>
+                <p class="lead text-muted mb-4">
+                    @(isBangla 
+                        ? "আপনার সহায়তা আমাদের আরও বেশি জীবনকে স্পর্শ করতে এবং বাংলাদেশে স্থায়ী পরিবর্তন আনতে সাহায্য করে।" 
+                        : "Your support helps us reach more lives and create lasting change in Bangladesh.")
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="/donation" class="btn btn-success btn-lg px-5 py-3">
+                        <i class="fas fa-heart me-2"></i>@(isBangla ? "দান করুন" : "Donate Now")
+                    </a>
+                    <a href="/getinvolved/volunteer" class="btn btn-primary btn-lg px-5 py-3">
+                        <i class="fas fa-hands-helping me-2"></i>@(isBangla ? "স্বেচ্ছাসেবক হন" : "Become a Volunteer")
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    }
+    
+    .icon-circle {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-card:hover .icon-circle {
+        transform: scale(1.1);
+    }
+</style>

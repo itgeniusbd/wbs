@@ -1,0 +1,621 @@
+﻿@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "নিয়মিত দাতা - Regular Donor";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<style>
+    .regular-donor-hero {
+        background: linear-gradient(135deg, #00a99d 0%, #008f85 100%);
+        padding: 60px 0;
+        color: white;
+        text-align: center;
+    }
+
+    .regular-donor-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .regular-donor-hero p {
+        font-size: 1.1rem;
+        opacity: 0.95;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .join-options {
+        padding: 60px 0;
+    }
+
+    .option-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .option-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0, 169, 157, 0.2);
+        border-color: #00a99d;
+    }
+
+    .option-card.active {
+        border-color: #00a99d;
+        background: linear-gradient(to bottom, rgba(0, 169, 157, 0.05), white);
+    }
+
+    .option-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #00a99d, #00c9b7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .option-card h4 {
+        color: #00a99d;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+    }
+
+    .option-card p {
+        color: #6c757d;
+        margin-bottom: 0;
+        line-height: 1.6;
+    }
+
+    .info-section {
+        background: #f8f9fa;
+        padding: 60px 0;
+    }
+
+    .info-box {
+        background: white;
+        border-radius: 15px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+        color: #00a99d;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+    }
+
+    .info-box p, .info-box ul li {
+        color: #495057;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .info-box ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-box ul li {
+        margin-bottom: 0.8rem;
+    }
+
+    .info-box ul li::marker {
+        color: #00a99d;
+    }
+
+    .video-donation-section {
+        background: white;
+        padding: 60px 0;
+    }
+
+    .section-title-center {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title-center h2 {
+        color: #00a99d;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .video-wrapper {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        margin-bottom: 2rem;
+    }
+
+    .video-wrapper iframe {
+        width: 100%;
+        height: 350px;
+        border: none;
+    }
+
+    .video-info-box {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .video-info-box h3 {
+        color: #00a99d;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .video-info-box p {
+        color: #495057;
+        line-height: 1.8;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .video-info-box ul {
+        padding-left: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    .video-info-box ul li {
+        margin-bottom: 0.8rem;
+        color: #495057;
+        line-height: 1.7;
+    }
+
+    .video-info-box ul li::marker {
+        color: #00a99d;
+    }
+
+    .donation-form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .form-header h2 {
+        color: #00a99d;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .form-header p {
+        color: #6c757d;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .frequency-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        justify-content: center;
+    }
+
+    .frequency-tab {
+        flex: 1;
+        max-width: 150px;
+        padding: 0.6rem 1rem;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .frequency-tab:hover {
+        border-color: #00a99d;
+        color: #00a99d;
+    }
+
+    .frequency-tab.active {
+        background: #00a99d;
+        color: white;
+        border-color: #00a99d;
+    }
+
+    .amount-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .amount-btn {
+        padding: 0.8rem;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #495057;
+    }
+
+    .amount-btn:hover {
+        border-color: #00a99d;
+        color: #00a99d;
+        transform: translateY(-2px);
+    }
+
+    .amount-btn.active {
+        background: #00a99d;
+        color: white;
+        border-color: #00a99d;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 0.1rem 0.1rem;
+        border: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+        border-color: #00a99d;
+        box-shadow: 0 0 0 0.2rem rgba(0, 169, 157, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 0.9rem;
+        background: #00a99d;
+        border: none;
+        border-radius: 50px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        background: #008f85;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 169, 157, 0.3);
+    }
+
+    .help-text {
+        background: #e8f7f6;
+        border-left: 4px solid #00a99d;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .help-text p {
+        margin: 0;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    .help-text a {
+        color: #00a99d;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .help-text a:hover {
+        text-decoration: underline;
+    }
+
+    @@media (max-width: 991px) {
+        .regular-donor-hero h1 {
+            font-size: 2rem;
+        }
+
+        .amount-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .frequency-tabs {
+            flex-direction: column;
+        }
+
+        .frequency-tab {
+            max-width: 100%;
+        }
+
+        .video-wrapper iframe {
+            height: 300px;
+        }
+
+        .donation-form-card {
+            padding: 2rem 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .video-info-box {
+            margin-bottom: 0;
+        }
+    }
+</style>
+
+<section class="regular-donor-hero">
+    <div class="container">
+        <h1>@(isBangla ? "আপনি বিভিন্নভাবে আমাদের সাথে যুক্ত হতে পারেন" : "You can join us in various ways")</h1>
+        <p>@(isBangla ? "আপনি যদি Wellbeing Bangladesh Society এর কল্যাণ কার্যক্রমের অংশীদার হতে চান, তাহলে নিম্নলিখিত যেকোনো বিকল্পের মাধ্যমে আমাদের সাথে যুক্ত হতে পারেন। আপনার আগ্রহের বিকল্পটিতে ক্লিক করুন।" : "If you wish to be a part of the welfare activities of Wellbeing Bangladesh Society, you may join us through any of the following options. Click on the option that suits your interest.")</p>
+    </div>
+</section>
+
+<section class="join-options">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="option-card active">
+                    <div class="option-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h4>@(isBangla ? "নিয়মিত দাতা" : "Regular Donor")</h4>
+                    <p>@(isBangla ? "মাসিক বা দৈনিক ভিত্তিতে নিয়মিত দান করুন" : "Donate regularly on monthly or daily basis")</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="option-card" onclick="window.location.href='/getinvolved/LifetimeDonor'">
+                    <div class="option-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <h4>@(isBangla ? "আজীবন দাতা সদস্য" : "Lifetime Donor Member")</h4>
+                    <p>@(isBangla ? "একবার দান করে আজীবন সদস্য হন" : "Become a lifetime member with one-time donation")</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="option-card" onclick="window.location.href='/getinvolved/Volunteer'">
+                    <div class="option-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h4>@(isBangla ? "স্বেচ্ছাসেবক" : "Volunteer")</h4>
+                    <p>@(isBangla ? "আমাদের কার্যক্রমে স্বেচ্ছাসেবক হিসেবে যোগ দিন" : "Join our programs as a volunteer")</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="option-card" onclick="window.location.href='/getinvolved/Career'">
+                    <div class="option-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h4>@(isBangla ? "ক্যারিয়ার" : "Career")</h4>
+                    <p>@(isBangla ? "আমাদের সাথে চাকরির সুযোগ খুঁজুন" : "Explore career opportunities with us")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="info-section">
+    <div class="container">
+        <div class="info-box">
+            <div class="help-text">
+                <p>
+                    @(isBangla ? "আপনার যদি নিয়মিত দান করতে বা অন্য কোনো সমস্যা বুঝতে অসুবিধা হয়, অনুগ্রহ করে আমাদের ইমেইল করুন" : "If you have any difficulty understanding anything related to recurring donations or face any issue, please email us at")
+                    <a href="mailto:info@wbs.org">info@wbs.org</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Video and Donation Form Section - Two Columns -->
+<section class="video-donation-section">
+    <div class="container">
+        <div class="section-title-center">
+            <h2>@(isBangla ? "একটি ক্লিকে শুরু করুন নিয়মিত দানের অভ্যাস" : "Start Your Regular Donation Journey with One Click")</h2>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Video Column with Info Box Below -->
+            <div class="col-lg-6">
+                <!-- Video -->
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/mhD_z4ncI1U" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+
+                <!-- Information Box Below Video -->
+                <div class="video-info-box">
+                    <h3>@(isBangla ? "আমাদের কাছে নিয়মিত দানের মাধ্যমে অংশগ্রহণের বিস্তারিত দিকনির্দেশনা (অনুগ্রহ করে পড়ুন):" : "Detailed guidelines for participating through regular donations (Please read):")</h3>
+                    <p>
+                        @if (isBangla)
+                        {
+                            <text>নিয়মিত দানে অংশগ্রহণের মাধ্যমে আপনি Wellbeing Bangladesh Society এর টেকসই উন্নয়নের লক্ষ্যে পরিচালিত সকল কল্যাণ কার্যক্রমে অংশীদার হতে পারবেন, কারণ এই ফান্ডে অবদান রেখে আপনি ফাউন্ডেশনের সঞ্চালিত সকল কল্যাণ কার্যক্রমে অংশগ্রহণ করতে পারবেন।</text>
+                        }
+                        else
+                        {
+                            <text>By participating in regular donations, you can be a partner in all welfare activities conducted by Wellbeing Bangladesh Society towards sustainable development goals, as this fund supports all welfare activities conducted by the foundation.</text>
+                        }
+                    </p>
+                    <ul>
+                        <li>@(isBangla ? "নিয়মিত দান দৈনিক বা মাসিক ভিত্তিতে করা যেতে পারে" : "Regular donations can be made on a daily or monthly basis")</li>
+                        <li>@(isBangla ? "আপনি যেকোনো সময় দানের পরিমাণ পরিবর্তন করতে পারবেন" : "You can change the donation amount at any time")</li>
+                        <li>@(isBangla ? "স্বচ্ছতা নিশ্চিত করতে নিয়মিত রিপোর্ট প্রদান করা হবে" : "Regular reports will be provided to ensure transparency")</li>
+                        <li>@(isBangla ? "যেকোনো সময় দান বন্ধ করার সুবিধা রয়েছে" : "You have the flexibility to stop donations at any time")</li>
+                        <li>@(isBangla ? "প্রতি মাস বা বছর শেষে ট্যাক্স রিসিট প্রদান করা হবে" : "Tax receipts will be provided at the end of each month or year")</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Donation Form Column -->
+            <div class="col-lg-6">
+                <div class="donation-form-card">
+                    <div class="form-header">
+                        <h2>@(isBangla ? "ফাউন্ডেশনের সকল কল্যাণ কার্যক্রমে অংশগ্রহণ করুন" : "Participate in all of the foundation's welfare activities")</h2>
+                        <p>@(isBangla ? "এই তহবিলে অবদান রেখে আপনি সকল কল্যাণ কার্যক্রমে অংশগ্রহণ করতে পারবেন।" : "By contributing to this fund, you can engage in all of the foundation's welfare projects.")</p>
+                    </div>
+
+                    <form id="donationForm">
+                        <!-- Frequency Tabs -->
+                        <div class="frequency-tabs">
+                            <button type="button" class="frequency-tab active" data-frequency="daily">@(isBangla ? "দৈনিক" : "Daily")</button>
+                            <button type="button" class="frequency-tab" data-frequency="monthly">@(isBangla ? "মাসিক" : "Monthly")</button>
+                        </div>
+
+                        <!-- Amount Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">@(isBangla ? "দানের পরিমাণ *" : "Donation Amount *")</label>
+                            <div class="amount-grid">
+                                <button type="button" class="amount-btn" data-amount="10">৳ 10</button>
+                                <button type="button" class="amount-btn" data-amount="20">৳ 20</button>
+                                <button type="button" class="amount-btn" data-amount="30">৳ 30</button>
+                                <button type="button" class="amount-btn" data-amount="50">৳ 50</button>
+                                <button type="button" class="amount-btn" data-amount="100">৳ 100</button>
+                                <button type="button" class="amount-btn" data-amount="custom">@(isBangla ? "অন্যান্য" : "Other")</button>
+                            </div>
+                            <input type="number" id="customAmount" class="form-control mt-2" placeholder="@(isBangla ? "আপনার পরিমাণ লিখুন" : "Enter your amount")" style="display: none;">
+                        </div>
+
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label for="donorName" class="form-label">@(isBangla ? "আপনার নাম *" : "Your Name *")</label>
+                            <input type="text" class="form-control" id="donorName" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="donorEmail" class="form-label">@(isBangla ? "ইমেইল *" : "Email *")</label>
+                            <input type="email" class="form-control" id="donorEmail" required>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label for="donorPhone" class="form-label">@(isBangla ? "মোবাইল নম্বর" : "Phone Number")</label>
+                            <input type="tel" class="form-control" id="donorPhone">
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-3">
+                            <label for="donorAddress" class="form-label">@(isBangla ? "ঠিকানা" : "Address")</label>
+                            <textarea class="form-control" id="donorAddress" rows="2"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="submit-btn">@(isBangla ? "দান করুন" : "Donate Now")</button>
+                    </form>
+
+                    <div class="help-text">
+                        <p>
+                            @(isBangla ? "সমস্যা হলে যোগাযোগ করুন:" : "For any issues, contact us at:")
+                            <a href="mailto:info@wbs.org">info@wbs.org</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const frequencyTabs = document.querySelectorAll('.frequency-tab');
+        frequencyTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                frequencyTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        const amountBtns = document.querySelectorAll('.amount-btn');
+        const customAmountInput = document.getElementById('customAmount');
+        let selectedAmount = 0;
+
+        amountBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                amountBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const amount = this.getAttribute('data-amount');
+                if (amount === 'custom') {
+                    customAmountInput.style.display = 'block';
+                    customAmountInput.focus();
+                    selectedAmount = 0;
+                } else {
+                    customAmountInput.style.display = 'none';
+                    selectedAmount = parseInt(amount);
+                }
+            });
+        });
+
+        customAmountInput.addEventListener('input', function() {
+            selectedAmount = parseInt(this.value) || 0;
+        });
+
+        document.getElementById('donationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const frequency = document.querySelector('.frequency-tab.active').getAttribute('data-frequency');
+            const name = document.getElementById('donorName').value;
+            const email = document.getElementById('donorEmail').value;
+            const phone = document.getElementById('donorPhone').value;
+            const address = document.getElementById('donorAddress').value;
+
+            const isBangla = '@isBangla' === 'True';
+            
+            if (selectedAmount <= 0) {
+                alert(isBangla ? 'অনুগ্রহ করে একটি দান পরিমাণ নির্বাচন করুন' : 'Please select a donation amount');
+                return;
+            }
+
+            if (!name || !email) {
+                alert(isBangla ? 'অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন' : 'Please fill in all required fields');
+                return;
+            }
+
+            // Determine donor type based on frequency
+            let donorType = 'Regular';
+            if (frequency === 'monthly') {
+                donorType = 'Monthly';
+            } else if (frequency === 'daily') {
+                donorType = 'Daily';
+            }
+
+            // Build URL with donor information
+            let url = '/donation?type=' + donorType.toLowerCase() + '&amount=' + selectedAmount;
+            url += '&name=' + encodeURIComponent(name);
+            url += '&email=' + encodeURIComponent(email);
+            if (phone) {
+                url += '&phone=' + encodeURIComponent(phone);
+            }
+            if (address) {
+                url += '&address=' + encodeURIComponent(address);
+            }
+
+            window.location.href = url;
+        });
+    });
+</script>

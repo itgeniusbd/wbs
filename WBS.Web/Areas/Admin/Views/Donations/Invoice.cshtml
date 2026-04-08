@@ -1,0 +1,456 @@
+@model WBS.Web.Models.Donation
+@{
+    ViewData["Title"] = "Donation Invoice";
+    Layout = null;
+    var siteSettings = ViewBag.SiteSettings as WBS.Web.Models.SiteSettings;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice #@Model.Id - @(siteSettings?.SiteName ?? "WBS")</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        @@media print {
+            .no-print { display: none !important; }
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            @@page {
+                size: A4;
+                margin: 0;
+            }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .invoice-container {
+            max-width: 21cm;
+            min-height: 29.7cm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .invoice-header {
+            background: linear-gradient(135deg, #28b3e3 0%, #18ad82 100%);
+            color: white;
+            padding: 30px 40px;
+            position: relative;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+        
+        .logo-img {
+            max-height: 50px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .company-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .invoice-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .invoice-number {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            text-align: right;
+        }
+        
+        .invoice-number h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .invoice-number p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .invoice-body {
+            padding: 30px 40px;
+        }
+        
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .info-box h5 {
+            color: #2c5f2d;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .info-box strong {
+            color: #000;
+        }
+        
+        .donor-badge {
+            display: inline-block;
+            background: #2c5f2d;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .donation-table {
+            width: 100%;
+            margin: 25px 0;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .donation-table thead {
+                background: #9feda5;
+        }
+        
+        .donation-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: black;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .donation-table td {
+            padding: 15px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .donation-table .amount-cell {
+            text-align: right;
+            font-weight: 600;
+                color: #080808;
+        }
+        
+        .donation-table tfoot td {
+            padding: 15px;
+            font-weight: 700;
+            border-top: 2px solid #2c5f2d;
+            background: #f8f9fa;
+        }
+        
+        .total-amount {
+            font-size: 20px;
+            color: #2c5f2d;
+        }
+        
+        .payment-status-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: start;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .payment-info h6 {
+            font-size: 12px;
+            color: #2c5f2d;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .payment-info p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .status-badge {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .status-failed {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .thank-you-section {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .thank-you-section h4 {
+            color: #2c5f2d;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .thank-you-section p {
+            color: #555;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .invoice-footer {
+            text-align: center;
+            padding: 20px 40px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+        }
+        
+        .invoice-footer p {
+            margin: 5px 0;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .print-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        
+        .btn-print {
+            padding: 12px 30px;
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(44, 95, 45, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-print:hover {
+            background: #1a3a1b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 95, 45, 0.4);
+        }
+        
+        .btn-close {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        @@media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            .invoice-container {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div class="logo-section">
+                @if (!string.IsNullOrEmpty(siteSettings?.Logo))
+                {
+                    <img src="@siteSettings.Logo" alt="WBS Logo" class="logo-img" />
+                }
+                <div>
+                    <p class="invoice-title">Donation Receipt / Invoice</p>
+                </div>
+            </div>
+            <div class="invoice-number">
+                <h3>Invoice #@Model.Id</h3>
+                <p>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</p>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="invoice-body">
+            <!-- From and To Section -->
+            <div class="info-section">
+                <div class="info-box">
+                    <h5>From:</h5>
+                    <p><strong>@(siteSettings?.SiteName ?? "WBS")</strong></p>
+                    @if (!string.IsNullOrEmpty(siteSettings?.Address))
+                    {
+                        <p>@siteSettings.Address</p>
+                    }
+                    @if (!string.IsNullOrEmpty(siteSettings?.Email))
+                    {
+                        <p>Email: @siteSettings.Email</p>
+                    }
+                    @if (!string.IsNullOrEmpty(siteSettings?.Phone))
+                    {
+                        <p>Phone: @siteSettings.Phone</p>
+                    }
+                </div>
+                <div class="info-box">
+                    <h5>Donor:</h5>
+                    <p>
+                        <strong>@Model.DonorName</strong>
+                        @if (!string.IsNullOrEmpty(Model.DonorType))
+                        {
+                            <span class="donor-badge">@Model.DonorType</span>
+                        }
+                    </p>
+                    <p>Email: @Model.Email</p>
+                    <p>Phone: @Model.Phone</p>
+                    @if (!string.IsNullOrEmpty(Model.Address))
+                    {
+                        <p>Address: @Model.Address</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Donation Table -->
+            <table class="donation-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th class="amount-cell">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Donation</strong>
+                            @if (Model.Appeal != null)
+                            {
+                                <br /><small style="color: #666;">For: @Model.Appeal.Title</small>
+                            }
+                        </td>
+                        <td>@(Model.DonationType?.Name ?? "General")</td>
+                        <td class="amount-cell">Tk @Model.Amount.ToString("N2")</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">Total Amount:</td>
+                        <td class="amount-cell">
+                            <span class="total-amount">Tk @Model.Amount.ToString("N2")</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Payment Information and Status -->
+            <div class="payment-status-section">
+                <div class="payment-info">
+                    <h6>Payment Information:</h6>
+                    <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                    <p><strong>Transaction ID:</strong> @(Model.TransactionId ?? "N/A")</p>
+                    @if (Model.PaidAt.HasValue)
+                    {
+                        <p><strong>Paid At:</strong> @Model.PaidAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</p>
+                    }
+                </div>
+                <div>
+                    @if (Model.Status == WBS.Web.Models.DonationStatus.Completed)
+                    {
+                        <div class="status-badge status-completed">PAID</div>
+                    }
+                    else if (Model.Status == WBS.Web.Models.DonationStatus.Pending)
+                    {
+                        <div class="status-badge status-pending">PENDING</div>
+                    }
+                    else if (Model.Status == WBS.Web.Models.DonationStatus.Failed)
+                    {
+                        <div class="status-badge status-failed">FAILED</div>
+                    }
+                    else
+                    {
+                        <div class="status-badge" style="background: #6c757d; color: white;">@Model.Status.ToString().ToUpper()</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Thank You Message -->
+            <div class="thank-you-section">
+                <h4><i class="fas fa-heart"></i> Thank You for Your Generosity!</h4>
+                <p>Your donation will help us make a positive impact in the community. May Allah accept your charity and bless you abundantly.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            <p><strong>This is a computer-generated invoice and does not require a signature.</strong></p>
+            <p>For any queries, please contact us at @(siteSettings?.Email ?? "info@wbs-bd.org") or @(siteSettings?.Phone ?? "+880 1XXX-XXXXXX")</p>
+        </div>
+    </div>
+
+    <!-- Print Buttons -->
+    <div class="no-print print-button">
+        <button onclick="window.print()" class="btn-print">
+            <i class="fas fa-print me-2"></i>Print Invoice
+        </button>
+        <button onclick="window.close()" class="btn-print btn-close">
+            <i class="fas fa-times me-2"></i>Close
+        </button>
+    </div>
+</body>
+</html>

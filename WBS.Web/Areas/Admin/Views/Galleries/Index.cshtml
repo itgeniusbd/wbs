@@ -1,0 +1,143 @@
+@model IEnumerable<WBS.Web.Models.Gallery>
+@{
+    ViewData["Title"] = "Gallery Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-images me-2"></i>Gallery Management</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Create New Gallery
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cover</th>
+                            <th>Title</th>
+                            <th>Images</th>
+                            <th>Status</th>
+                            <th>Order</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var gallery in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(gallery.CoverImage))
+                                    {
+                                        <img src="@gallery.CoverImage" alt="@gallery.Title" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" />
+                                    }
+                                    else if (gallery.Images.Any())
+                                    {
+                                        <img src="@gallery.Images.First().ImageUrl" alt="@gallery.Title" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <strong>@gallery.Title</strong><br />
+                                    @if (!string.IsNullOrEmpty(gallery.TitleBn))
+                                    {
+                                        <small class="text-muted">@gallery.TitleBn</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-images me-1"></i>@gallery.Images.Count
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (gallery.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>@gallery.DisplayOrder</td>
+                                <td>
+                                    <small>@gallery.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@gallery.Id" class="btn btn-sm btn-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@gallery.Id" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteGallery(@gallery.Id, '@gallery.Title')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No galleries found. Create your first gallery to get started!
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete gallery "<strong id="galleryTitle"></strong>"?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>This action cannot be undone!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteGallery(id, title) {
+            document.getElementById('galleryTitle').textContent = title;
+            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Galleries")/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}

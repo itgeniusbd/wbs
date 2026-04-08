@@ -1,15 +1,17 @@
-@model IEnumerable<WBS.Web.Models.AnnualReport>
-
+﻿@model IEnumerable<WBS.Web.Models.AnnualReport>
+@using Microsoft.AspNetCore.Localization
 @{
-    ViewData["Title"] = "Annual Reports";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    var isEnglish = currentCulture == "en";
+    ViewData["Title"] = isEnglish ? "Annual Reports" : "বার্ষিক প্রতিবেদন";
 }
 
 <section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center text-white">
-                <h1 class="display-4 fw-bold mb-3">Annual Reports</h1>
-                <p class="lead">Review our yearly accomplishments and financial reports</p>
+                <h1 class="display-4 fw-bold mb-3">@(isEnglish ? "Annual Reports" : "বার্ষিক প্রতিবেদন")</h1>
+                <p class="lead">@(isEnglish ? "Review our yearly accomplishments and financial reports" : "আমাদের বার্ষিক কার্যক্রম এবং আর্থিক প্রতিবেদন দেখুন")</p>
             </div>
         </div>
     </div>
@@ -20,36 +22,56 @@
         <div class="row">
             @if (Model != null && Model.Any())
             {
-                foreach (var report in Model)
+                foreach (var report in Model.Where(r => r.IsActive).OrderByDescending(r => r.Year))
                 {
+                    var displayTitle = isEnglish ? report.Title : (!string.IsNullOrEmpty(report.TitleBn) ? report.TitleBn : report.Title);
+                    var displayDescription = isEnglish ? report.Description : (!string.IsNullOrEmpty(report.DescriptionBn) ? report.DescriptionBn : report.Description);
+                    
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
+                        <div class="card h-100 shadow-sm hover-shadow-lg transition-all" style="transition: all 0.3s ease;">
                             @if (!string.IsNullOrEmpty(report.CoverImage))
                             {
-                                <img src="@report.CoverImage" class="card-img-top" alt="Annual Report @report.Year" style="height: 300px; object-fit: cover;" />
+                                <a href="@Url.Action("ViewPDF", "AnnualReports", new { area = "Admin", id = report.Id })" target="_blank" class="text-decoration-none">
+                                    <img src="@report.CoverImage" class="card-img-top" alt="@displayTitle" style="height: 300px; object-fit: cover; cursor: pointer;" />
+                                </a>
                             }
                             else
                             {
-                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
-                                    <div class="text-center">
-                                        <i class="fas fa-file-alt fa-5x text-primary mb-3"></i>
-                                        <h2 class="text-primary">@report.Year</h2>
+                                <a href="@Url.Action("ViewPDF", "AnnualReports", new { area = "Admin", id = report.Id })" target="_blank" class="text-decoration-none">
+                                    <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;">
+                                        <div class="text-center text-white">
+                                            <i class="fas fa-file-pdf fa-5x mb-3" style="opacity: 0.8;"></i>
+                                            <h2 class="fw-bold">@report.Year</h2>
+                                            <p class="mb-0">@(isEnglish ? "Annual Report" : "বার্ষিক প্রতিবেদন")</p>
+                                        </div>
                                     </div>
-                                </div>
+                                </a>
                             }
                             <div class="card-body">
-                                <h5 class="card-title">Annual Report @report.Year</h5>
-                                @if (!string.IsNullOrEmpty(report.Description))
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-primary me-2">@report.Year</span>
+                                </div>
+                                <h5 class="card-title" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                    @displayTitle
+                                </h5>
+                                @if (!string.IsNullOrEmpty(displayDescription))
                                 {
-                                    <p class="card-text">@report.Description</p>
+                                    <p class="card-text text-muted" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        @(displayDescription.Length > 100 ? displayDescription.Substring(0, 100) + "..." : displayDescription)
+                                    </p>
                                 }
                             </div>
-                            <div class="card-footer">
+                            <div class="card-footer bg-white border-top-0">
                                 @if (!string.IsNullOrEmpty(report.FileUrl))
                                 {
-                                    <a href="@report.FileUrl" target="_blank" class="btn btn-primary w-100">
-                                        <i class="fas fa-download me-2"></i>Download Report
-                                    </a>
+                                    <div class="d-flex gap-2">
+                                        <a href="@Url.Action("ViewPDF", "AnnualReports", new { area = "Admin", id = report.Id })" target="_blank" class="btn btn-outline-primary flex-fill">
+                                            <i class="fas fa-eye me-2"></i>@(isEnglish ? "View" : "দেখুন")
+                                        </a>
+                                        <a href="@Url.Action("DownloadPDF", "AnnualReports", new { area = "Admin", id = report.Id })" class="btn btn-primary flex-fill">
+                                            <i class="fas fa-download me-2"></i>@(isEnglish ? "Download" : "ডাউনলোড করুন")
+                                        </a>
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -59,11 +81,24 @@
             else
             {
                 <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>No annual reports available at the moment.
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <h4>@(isEnglish ? "No annual reports available at the moment." : "এই মুহূর্তে কোন বার্ষিক প্রতিবেদন উপলব্ধ নেই।")</h4>
+                        <p class="mb-0">@(isEnglish ? "Please check back later." : "পরে আবার চেক করুন।")</p>
                     </div>
                 </div>
             }
         </div>
     </div>
 </section>
+
+<style>
+    .hover-shadow-lg:hover {
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        transform: translateY(-5px);
+    }
+    
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+</style>

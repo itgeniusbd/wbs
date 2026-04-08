@@ -1,0 +1,388 @@
+﻿@model WBS.Web.Models.Donation
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Donate";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    var donationTypes = (ViewBag.DonationTypes as List<WBS.Web.Models.DonationType>) ?? new List<WBS.Web.Models.DonationType>();
+    var appeals = (ViewBag.Appeals as List<WBS.Web.Models.Appeal>) ?? new List<WBS.Web.Models.Appeal>();
+}
+
+<!-- Page Header -->
+<section class="page-header py-3 text-white" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+    <div class="container">
+        @if (isBangla)
+        {
+            <h1 class="fw-bold h2 mb-1">দান করুন</h1>
+            <p class="small mb-0">আপনার দান আমাদের জন্য অমূল্য</p>
+        }
+        else
+        {
+            <h1 class="fw-bold h2 mb-1">Make a Donation</h1>
+            <p class="small mb-0">Your generosity can make a real difference</p>
+        }
+    </div>
+</section>
+
+<!-- Donation Form -->
+<section class="donation-form py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-primary text-white py-2">
+                        <h5 class="mb-0">
+                            <i class="fas fa-hand-holding-heart me-2"></i>
+                            @(isBangla ? "দানের ফর্ম" : "Donation Form")
+                        </h5>
+                    </div>
+                    <div class="card-body p-3">
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    @(isBangla ? "ত্রুটি!" : "Error!")
+                                </h5>
+                                <p class="mb-0">@TempData["Error"]</p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        
+                        @if (TempData["Warning"] != null)
+                        {
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    @(isBangla ? "সতর্কতা!" : "Warning!")
+                                </h5>
+                                <p class="mb-0">@TempData["Warning"]</p>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <form asp-action="Index" method="post" id="donationForm">
+                            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                            {
+                                <div asp-validation-summary="All" class="alert alert-danger" role="alert">
+                                    <strong>@(isBangla ? "দয়া করে নিম্নলিখিত ত্রুটিগুলি সংশোধন করুন:" : "Please correct the following errors:")</strong>
+                                </div>
+                            }
+
+                            <!-- Amount Selection -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    @(isBangla ? "দানের পরিমাণ" : "Select Amount")
+                                </label>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-3">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 amount-btn" data-amount="500">৳ 500</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 amount-btn" data-amount="1000">৳ 1K</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 amount-btn" data-amount="5000">৳ 5K</button>
+                                    </div>
+                                    <div class="col-3">
+                                        <button type="button" class="btn btn-sm btn-outline-danger w-100 amount-btn" data-amount="10000">৳ 10K</button>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">৳</span>
+                                    <input asp-for="Amount" type="number" class="form-control" placeholder="@(isBangla ? "পরিমান লিখুন" : "Enter amount")" min="10" step="1" required />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Donation Type and Donor Type in same row -->
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-2 mb-md-0">
+                                    <label asp-for="DonationTypeId" class="form-label fw-bold small">
+                                        @(isBangla ? "দানের ধরন" : "Donation Type") <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="DonationTypeId" class="form-select" required>
+                                        <option value="">@(isBangla ? "-- দানের ধরন নির্বাচন করুন --" : "-- Select Donation Type --")</option>
+                                        @foreach (var donationType in donationTypes)
+                                        {
+                                            <option value="@donationType.Id">
+                                                @if (isBangla && !string.IsNullOrEmpty(donationType.NameBn))
+                                                {
+                                                    @donationType.NameBn
+                                                    @if (!string.IsNullOrEmpty(donationType.DescriptionBn))
+                                                    {
+                                                        @($" - {donationType.DescriptionBn}")
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @donationType.Name
+                                                    @if (!string.IsNullOrEmpty(donationType.Description))
+                                                    {
+                                                        @($" - {donationType.Description}")
+                                                    }
+                                                }
+                                            </option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="DonationTypeId" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="DonorType" class="form-label fw-bold small">
+                                        @(isBangla ? "দাতার ধরন" : "Donor Type") <span class="text-danger">*</span>
+                                        @if (!string.IsNullOrEmpty(ViewBag.SelectedTier as string))
+                                        {
+                                            <span class="badge bg-success">@ViewBag.SelectedTier</span>
+                                        }
+                                    </label>
+                                    <select asp-for="DonorType" class="form-select" id="donorTypeSelect" required>
+                                        <option value="">@(isBangla ? "-- নির্বাচন করুন --" : "-- Select Donor Type --")</option>
+                                        <option value="Regular" selected="@(Model.DonorType == "Regular")">@(isBangla ? "সাধারন দাতা" : "Regular Donor")</option>
+                                        <option value="Monthly" selected="@(Model.DonorType == "Monthly")">@(isBangla ? "মাসিক দাতা" : "Monthly Donor")</option>
+                                        <option value="Daily" selected="@(Model.DonorType == "Daily")">@(isBangla ? "দৈনিক দাতা" : "Daily Donor")</option>
+                                        <option value="Yearly" selected="@(Model.DonorType == "Yearly")">@(isBangla ? "বার্ষিক দাতা" : "Yearly Donor")</option>
+                                        <option value="Lifetime" selected="@(Model.DonorType == "Lifetime")">@(isBangla ? "লাইফটাইম দাতা" : "Lifetime Donor")</option>
+                                        <option value="Corporate" selected="@(Model.DonorType == "Corporate")">@(isBangla ? "প্রাতিষ্ঠানিক দাতা" : "Corporate Donor")</option>
+                                        <option value="OneTime" selected="@(Model.DonorType == "OneTime")">@(isBangla ? "এককালীন দাতা" : "One-Time Donor")</option>
+                                    </select>
+                                    <span asp-validation-for="DonorType" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <!-- Appeal (Optional) -->
+                            @if (appeals != null && appeals.Any())
+                            {
+                                <div class="mb-3">
+                                    <label asp-for="AppealId" class="form-label fw-bold small">
+                                        @(isBangla ? "আবেদন (ঐচ্ছিক)" : "Appeal (Optional)")
+                                    </label>
+                                    <select asp-for="AppealId" class="form-select">
+                                        <option value="">@(isBangla ? "-- সাধারণ দান --" : "-- General Donation --")</option>
+                                        @foreach (var appeal in appeals)
+                                        {
+                                            <option value="@appeal.Id">@appeal.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+
+                            <hr class="my-2" />
+
+                            <!-- Personal Information -->
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-user me-2"></i>
+                                @(isBangla ? "ব্যক্তিগত তথ্য" : "Personal Information")
+                            </h6>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6 mb-2">
+                                    <label asp-for="DonorName" class="form-label small">
+                                        @(isBangla ? "পূর্ণ নাম" : "Full Name") *
+                                    </label>
+                                    <input asp-for="DonorName" class="form-control form-control-sm" />
+                                    <span asp-validation-for="DonorName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label asp-for="Email" class="form-label small">
+                                        @(isBangla ? "ইমেইল" : "Email") *
+                                    </label>
+                                    <input asp-for="Email" type="email" class="form-control form-control-sm" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6 mb-2">
+                                    <label asp-for="Phone" class="form-label small">
+                                        @(isBangla ? "ফোন" : "Phone") *
+                                    </label>
+                                    <input asp-for="Phone" class="form-control form-control-sm" placeholder="+880" />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label asp-for="Address" class="form-label small">
+                                        @(isBangla ? "ঠিকানা" : "Address")
+                                    </label>
+                                    <input asp-for="Address" class="form-control form-control-sm" />
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input asp-for="IsAnonymous" class="form-check-input" type="checkbox" />
+                                        <label asp-for="IsAnonymous" class="form-check-label small">
+                                            @(isBangla ? "গোপন রাখুন" : "Anonymous")
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label asp-for="Notes" class="form-label small">
+                                        @(isBangla ? "নোট (ঐচ্ছিক)" : "Notes")
+                                    </label>
+                                    <input asp-for="Notes" class="form-control form-control-sm" placeholder="@(isBangla ? "বিশেষ নির্দেশনা..." : "Special instructions...")" />
+                                </div>
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <!-- Terms and Conditions Checkbox (Required by SSLCommerz) -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                                    <label class="form-check-label small" for="acceptTerms">
+                                        @if (isBangla)
+                                        {
+                                            <span>আমি <a href="/page/terms-and-conditions" target="_blank" class="text-primary">শর্তাবলী</a>, 
+                                            <a href="/page/privacy-policy" target="_blank" class="text-primary">গোপনীয়তা নীতি</a> এবং 
+                                            <a href="/page/refund-policy" target="_blank" class="text-primary">রিফান্ড নীতি</a> পড়েছি এবং সম্মত আছি 
+                                            <span class="text-danger">*</span></span>
+                                        }
+                                        else
+                                        {
+                                            <span>I have read and agree to the <a href="/page/terms-and-conditions" target="_blank" class="text-primary">Terms & Conditions</a>, 
+                                            <a href="/page/privacy-policy" target="_blank" class="text-primary">Privacy Policy</a>, and 
+                                            <a href="/page/refund-policy" target="_blank" class="text-primary">Return Refund Policy</a> 
+                                            <span class="text-danger">*</span></span>
+                                        }
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    @(isBangla ? "আপনার সম্মতি আবশ্যক" : "Your consent is required to proceed")
+                                </small>
+                            </div>
+
+                            <!-- Payment Method and Button Row -->
+                            <div class="row align-items-end">
+                                <div class="col-md-7 mb-2 mb-md-0">
+                                    <h6 class="fw-bold mb-2">
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        @(isBangla ? "পেমেন্ট পদ্ধতি" : "Payment Method")
+                                    </h6>
+                                    <input asp-for="PaymentMethod" type="radio" class="btn-check" id="online" value="Online" checked />
+                                    <label class="btn btn-outline-primary w-100 py-1 text-center payment-method-label" for="online">
+                                        <i class="fas fa-globe mb-1" style="color: #00a99d; font-size: 1.2rem;"></i>
+                                        <div><small><strong>@(isBangla ? "অনলাইন পেমেন্ট" : "Online Payment")</strong></small></div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">SSLCommerz</small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-success me-1" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;">
+                                                <i class="fas fa-credit-card"></i> Card
+                                            </span>
+                                            <span class="badge bg-danger me-1" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;">
+                                                <i class="fas fa-mobile-alt"></i> bKash
+                                            </span>
+                                            <span class="badge bg-warning text-dark me-1" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;">
+                                                <i class="fas fa-mobile-alt"></i> Nagad
+                                            </span>
+                                            <span class="badge bg-info" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;">
+                                                <i class="fas fa-university"></i> Bank
+                                            </span>
+                                        </div>
+                                    </label>
+                                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("PaymentMethod"))
+                                    {
+                                        <div class="alert alert-danger alert-sm py-2 mb-0 mt-2" role="alert">
+                                            <small><i class="fas fa-exclamation-circle me-1"></i>
+                                            @(isBangla ? "পেমেন্ট পদ্ধতি প্রয়োজন!" : "Payment Method Required!")</small>
+                                        </div>
+                                    }
+                                    <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                                </div>
+                                
+                                <div class="col-md-5">
+                                    <button type="submit" class="btn btn-danger btn-lg w-100">
+                                        <i class="fas fa-heart me-2"></i>
+                                        @(isBangla ? "পেমেন্ট এ যান" : "Proceed to Payment")
+                                    </button>
+                                    <div class="alert alert-info mt-2 mb-0 py-2">
+                                        <small>
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            @(isBangla ? "SSLCommerz গেটওয়েতে নিয়ে যেতে হবে" : "Redirects to SSLCommerz gateway")
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-3 mb-lg-0">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow-sm mb-2 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body text-white p-3">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                @(isBangla ? "নিরাপত্তা গ্যারান্টি" : "Security Guarantee")
+                            </h6>
+                            <ul class="small mb-0 ps-3">
+                                <li>@(isBangla ? "১০০% নিরাপদ লেনদেন" : "100% secure transaction")</li>
+                                <li>@(isBangla ? "তথ্য সুরক্ষিত" : "Information is safe")</li>
+                                <li>@(isBangla ? "রসিদ ইমেইল করা হবে" : "Receipt via email")</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border mb-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <div class="card-body text-white p-3">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-university me-2"></i>
+                                @(isBangla ? "ব্যাংক ট্রান্সফার" : "Bank Transfer")
+                            </h6>
+                            <div class="small">
+                                @if (isBangla)
+                                {
+                                    <div class="mb-1"><strong>একাউন্ট নাম:</strong><br/>Wellbeing Bangladesh Society</div>
+                                    <div class="mb-1"><strong>একাউন্ট নম্বর:</strong><br/>2581200035944</div>
+                                    <div class="mb-1"><strong>ব্যাংক:</strong><br/>Dutch-Bangla Bank Ltd.</div>
+                                    <div class="mb-1"><strong>শাখা:</strong><br/>Mohammadpur Branch, Dhaka-1207</div>
+                                    <div class="mb-0"><strong>রাউটিং:</strong> 090263286</div>
+                                }
+                                else
+                                {
+                                    <div class="mb-1"><strong>A/C Name:</strong><br/>Wellbeing Bangladesh Society</div>
+                                    <div class="mb-1"><strong>A/c Number:</strong><br/>2581200035944</div>
+                                    <div class="mb-1"><strong>Bank:</strong><br/>Dutch-Bangla Bank Ltd.</div>
+                                    <div class="mb-1"><strong>Branch:</strong><br/>Mohammadpur Branch, Dhaka-1207</div>
+                                    <div class="mb-0"><strong>Routing:</strong> 090263286</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border mb-2">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold mb-2 text-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla ? "দান সম্পর্কে" : "About Donation")
+                            </h6>
+                            @if (isBangla)
+                            {
+                                <ul class="small mb-0 ps-3">
+                                    <li>গরীবদের সহায়তা</li>
+                                    <li>শিক্ষা ও স্বাস্থ্যসেবা</li>
+                                    <li>জরুরি ত্রাণ কার্যক্রম</li>
+                                </ul>
+                            }
+                            else
+                            {
+                                <ul class="small mb-0 ps-3">
+                                    <li>Support for the poor</li>
+                                    <li>Education & healthcare</li>
+                                    <li>Emergency relief</li>
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_DonationScripts");}
+}

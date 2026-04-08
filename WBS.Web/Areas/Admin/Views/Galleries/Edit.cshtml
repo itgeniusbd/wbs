@@ -1,0 +1,136 @@
+﻿@model WBS.Web.Models.Gallery
+@{
+    ViewData["Title"] = "Edit Gallery";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Galleries</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">@Model.Title</a></li>
+            <li class="breadcrumb-item active">Edit</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Gallery</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TitleBn" class="form-label">Title (বাংলা)</label>
+                        <input asp-for="TitleBn" class="form-control" />
+                        <span asp-validation-for="TitleBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cover Image</label>
+                        @if (!string.IsNullOrEmpty(Model.CoverImage))
+                        {
+                            <div class="mb-2">
+                                <img src="@Model.CoverImage" class="img-thumbnail" style="max-height: 150px;" />
+                            </div>
+                        }
+                        <input type="file" name="coverImageFile" class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Leave empty to keep current cover image</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" class="form-control" type="number" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IsActive" class="form-label">Status</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label class="form-check-label" asp-for="IsActive">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Gallery Statistics</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">Total Images:</dt>
+                    <dd class="col-sm-6">
+                        <span class="badge bg-info">@Model.Images.Count</span>
+                    </dd>
+
+                    <dt class="col-sm-6">Created:</dt>
+                    <dd class="col-sm-6">
+                        <small>@Model.CreatedAt.ToString("MMM dd, yyyy")</small>
+                    </dd>
+
+                    <dt class="col-sm-6">Status:</dt>
+                    <dd class="col-sm-6">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title"><i class="fas fa-images me-2"></i>Manage Images</h6>
+                <p class="small text-muted">To add or remove images, go to the gallery details page.</p>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary w-100">
+                    <i class="fas fa-images me-1"></i> Manage Images
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

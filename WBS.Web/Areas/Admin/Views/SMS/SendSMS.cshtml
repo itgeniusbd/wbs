@@ -1,0 +1,446 @@
+@{
+    ViewData["Title"] = "Send SMS";
+    var contactGroups = (List<WBS.Web.Models.ContactGroup>)ViewBag.ContactGroups;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-paper-plane me-2"></i>Send SMS</h2>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- SMS Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-sms text-warning fa-3x mb-3"></i>
+                <h6 class="text-muted">SMS Balance</h6>
+                <h3 class="text-warning">@ViewBag.SmsBalance</h3>
+                <small class="text-muted">Available</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-donate text-primary fa-3x mb-3"></i>
+                <h6 class="text-muted">Total Donors</h6>
+                <h3 class="text-primary">@ViewBag.TotalDonors</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-hands-helping text-success fa-3x mb-3"></i>
+                <h6 class="text-muted">Total Volunteers</h6>
+                <h3 class="text-success">@ViewBag.TotalVolunteers</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-address-book text-info fa-3x mb-3"></i>
+                <h6 class="text-muted">Contact Groups</h6>
+                <h3 class="text-info">@contactGroups.Count</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send SMS Form -->
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-sms me-2"></i>Compose SMS</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="SendSMS" method="post">
+            @Html.AntiForgeryToken()
+            
+            <!-- Recipient Type Selection -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Select Recipients <span class="text-danger">*</span></label>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="form-check p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="recipientType" id="allDonors" value="AllDonors" required>
+                            <label class="form-check-label" for="allDonors">
+                                <i class="fas fa-donate text-primary me-2"></i>All Donors
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="recipientType" id="selectedDonors" value="SelectedDonors">
+                            <label class="form-check-label" for="selectedDonors">
+                                <i class="fas fa-user-check text-primary me-2"></i>Selected Donors
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="recipientType" id="allVolunteers" value="AllVolunteers">
+                            <label class="form-check-label" for="allVolunteers">
+                                <i class="fas fa-hands-helping text-success me-2"></i>All Volunteers
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="recipientType" id="contactGroup" value="ContactGroup">
+                            <label class="form-check-label" for="contactGroup">
+                                <i class="fas fa-users text-info me-2"></i>Contact Group
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Donors/Volunteers List -->
+            <div id="donorSelectionDiv" class="mb-3" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="form-label mb-0">Select Donors</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select id="donorTypeFilter" class="form-select form-select-sm" style="width: 200px;">
+                            <option value="">All Donor Types</option>
+                        </select>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="selectAllDonors()">
+                            <i class="fas fa-check-double me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="deselectAllDonors()">
+                            <i class="fas fa-times me-1"></i>Deselect All
+                        </button>
+                    </div>
+                </div>
+                <div class="border rounded" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0" id="donorsTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllDonors(this)">
+                                </th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Donor Type</th>
+                                <th>Donations</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading donors...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <span id="selectedDonorsCount">0</span> donor(s) selected
+                    </small>
+                </div>
+            </div>
+
+            <div id="volunteerSelectionDiv" class="mb-3" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="form-label mb-0">Select Volunteers</label>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="selectAllVolunteers()">
+                            <i class="fas fa-check-double me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="deselectAllVolunteers()">
+                            <i class="fas fa-times me-1"></i>Deselect All
+                        </button>
+                    </div>
+                </div>
+                <div class="border rounded" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0" id="volunteersTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAllVolunteersCheckbox" onchange="toggleAllVolunteers(this)">
+                                </th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading volunteers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <span id="selectedVolunteersCount">0</span> volunteer(s) selected
+                    </small>
+                </div>
+            </div>
+
+            <!-- Contact Group Selection -->
+            <div id="contactGroupDiv" class="mb-3" style="display: none;">
+                <label class="form-label">Select Contact Group</label>
+                <select name="contactGroupId" class="form-select">
+                    <option value="">Choose a contact group...</option>
+                    @foreach (var group in contactGroups)
+                    {
+                        var activeContactCount = group.Contacts.Count(c => c.IsActive);
+                        <option value="@group.Id">@group.GroupName (@activeContactCount contacts)</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Hidden field for selected IDs -->
+            <input type="hidden" name="selectedIds" id="selectedIds" />
+
+            <!-- SMS Message -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">SMS Message <span class="text-danger">*</span></label>
+                <textarea name="message" id="smsMessage" class="form-control" rows="5" maxlength="160" required placeholder="Enter your SMS message here (max 160 characters)..."></textarea>
+                <div class="form-text">
+                    <span id="charCount">0</span> / 160 characters | 
+                    <span id="smsCount">0</span> SMS
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Send SMS
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='@Url.Action("SMSSentRecords")'">
+                    <i class="fas fa-history me-2"></i>View History
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allDonors = [];
+        let allVolunteers = [];
+
+        $(document).ready(function() {
+            // Character counter
+            $('#smsMessage').on('input', function() {
+                const length = $(this).val().length;
+                const smsCount = Math.ceil(length / 160);
+                $('#charCount').text(length);
+                $('#smsCount').text(smsCount);
+            });
+
+            // Recipient type change handler
+            $('input[name="recipientType"]').change(function() {
+                const selected = $(this).val();
+                
+                // Hide all selection divs
+                $('#donorSelectionDiv').hide();
+                $('#volunteerSelectionDiv').hide();
+                $('#contactGroupDiv').hide();
+                
+                // Show appropriate div
+                if (selected === 'SelectedDonors') {
+                    $('#donorSelectionDiv').show();
+                    loadDonors();
+                } else if (selected === 'SelectedVolunteers') {
+                    $('#volunteerSelectionDiv').show();
+                    loadVolunteers();
+                } else if (selected === 'ContactGroup') {
+                    $('#contactGroupDiv').show();
+                }
+            });
+
+            // Donor type filter change
+            $('#donorTypeFilter').change(function() {
+                filterDonors();
+            });
+        });
+
+        // Load donors
+        function loadDonors() {
+            $.get('@Url.Action("GetDonors", "SMS")', function(donors) {
+                allDonors = donors;
+                
+                // Get unique donor types
+                const donorTypes = [...new Set(donors.map(d => d.donorType).filter(t => t))];
+                let typeOptions = '<option value="">All Donor Types</option>';
+                donorTypes.forEach(function(type) {
+                    typeOptions += `<option value="${type}">${type}</option>`;
+                });
+                $('#donorTypeFilter').html(typeOptions);
+                
+                // Display donors
+                displayDonors(donors);
+            });
+        }
+
+        // Display donors in table
+        function displayDonors(donors) {
+            let html = '';
+            
+            if (donors.length > 0) {
+                donors.forEach(function(donor) {
+                    html += `
+                        <tr>
+                            <td class="text-center">
+                                <input class="form-check-input donor-checkbox" type="checkbox" 
+                                       value="${donor.id}" id="donor${donor.id}" 
+                                       onchange="updateDonorCount()">
+                            </td>
+                            <td><strong>${donor.name}</strong></td>
+                            <td><a href="tel:${donor.phone}">${donor.phone}</a></td>
+                            <td><span class="badge bg-secondary">${donor.donorType || 'N/A'}</span></td>
+                            <td>${donor.totalDonations}</td>
+                            <td>Tk ${donor.totalAmount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html = '<tr><td colspan="6" class="text-center text-muted py-3">No donors found</td></tr>';
+            }
+            
+            $('#donorsTable tbody').html(html);
+            updateDonorCount();
+        }
+
+        // Filter donors by type
+        function filterDonors() {
+            const selectedType = $('#donorTypeFilter').val();
+            let filteredDonors = allDonors;
+            
+            if (selectedType) {
+                filteredDonors = allDonors.filter(d => d.donorType === selectedType);
+            }
+            
+            displayDonors(filteredDonors);
+        }
+
+        // Toggle all donors
+        function toggleAllDonors(checkbox) {
+            $('.donor-checkbox').prop('checked', checkbox.checked);
+            updateDonorCount();
+        }
+
+        // Select all donors
+        function selectAllDonors() {
+            $('.donor-checkbox').prop('checked', true);
+            $('#selectAllCheckbox').prop('checked', true);
+            updateDonorCount();
+        }
+
+        // Deselect all donors
+        function deselectAllDonors() {
+            $('.donor-checkbox').prop('checked', false);
+            $('#selectAllCheckbox').prop('checked', false);
+            updateDonorCount();
+        }
+
+        // Update donor count and selectedIds
+        function updateDonorCount() {
+            const checkedCount = $('.donor-checkbox:checked').length;
+            $('#selectedDonorsCount').text(checkedCount);
+            
+            const donorIds = $('.donor-checkbox:checked').map(function() { 
+                return this.value; 
+            }).get();
+            $('#selectedIds').val(donorIds.join(','));
+        }
+
+        // Load volunteers
+        function loadVolunteers() {
+            $.get('@Url.Action("GetVolunteers", "SMS")', function(volunteers) {
+                allVolunteers = volunteers;
+                displayVolunteers(volunteers);
+            });
+        }
+
+        // Display volunteers in table
+        function displayVolunteers(volunteers) {
+            let html = '';
+            
+            if (volunteers.length > 0) {
+                volunteers.forEach(function(volunteer) {
+                    html += `
+                        <tr>
+                            <td class="text-center">
+                                <input class="form-check-input volunteer-checkbox" type="checkbox" 
+                                       value="${volunteer.id}" id="volunteer${volunteer.id}"
+                                       onchange="updateVolunteerCount()">
+                            </td>
+                            <td><strong>${volunteer.name}</strong></td>
+                            <td><a href="tel:${volunteer.phone}">${volunteer.phone}</a></td>
+                            <td>${volunteer.email}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html = '<tr><td colspan="4" class="text-center text-muted py-3">No volunteers found</td></tr>';
+            }
+            
+            $('#volunteersTable tbody').html(html);
+            updateVolunteerCount();
+        }
+
+        // Toggle all volunteers
+        function toggleAllVolunteers(checkbox) {
+            $('.volunteer-checkbox').prop('checked', checkbox.checked);
+            updateVolunteerCount();
+        }
+
+        // Select all volunteers
+        function selectAllVolunteers() {
+            $('.volunteer-checkbox').prop('checked', true);
+            $('#selectAllVolunteersCheckbox').prop('checked', true);
+            updateVolunteerCount();
+        }
+
+        // Deselect all volunteers
+        function deselectAllVolunteers() {
+            $('.volunteer-checkbox').prop('checked', false);
+            $('#selectAllVolunteersCheckbox').prop('checked', false);
+            updateVolunteerCount();
+        }
+
+        // Update volunteer count and selectedIds
+        function updateVolunteerCount() {
+            const checkedCount = $('.volunteer-checkbox:checked').length;
+            $('#selectedVolunteersCount').text(checkedCount);
+            
+            const volunteerIds = $('.volunteer-checkbox:checked').map(function() { 
+                return this.value; 
+            }).get();
+            $('#selectedIds').val(volunteerIds.join(','));
+        }
+    </script>
+    
+    <style>
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+    </style>
+}
+

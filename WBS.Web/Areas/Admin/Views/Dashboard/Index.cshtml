@@ -1,0 +1,121 @@
+@model List<Donation>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Donations</h6>
+                        <h3 class="mb-0">Tk @ViewBag.TotalDonations.ToString("N0")</h3>
+                    </div>
+                    <i class="fas fa-donate fa-2x text-primary opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Donations Count</h6>
+                        <h3 class="mb-0">@ViewBag.DonationsCount</h3>
+                    </div>
+                    <i class="fas fa-hand-holding-heart fa-2x text-success opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Volunteers</h6>
+                        <h3 class="mb-0">@ViewBag.VolunteersCount</h3>
+                    </div>
+                    <i class="fas fa-users fa-2x text-warning opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <a href="@Url.Action("Index", "ContactMessages")" class="text-decoration-none">
+            <div class="card stat-card danger hover-lift">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Unread Messages</h6>
+                            <h3 class="mb-0">@ViewBag.MessagesCount</h3>
+                        </div>
+                        <i class="fas fa-envelope fa-2x text-danger opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Donations</h5>
+                <a href="/admin/donations" class="btn btn-primary btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Donor</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var donation in Model)
+                            {
+                                <tr>
+                                    <td>#@donation.Id</td>
+                                    <td>
+                                        @(donation.IsAnonymous ? "Anonymous" : donation.DonorName)
+                                        <br />
+                                        <small class="text-muted">@donation.Email</small>
+                                    </td>
+                                    <td class="fw-bold">Tk @donation.Amount.ToString("N0")</td>
+                                    <td>@donation.DonationType?.Name</td>
+                                    <td>
+                                        @switch (donation.Status)
+                                        {
+                                            case DonationStatus.Pending:
+                                                <span class="badge bg-warning">Pending</span>
+                                                break;
+                                            case DonationStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case DonationStatus.Failed:
+                                                <span class="badge bg-danger">Failed</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@donation.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@donation.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,208 @@
+@model List<WBS.Web.Models.SmsLog>
+@{
+    ViewData["Title"] = "SMS Logs";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-history me-2"></i>SMS Logs</h2>
+    <div>
+        <a asp-action="Templates" class="btn btn-primary">
+            <i class="fas fa-file-alt me-2"></i>Templates
+        </a>
+        <a asp-action="TestNotifications" class="btn btn-secondary">
+            <i class="fas fa-vial me-2"></i>Test Notifications
+        </a>
+    </div>
+</div>
+
+<!-- SMS Balance Display -->
+<div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <i class="fas fa-sms me-2"></i>
+        <strong>Current SMS Balance:</strong> 
+        <span class="fs-5 ms-2 badge bg-primary">@ViewBag.SmsBalance SMS</span>
+    </div>
+    <small class="text-muted">Last 100 SMS transactions</small>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-info-circle me-2"></i>No SMS logs found. Send some test messages to see logs here.
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Phone Number</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Balance</th>
+                            <th>Donor Info</th>
+                            <th>Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <small>@log.SentAt.ToLocalTime().ToString("dd MMM yyyy")<br/>@log.SentAt.ToLocalTime().ToString("hh:mm:ss tt")</small>
+                                </td>
+                                <td>
+                                    <strong>@log.PhoneNumber</strong>
+                                </td>
+                                <td>
+                                    <small style="max-width: 300px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                           title="@log.Message">
+                                        @log.Message
+                                    </small>
+                                </td>
+                                <td>
+                                    @switch (log.Status)
+                                    {
+                                        case WBS.Web.Models.SmsStatus.Success:
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Success
+                                            </span>
+                                            break;
+                                        case WBS.Web.Models.SmsStatus.Failed:
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times me-1"></i>Failed
+                                            </span>
+                                            break;
+                                        case WBS.Web.Models.SmsStatus.InsufficientBalance:
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>No Balance
+                                            </span>
+                                            break;
+                                        case WBS.Web.Models.SmsStatus.InvalidNumber:
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-ban me-1"></i>Invalid Number
+                                            </span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.Status == WBS.Web.Models.SmsStatus.Success)
+                                    {
+                                        <small>
+                                            <span class="text-danger">@log.BalanceBefore</span>
+                                            <i class="fas fa-arrow-right mx-1"></i>
+                                            <span class="text-success">@log.BalanceAfter</span>
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">@log.BalanceBefore</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.DonorName))
+                                    {
+                                        <small>
+                                            <strong>@log.DonorName</strong><br/>
+                                            @if (log.Amount.HasValue)
+                                            {
+                                                <span>?@log.Amount.Value.ToString("N2")</span><br/>
+                                            }
+                                            @if (!string.IsNullOrEmpty(log.TransactionId))
+                                            {
+                                                <span class="text-muted">@log.TransactionId</span>
+                                            }
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">-</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.ErrorMessage))
+                                    {
+                                        @if (log.Status == WBS.Web.Models.SmsStatus.Success)
+                                        {
+                                            <small class="text-success" title="@log.ErrorMessage">
+                                                <i class="fas fa-check-circle me-1"></i>Sent
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-danger" title="@log.ErrorMessage">
+                                                @(log.ErrorMessage.Length > 30 ? log.ErrorMessage.Substring(0, 30) + "..." : log.ErrorMessage)
+                                            </small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">-</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-check-circle me-2"></i>Success
+                    </h5>
+                    <h3>@Model.Count(l => l.Status == WBS.Web.Models.SmsStatus.Success)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-times-circle me-2"></i>Failed
+                    </h5>
+                    <h3>@Model.Count(l => l.Status == WBS.Web.Models.SmsStatus.Failed)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>No Balance
+                    </h5>
+                    <h3>@Model.Count(l => l.Status == WBS.Web.Models.SmsStatus.InsufficientBalance)</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-ban me-2"></i>Invalid Number
+                    </h5>
+                    <h3>@Model.Count(l => l.Status == WBS.Web.Models.SmsStatus.InvalidNumber)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto refresh every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+}

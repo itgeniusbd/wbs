@@ -1,0 +1,320 @@
+﻿@model WBS.Web.Models.SDGProgram
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    var events = ViewBag.Events as List<WBS.Web.Models.SDGProject> ?? new List<WBS.Web.Models.SDGProject>();
+    dynamic stats = ViewBag.Stats;
+}
+
+<!-- Program Header -->
+<div class="program-detail-header py-5" style="background: linear-gradient(135deg, @Model.SDG?.Color 0%, @Model.SDG?.Color 100%); position: relative; overflow: hidden;">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                {
+                    <img src="@Model.FeaturedImage" alt="@Model.Title" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 5px 20px rgba(0,0,0,0.3);" />
+                }
+                else
+                {
+                    <div class="program-icon-badge mb-3" style="width: 120px; height: 120px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                        <i class="fas fa-project-diagram fa-3x text-white"></i>
+                    </div>
+                }
+                
+                <h1 class="text-white fw-bold mb-2">
+                    @if (isBangla && !string.IsNullOrEmpty(Model.TitleBn))
+                    {
+                        @Html.Raw(Model.TitleBn)
+                    }
+                    else
+                    {
+                        @Model.Title
+                    }
+                </h1>
+                
+                <!-- SDG Badge -->
+                @if (Model.SDG != null)
+                {
+                    <div class="mb-2">
+                        <span class="badge bg-light text-dark fs-6">
+                            <i class="fas fa-bullseye me-1"></i>
+                            SDG @Model.SDG.Number: @Model.SDG.Name
+                        </span>
+                    </div>
+                }
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/ourwork/sdg/@Model.SDGId" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    @if (isBangla)
+                    {
+                        @Html.Raw("ফিরে যান")
+                    }
+                    else
+                    {
+                        <text>Back to SDG</text>
+                    }
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+</div>
+
+<!-- Statistics Section -->
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <div class="row g-3 text-center">
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <h3 class="fw-bold mb-1" style="color: @Model.SDG?.Color;">@stats.TotalEvents</h3>
+                    @if (isBangla)
+                    {
+                        <p class="text-muted small mb-0">@Html.Raw("ইভেন্ট")</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Events</p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <h3 class="fw-bold mb-1" style="color: @Model.SDG?.Color;">@stats.TotalBeneficiaries.ToString("N0")</h3>
+                    @if (isBangla)
+                    {
+                        <p class="text-muted small mb-0">@Html.Raw("উপকারভোগী")</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Beneficiaries</p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box">
+                    <h3 class="fw-bold mb-1" style="color: @Model.SDG?.Color;">@stats.Districts</h3>
+                    @if (isBangla)
+                    {
+                        <p class="text-muted small mb-0">@Html.Raw("জেলা")</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">Districts</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Description Section -->
+@if (!string.IsNullOrEmpty(Model.Description) || !string.IsNullOrEmpty(Model.DescriptionBn))
+{
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            @if (isBangla)
+                            {
+                                <h3 class="mb-3">@Html.Raw("বিবরণ")</h3>
+                            }
+                            else
+                            {
+                                <h3 class="mb-3">About This Program</h3>
+                            }
+                            <p class="lead">
+                                @if (isBangla && !string.IsNullOrEmpty(Model.DescriptionBn))
+                                {
+                                    @Html.Raw(Model.DescriptionBn)
+                                }
+                                else
+                                {
+                                    @Model.Description
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Events Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        @if (isBangla)
+        {
+            <h2 class="text-center fw-bold mb-5">@Html.Raw("ইভেন্টসমূহ")</h2>
+        }
+        else
+        {
+            <h2 class="text-center fw-bold mb-5">Events</h2>
+        }
+
+        @if (events.Any())
+        {
+            <div class="row g-4">
+                @foreach (var eventItem in events)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm event-card">
+                            @if (!string.IsNullOrEmpty(eventItem.FeaturedImage))
+                            {
+                                <img src="@eventItem.FeaturedImage" class="card-img-top" alt="@eventItem.Title" style="height: 220px; object-fit: cover;" />
+                            }
+                            else if (eventItem.Images.Any())
+                            {
+                                <img src="@eventItem.Images.OrderBy(i => i.DisplayOrder).First().ImageUrl" class="card-img-top" alt="@eventItem.Title" style="height: 220px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                                    <i class="fas fa-calendar-alt fa-3x text-white-50"></i>
+                                </div>
+                            }
+                            
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    @if (isBangla && !string.IsNullOrEmpty(eventItem.TitleBn))
+                                    {
+                                        @Html.Raw(eventItem.TitleBn)
+                                    }
+                                    else
+                                    {
+                                        @eventItem.Title
+                                    }
+                                </h5>
+                                
+                                @if (!string.IsNullOrEmpty(eventItem.Description) || !string.IsNullOrEmpty(eventItem.DescriptionBn))
+                                {
+                                    var description = isBangla && !string.IsNullOrEmpty(eventItem.DescriptionBn) 
+                                        ? eventItem.DescriptionBn 
+                                        : eventItem.Description;
+                                    
+                                    <p class="card-text text-muted small">
+                                        @Html.Raw(description?.Length > 150 ? description.Substring(0, 150) + "..." : description)
+                                    </p>
+                                }
+                                
+                                <!-- Location -->
+                                <div class="mb-2">
+                                    @if (!string.IsNullOrEmpty(eventItem.District))
+                                    {
+                                        <span class="badge bg-light text-dark me-1">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            @Html.Raw(isBangla && !string.IsNullOrEmpty(eventItem.DistrictBn) ? eventItem.DistrictBn : eventItem.District)
+                                        </span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(eventItem.Thana))
+                                    {
+                                        <span class="badge bg-light text-dark me-1">
+                                            @Html.Raw(isBangla && !string.IsNullOrEmpty(eventItem.ThanaBn) ? eventItem.ThanaBn : eventItem.Thana)
+                                        </span>
+                                    }
+                                </div>
+                                
+                                <!-- Beneficiaries -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-users me-2" style="color: @Model.SDG?.Color;"></i>
+                                    <strong>@eventItem.BeneficiaryCount.ToString("N0")</strong>
+                                    @if (isBangla)
+                                    {
+                                        <span class="ms-1 text-muted small">@Html.Raw("উপকারভোগী")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ms-1 text-muted small">Beneficiaries</span>
+                                    }
+                                </div>
+
+                                <!-- Date Range -->
+                                @if (eventItem.StartDate != null || eventItem.EndDate != null)
+                                {
+                                    <div class="text-muted small">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        @if (eventItem.StartDate != null)
+                                        {
+                                            @eventItem.StartDate.Value.ToString("MMM dd, yyyy")
+                                        }
+                                        @if (eventItem.StartDate != null && eventItem.EndDate != null)
+                                        {
+                                            <text> - </text>
+                                        }
+                                        @if (eventItem.EndDate != null)
+                                        {
+                                            @eventItem.EndDate.Value.ToString("MMM dd, yyyy")
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            
+                            <div class="card-footer bg-transparent border-top">
+                                <a href="/ourwork/event/@eventItem.Id" class="btn btn-sm btn-outline-primary w-100">
+                                    @if (isBangla)
+                                    {
+                                        @Html.Raw("বিস্তারিত দেখুন")
+                                    }
+                                    else
+                                    {
+                                        <text>View Details</text>
+                                    }
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                @if (isBangla)
+                {
+                    <h4 class="text-muted">@Html.Raw("এই প্রোগ্রামের জন্য কোন ইভেন্ট পাওয়া যায়নি")</h4>
+                }
+                else
+                {
+                    <h4 class="text-muted">No events found for this program</h4>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<style>
+    .event-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        border-color: @Model.SDG?.Color;
+    }
+    
+    .stat-box {
+        padding: 1rem;
+        background: #fff;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>

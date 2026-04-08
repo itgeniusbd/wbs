@@ -1,0 +1,123 @@
+@model IEnumerable<WBS.Web.Models.Upazila>
+
+@{
+    ViewData["Title"] = "Manage Upazilas";
+    var districts = ViewBag.Districts as List<WBS.Web.Models.District>;
+    var selectedDistrictId = ViewBag.SelectedDistrictId as int?;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Upazilas Management</h1>
+            <p class="text-muted">Manage upazilas where WBS works</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filter by District</label>
+                    <select name="districtId" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Districts</option>
+                        @if (districts != null)
+                        {
+                            foreach (var district in districts)
+                            {
+                                <option value="@district.Id" selected="@(selectedDistrictId == district.Id)">
+                                    @district.Name (@district.Upazilas.Count)
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0">All Upazilas</h5>
+                </div>
+                <div class="col-auto">
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Upazila
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>District</th>
+                                <th>Upazila Name (EN)</th>
+                                <th>Upazila Name (BN)</th>
+                                <th>Has Work</th>
+                                <th>Display Order</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.District.Name</strong></td>
+                                    <td>@item.Name</td>
+                                    <td>@(item.NameBn ?? "-")</td>
+                                    <td>
+                                        @if (item.HasWork)
+                                        {
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                        }
+                                    </td>
+                                    <td>@item.DisplayOrder</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="@Url.Action("Edit", new { id = item.Id })" 
+                                               class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="@Url.Action("Delete", new { id = item.Id })" 
+                                               class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No upazilas found.</p>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add First Upazila
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

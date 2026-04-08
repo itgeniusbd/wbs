@@ -1,0 +1,112 @@
+@model IEnumerable<WBS.Web.Models.District>
+
+@{
+    ViewData["Title"] = "Manage Districts";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Districts Management</h1>
+            <p class="text-muted">Manage districts where WBS works</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="mb-0">All Districts</h5>
+                </div>
+                <div class="col-auto">
+                    <form asp-action="FixBengaliNames" method="post" style="display: inline;" onsubmit="return confirm('This will update all district Bengali names. Continue?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning me-2" title="Fix Bengali Names">
+                            <i class="fas fa-language me-2"></i>Fix Bengali Names
+                        </button>
+                    </form>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New District
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>District Name (EN)</th>
+                                <th>District Name (BN)</th>
+                                <th>Has Work</th>
+                                <th>Upazilas</th>
+                                <th>Display Order</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.Name</strong></td>
+                                    <td>@(item.NameBn ?? "-")</td>
+                                    <td>
+                                        @if (item.HasWork)
+                                        {
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@item.Upazilas.Count upazilas</span>
+                                        <small class="text-muted">(@item.Upazilas.Count(u => u.HasWork) with work)</small>
+                                    </td>
+                                    <td>@item.DisplayOrder</td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="@Url.Action("Edit", new { id = item.Id })" 
+                                               class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="@Url.Action("Index", "Upazilas", new { districtId = item.Id })" 
+                                               class="btn btn-outline-info" title="View Upazilas">
+                                                <i class="fas fa-list"></i>
+                                            </a>
+                                            <a href="@Url.Action("Delete", new { id = item.Id })" 
+                                               class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No districts found.</p>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add First District
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

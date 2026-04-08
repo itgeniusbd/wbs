@@ -1,0 +1,373 @@
+﻿@model SiteSettings
+@{
+    ViewData["Title"] = "Site Settings";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Index" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            
+            <ul class="nav nav-tabs mb-4" id="settingsTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#general">General</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#organization">Organization</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#social">Social Media</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#payment">Payment</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#policies">Policies</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#rohingya">Rohingya Stats</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#seo">SEO</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- General Tab -->
+                <div class="tab-pane fade show active" id="general">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SiteName" class="form-label">Site Name</label>
+                            <input asp-for="SiteName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SiteNameBn" class="form-label">Site Name (বাংলা)</label>
+                            <input asp-for="SiteNameBn" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Logo</label>
+                            <input type="file" name="logoFile" class="form-control" accept="image/*" />
+                            @if (!string.IsNullOrEmpty(Model.Logo))
+                            {
+                                <img src="@Model.Logo" class="img-thumbnail mt-2" style="max-height: 60px;" />
+                            }
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Logo (White)</label>
+                            <input type="file" name="logoWhiteFile" class="form-control" accept="image/*" />
+                            @if (!string.IsNullOrEmpty(Model.LogoWhite))
+                            {
+                                <img src="@Model.LogoWhite" class="img-thumbnail mt-2 bg-dark" style="max-height: 60px;" />
+                            }
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Favicon</label>
+                            <input type="file" name="faviconFile" class="form-control" accept="image/*" />
+                            @if (!string.IsNullOrEmpty(Model.Favicon))
+                            {
+                                <img src="@Model.Favicon" class="img-thumbnail mt-2" style="max-height: 32px;" />
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">About Us Image</label>
+                            <input type="file" name="aboutUsImageFile" class="form-control" accept="image/*" />
+                            @if (!string.IsNullOrEmpty(Model.AboutUsImage))
+                            {
+                                <img src="@Model.AboutUsImage" class="img-thumbnail mt-2" style="max-height: 150px;" />
+                            }
+                            <small class="form-text text-muted">This image will be displayed on the "Who We Are" page.</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="AboutUs" class="form-label">About Us (Short)</label>
+                        <textarea asp-for="AboutUs" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="FooterText" class="form-label">Footer Text</label>
+                        <textarea asp-for="FooterText" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="CopyrightText" class="form-label">Copyright Text</label>
+                        <input asp-for="CopyrightText" class="form-control" />
+                    </div>
+                </div>
+
+                <!-- Organization Tab -->
+                <div class="tab-pane fade" id="organization">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrganizationFullName" class="form-label">Organization Full Name</label>
+                            <input asp-for="OrganizationFullName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrganizationFullNameBn" class="form-label">Organization Full Name (বাংলা)</label>
+                            <input asp-for="OrganizationFullNameBn" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="EstablishedYear" class="form-label">Established Year</label>
+                            <input asp-for="EstablishedYear" class="form-control" type="number" min="1900" max="2100" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="RegistrationType" class="form-label">Registration Type</label>
+                            <input asp-for="RegistrationType" class="form-control" placeholder="e.g., RJSC, NGO Bureau" />
+                            <small class="form-text text-muted">e.g., RJSC, NGO Bureau, etc.</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="RegistrationNumber" class="form-label">Registration Number</label>
+                            <input asp-for="RegistrationNumber" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrganizationType" class="form-label">Organization Type</label>
+                            <textarea asp-for="OrganizationType" class="form-control" rows="2" placeholder="e.g., Non-Profit Organization"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrganizationTypeBn" class="form-label">Organization Type (বাংলা)</label>
+                            <textarea asp-for="OrganizationTypeBn" class="form-control" rows="2" placeholder="যেমন: অলাভজনক সংস্থা"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ManagementInfo" class="form-label">Management Team Information</label>
+                        <textarea asp-for="ManagementInfo" class="form-control summernote" rows="6"></textarea>
+                        <small class="form-text text-muted">Include CEO, Managing Director and other key officials with their positions.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ManagementInfoBn" class="form-label">Management Team Information (বাংলা)</label>
+                        <textarea asp-for="ManagementInfoBn" class="form-control summernote" rows="6"></textarea>
+                    </div>
+                </div>
+
+                <!-- Contact Tab -->
+                <div class="tab-pane fade" id="contact">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label">Phone</label>
+                            <input asp-for="Phone" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="AddressBn" class="form-label">Address (বাংলা)</label>
+                            <textarea asp-for="AddressBn" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="GoogleMapEmbed" class="form-label">Google Map Embed Code</label>
+                        <textarea asp-for="GoogleMapEmbed" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Social Tab -->
+                <div class="tab-pane fade" id="social">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FacebookUrl" class="form-label">
+                                <i class="fab fa-facebook text-primary me-1"></i> Facebook URL
+                            </label>
+                            <input asp-for="FacebookUrl" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TwitterUrl" class="form-label">
+                                <i class="fab fa-twitter text-info me-1"></i> Twitter URL
+                            </label>
+                            <input asp-for="TwitterUrl" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="InstagramUrl" class="form-label">
+                                <i class="fab fa-instagram text-danger me-1"></i> Instagram URL
+                            </label>
+                            <input asp-for="InstagramUrl" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="YouTubeUrl" class="form-label">
+                                <i class="fab fa-youtube text-danger me-1"></i> YouTube URL
+                            </label>
+                            <input asp-for="YouTubeUrl" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="LinkedInUrl" class="form-label">
+                            <i class="fab fa-linkedin text-primary me-1"></i> LinkedIn URL
+                        </label>
+                        <input asp-for="LinkedInUrl" class="form-control" />
+                    </div>
+                </div>
+
+                <!-- Payment Tab -->
+                <div class="tab-pane fade" id="payment">
+                    <h6 class="mb-3">Bank Details</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankName" class="form-label">Bank Name</label>
+                            <input asp-for="BankName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankAccountName" class="form-label">Account Name</label>
+                            <input asp-for="BankAccountName" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankAccountNumber" class="form-label">Account Number</label>
+                            <input asp-for="BankAccountNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankBranchName" class="form-label">Branch Name</label>
+                            <input asp-for="BankBranchName" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankRoutingNumber" class="form-label">Routing Number</label>
+                            <input asp-for="BankRoutingNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BankSwiftCode" class="form-label">SWIFT Code</label>
+                            <input asp-for="BankSwiftCode" class="form-control" />
+                        </div>
+                    </div>
+                    <hr />
+                    <h6 class="mb-3">Mobile Banking</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="BkashNumber" class="form-label">bKash Number</label>
+                            <input asp-for="BkashNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="NagadNumber" class="form-label">Nagad Number</label>
+                            <input asp-for="NagadNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="RocketNumber" class="form-label">Rocket Number</label>
+                            <input asp-for="RocketNumber" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policies Tab -->
+                <div class="tab-pane fade" id="policies">
+                    <h6 class="mb-3">Refund & Return Policy</h6>
+                    <div class="mb-3">
+                        <label asp-for="RefundPolicyTimeframe" class="form-label">Refund Processing Timeframe</label>
+                        <input asp-for="RefundPolicyTimeframe" class="form-control" placeholder="e.g., Refunds will be processed within 7-10 business days" />
+                        <small class="form-text text-muted">Specify the timeframe for processing refunds (e.g., 7-10 business days).</small>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="RefundPolicyTimeframeBn" class="form-label">Refund Processing Timeframe (বাংলা)</label>
+                        <input asp-for="RefundPolicyTimeframeBn" class="form-control" placeholder="যেমন: রিফান্ড ৭-১০ কার্যদিবসের মধ্যে সম্পন্ন হবে" />
+                    </div>
+                    <hr />
+                    <h6 class="mb-3">Payment Gateway Banner</h6>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Gateway Banner Image</label>
+                        <input type="file" name="paymentBannerFile" class="form-control" accept="image/*" />
+                        @if (!string.IsNullOrEmpty(Model.PaymentGatewayBanner))
+                        {
+                            <img src="@Model.PaymentGatewayBanner" class="img-thumbnail mt-2" style="max-height: 80px;" />
+                        }
+                        <small class="form-text text-muted">Upload a banner showing accepted payment methods. Recommended size: 600x100px</small>
+                    </div>
+                </div>
+
+                <!-- Rohingya Stats Tab -->
+                <div class="tab-pane fade" id="rohingya">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> These statistics will be displayed on the Rohingya Response page. 
+                        Leave blank to use automatically calculated values from your programs and events.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RohingyaActivePrograms" class="form-label">
+                                <i class="fas fa-tasks text-primary me-1"></i> Active Programs
+                            </label>
+                            <input asp-for="RohingyaActivePrograms" class="form-control" type="number" min="0" />
+                            <small class="form-text text-muted">Number of active Rohingya programs</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RohingyaEventsConducted" class="form-label">
+                                <i class="fas fa-calendar-check text-success me-1"></i> Events Conducted
+                            </label>
+                            <input asp-for="RohingyaEventsConducted" class="form-control" type="number" min="0" />
+                            <small class="form-text text-muted">Total number of events completed</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RohingyaTotalBeneficiaries" class="form-label">
+                                <i class="fas fa-users text-info me-1"></i> People Helped
+                            </label>
+                            <input asp-for="RohingyaTotalBeneficiaries" class="form-control" type="number" min="0" />
+                            <small class="form-text text-muted">Total number of beneficiaries reached</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RohingyaCampsReached" class="form-label">
+                                <i class="fas fa-campground text-warning me-1"></i> Camps Reached
+                            </label>
+                            <input asp-for="RohingyaCampsReached" class="form-control" type="number" min="0" />
+                            <small class="form-text text-muted">Number of refugee camps reached</small>
+                        </div>
+                    </div>
+
+                    <div class="card bg-light mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-lightbulb text-warning me-1"></i> How It Works:
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>If you enter values here, they will be displayed on the Rohingya page</li>
+                                <li>If you leave blank, the system will automatically calculate from your database</li>
+                                <li>Manual values override automatic calculations</li>
+                                <li>This is useful when you want to show rounded numbers or include offline activities</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEO Tab -->
+                <div class="tab-pane fade" id="seo">
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                        <input asp-for="MetaTitle" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaKeywords" class="form-label">Meta Keywords</label>
+                        <input asp-for="MetaKeywords" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

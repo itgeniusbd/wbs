@@ -1,0 +1,263 @@
+﻿@model List<WBS.Web.Models.SDG>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Sustainable Development Goals (SDG)";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<div class="page-header bg-primary text-white py-5">
+    <div class="container">
+        @if (isBangla)
+        {
+            <h1 class="display-4">টেকসই উন্নয়ন লক্ষ্য (SDG)</h1>
+            <p class="lead">জাতিসংঘের টেকসই উন্নয়ন লক্ষ্য</p>
+        }
+        else
+        {
+            <h1 class="display-4">Sustainable Development Goals (SDG)</h1>
+            <p class="lead">United Nations Sustainable Development Goals</p>
+        }
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto text-center">
+            @if (isBangla)
+            {
+                <h2 class="mb-3">SDG তে আমাদের অবদান</h2>
+                <p class="text-muted lead">WBS জাতিসংঘের টেকসই উন্নয়ন লক্ষ্য অর্জনে প্রতিশ্রুতিবদ্ধ। আমরা সম্প্রদায়ে দীর্ঘস্থায়ী প্রভাব তৈরি করতে একাধিক SDG জুড়ে কাজ করি।</p>
+            }
+            else
+            {
+                <h2 class="mb-3">Our Contribution to SDGs</h2>
+                <p class="text-muted lead">WBS is committed to achieving the United Nations Sustainable Development Goals. We work across multiple SDGs to create lasting impact in communities.</p>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var sdg in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm sdg-detail-card" data-sdg-color="@sdg.Color">
+                    <div class="card-body text-center p-4">
+                        <div class="sdg-icon-large mb-4" style="width: 180px; height: 180px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                            @if (!string.IsNullOrEmpty(sdg.Image))
+                            {
+                                <img src="@sdg.Image" alt="@sdg.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div style="background-color: @sdg.Color; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem;">
+                                    <h1 class="text-white mb-2 display-1 fw-bold">@sdg.Number</h1>
+                                </div>
+                            }
+                        </div>
+                        
+                        <h4 class="card-title fw-bold mb-2">@sdg.Name</h4>
+                        <p class="text-muted mb-3">@sdg.NameBn</p>
+                        
+                        @{
+                            var stats = ViewBag.SDGStats != null && ViewBag.SDGStats.ContainsKey(sdg.Id) 
+                                ? ViewBag.SDGStats[sdg.Id] 
+                                : null;
+                        }
+
+                        @if (stats != null)
+                        {
+                            <div class="mb-3">
+                                <div class="row g-2 text-center">
+                                    <div class="col-4">
+                                        <div class="stat-box p-2" style="background-color: rgba(0,0,0,0.03); border-radius: 8px;">
+                                            <h6 class="mb-0 fw-bold" style="color: @sdg.Color; font-size: 1.2rem;">@stats.ProgramCount</h6>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                @if (isBangla)
+                                                {
+                                                    <text>প্রোগ্রাম</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Programs</text>
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stat-box p-2" style="background-color: rgba(0,0,0,0.03); border-radius: 8px;">
+                                            <h6 class="mb-0 fw-bold" style="color: @sdg.Color; font-size: 1.2rem;">@stats.EventCount</h6>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                @if (isBangla)
+                                                {
+                                                    <text>ইভেন্ট</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Events</text>
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stat-box p-2" style="background-color: rgba(0,0,0,0.03); border-radius: 8px;">
+                                            <h6 class="mb-0 fw-bold" style="color: @sdg.Color; font-size: 1.2rem;">@stats.BeneficiaryCount.ToString("N0")</h6>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                @if (isBangla)
+                                                {
+                                                    <text>সুবিধাভোগী</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Beneficiaries</text>
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(sdg.Description) || !string.IsNullOrEmpty(sdg.DescriptionBn))
+                        {
+                            <p class="card-text small text-muted">
+                                @if (isBangla && !string.IsNullOrEmpty(sdg.DescriptionBn))
+                                {
+                                    @sdg.DescriptionBn
+                                }
+                                else
+                                {
+                                    @sdg.Description
+                                }
+                            </p>
+                        }
+                        
+                        @if (sdg.Sectors.Any())
+                        {
+                            <div class="mb-3">
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-project-diagram me-1"></i>
+                                    @sdg.Sectors.Count
+                                    @if (isBangla)
+                                    {
+                                        <text> সেক্টর</text>
+                                    }
+                                    else
+                                    {
+                                        <text> Sector(s)</text>
+                                    }
+                                </span>
+                            </div>
+                        }
+                        
+                        <a href="/ourwork/sdg/@sdg.Id" class="btn btn-outline-primary btn-sm px-4 sdg-learn-btn" data-sdg-color="@sdg.Color">
+                            @if (isBangla)
+                            {
+                                <text>আরও জানুন</text>
+                            }
+                            else
+                            {
+                                <text>Learn More</text>
+                            }
+                            <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-info-circle fa-3x mb-3 d-block"></i>
+            @if (isBangla)
+            {
+                <h5>কোনো SDG পাওয়া যায়নি</h5>
+            }
+            else
+            {
+                <h5>No SDGs available at the moment</h5>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .sdg-detail-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 3px solid transparent;
+        background: #fff;
+    }
+    
+    .sdg-detail-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    }
+    
+    .sdg-detail-card:hover .sdg-icon-large {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .sdg-learn-btn {
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+
+    .stat-box {
+        transition: all 0.3s ease;
+    }
+
+    .sdg-detail-card:hover .stat-box {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sdgCards = document.querySelectorAll('.sdg-detail-card');
+        
+        sdgCards.forEach(card => {
+            const sdgColor = card.getAttribute('data-sdg-color');
+            const learnBtn = card.querySelector('.sdg-learn-btn');
+            
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = sdgColor;
+                if (learnBtn) {
+                    learnBtn.style.borderColor = sdgColor;
+                    learnBtn.style.color = sdgColor;
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = 'transparent';
+                if (learnBtn) {
+                    learnBtn.style.borderColor = '';
+                    learnBtn.style.color = '';
+                }
+            });
+            
+            if (learnBtn) {
+                learnBtn.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = sdgColor;
+                    this.style.color = '#fff';
+                    this.style.borderColor = sdgColor;
+                });
+                
+                learnBtn.addEventListener('mouseleave', function() {
+                    if (!card.matches(':hover')) {
+                        this.style.backgroundColor = '';
+                        this.style.color = '';
+                        this.style.borderColor = '';
+                    } else {
+                        this.style.backgroundColor = '';
+                        this.style.color = sdgColor;
+                        this.style.borderColor = sdgColor;
+                    }
+                });
+            }
+        });
+    });
+</script>

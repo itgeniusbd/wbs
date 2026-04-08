@@ -1,0 +1,208 @@
+@{
+    ViewData["Title"] = "Donation Reports";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4"><i class="fas fa-chart-bar me-2"></i>Donation Reports</h2>
+
+<!-- Date Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label">From Date</label>
+                <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To Date</label>
+                <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Donor Type</label>
+                <select name="donorType" class="form-select">
+                    <option value="">All Donor Types</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Daily">Daily</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="Lifetime">Lifetime</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="OneTime">One Time</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="text-uppercase">Total Donations</h6>
+                <h2 class="mb-0">@ViewBag.TotalDonations</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="text-uppercase">Total Amount</h6>
+                <h2 class="mb-0">Tk @ViewBag.TotalAmount.ToString("N0")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="text-uppercase">Completed</h6>
+                <h2 class="mb-0">@ViewBag.CompletedDonations</h2>
+                <small>Tk @ViewBag.CompletedAmount.ToString("N0")</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="text-uppercase">Completion Rate</h6>
+                <h2 class="mb-0">
+                    @{
+                        var completionRate = ViewBag.TotalDonations > 0 
+                            ? ((double)ViewBag.CompletedDonations / ViewBag.TotalDonations * 100).ToString("N1") 
+                            : "0";
+                    }
+                    @completionRate%
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donations by Type -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Donations by Type</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Donation Type</th>
+                        <th class="text-center">Count</th>
+                        <th class="text-end">Total Amount</th>
+                        <th class="text-center">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.DonationsByType != null)
+                    {
+                        var totalAmount = ViewBag.CompletedAmount;
+                        @foreach (var item in ViewBag.DonationsByType)
+                        {
+                            var percentage = totalAmount > 0 ? (item.Amount / (decimal)totalAmount * 100) : 0;
+                            <tr>
+                                <td><strong>@item.Type</strong></td>
+                                <td class="text-center">@item.Count</td>
+                                <td class="text-end">Tk @item.Amount.ToString("N2")</td>
+                                <td class="text-center">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @percentage%">
+                                            @percentage.ToString("N1")%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No data available</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Donations by Donor Type -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Donations by Donor Type</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Donor Type</th>
+                        <th class="text-center">Count</th>
+                        <th class="text-end">Total Amount</th>
+                        <th class="text-center">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.DonationsByDonorType != null)
+                    {
+                        var totalAmount = ViewBag.CompletedAmount;
+                        @foreach (var item in ViewBag.DonationsByDonorType)
+                        {
+                            var percentage = totalAmount > 0 ? (item.Amount / (decimal)totalAmount * 100) : 0;
+                            <tr>
+                                <td><strong>@item.Type</strong></td>
+                                <td class="text-center">@item.Count</td>
+                                <td class="text-end">Tk @item.Amount.ToString("N2")</td>
+                                <td class="text-center">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: @percentage%">
+                                            @percentage.ToString("N1")%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No data available</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="mb-3">Export Reports</h5>
+        <a asp-action="Export" class="btn btn-success">
+            <i class="fas fa-file-excel me-2"></i>Export to CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary">
+            <i class="fas fa-print me-2"></i>Print Report
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // You can add charts here using Chart.js if needed
+    </script>
+}
+
+<style>
+    @@media print {
+        .card-body form, .btn { display: none; }
+    }
+</style>

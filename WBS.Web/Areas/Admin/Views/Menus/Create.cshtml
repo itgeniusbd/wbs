@@ -1,0 +1,107 @@
+@model MenuCreateViewModel
+@{
+    ViewData["Title"] = "Create Menu";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Create New Menu</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label">Name (English) *</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NameBn" class="form-label">Name (?????)</label>
+                            <input asp-for="NameBn" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Url" class="form-label">URL</label>
+                            <input asp-for="Url" class="form-control" placeholder="/page-url" />
+                            <small class="text-muted">Leave empty if linking to a page</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PageId" class="form-label">Or Select Page</label>
+                            <select asp-for="PageId" class="form-select">
+                                <option value="">-- Select Page --</option>
+                                @if (ViewBag.Pages != null)
+                                {
+                                    @foreach (var item in (ViewBag.Pages as List<Page>) ?? new List<Page>())
+                                    {
+                                        <option value="@item.Id">@item.Title</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ParentMenuId" class="form-label">Parent Menu</label>
+                            <select asp-for="ParentMenuId" class="form-select">
+                                <option value="">-- No Parent (Top Level) --</option>
+                                @if (ViewBag.ParentMenus != null)
+                                {
+                                    @foreach (var menu in (ViewBag.ParentMenus as List<Menu>) ?? new List<Menu>())
+                                    {
+                                        <option value="@menu.Id">@menu.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" type="number" class="form-control" value="0" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Icon" class="form-label">Icon Class</label>
+                            <input asp-for="Icon" class="form-control" placeholder="fas fa-home" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CssClass" class="form-label">CSS Class</label>
+                            <input asp-for="CssClass" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" checked />
+                                <label asp-for="IsActive" class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsExternal" class="form-check-input" />
+                                <label asp-for="IsExternal" class="form-check-label">Open in New Tab</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="/admin/menus" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Menu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

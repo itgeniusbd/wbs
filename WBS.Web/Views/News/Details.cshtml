@@ -1,0 +1,157 @@
+﻿@model WBS.Web.Models.News
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    var title = isBangla && !string.IsNullOrEmpty(Model.TitleBn) ? Model.TitleBn : Model.Title;
+    var content = isBangla && !string.IsNullOrEmpty(Model.ContentBn) ? Model.ContentBn : Model.Content;
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 60px 0;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-white-50">@(isBangla ? "হোম" : "Home")</a></li>
+                <li class="breadcrumb-item"><a href="/news" class="text-white-50">@(isBangla ? "সংবাদ" : "News")</a></li>
+                <li class="breadcrumb-item active text-white">@(title.Length > 50 ? title.Substring(0, 50) + "..." : title)</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center text-white">
+            @if (Model.IsFeatured)
+            {
+                <span class="badge bg-danger me-3 px-3 py-2">@(isBangla ? "বৈশিষ্ট্যযুক্ত" : "Featured")</span>
+            }
+            <div>
+                <small class="d-block mb-2">
+                    <i class="far fa-calendar me-2"></i>
+                    @Model.PublishedDate.ToString("MMMM dd, yyyy")
+                    <span class="ms-3">
+                        <i class="far fa-eye me-2"></i>
+                        @Model.ViewCount @(isBangla ? "বার দেখা হয়েছে" : "views")
+                    </span>
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <article class="news-article">
+                    <h1 class="display-5 fw-bold mb-4">@title</h1>
+                    
+                    @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                    {
+                        <div class="mb-4">
+                            <img src="@Model.FeaturedImage" alt="@title" class="img-fluid rounded shadow-sm w-100" style="max-height: 500px; object-fit: cover;" />
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Summary) || !string.IsNullOrEmpty(Model.SummaryBn))
+                    {
+                        var summary = isBangla && !string.IsNullOrEmpty(Model.SummaryBn) ? Model.SummaryBn : Model.Summary;
+                        <div class="alert alert-info border-0 shadow-sm mb-4">
+                            <h5 class="alert-heading">@(isBangla ? "সারাংশ" : "Summary")</h5>
+                            <p class="mb-0 lead">@summary</p>
+                        </div>
+                    }
+                    
+                    <div class="news-content" style="font-size: 1.1rem; line-height: 1.8;">
+                        @Html.Raw(content)
+                    </div>
+
+                    <!-- Share Section -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h5 class="mb-3">@(isBangla ? "এই সংবাদটি শেয়ার করুন:" : "Share this news:")</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                <i class="fab fa-facebook-f me-2"></i>Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)&text=@title" 
+                               target="_blank" 
+                               class="btn btn-info text-white">
+                                <i class="fab fa-twitter me-2"></i>Twitter
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url=@(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                <i class="fab fa-linkedin-in me-2"></i>LinkedIn
+                            </a>
+                            <a href="https://wa.me/?text=@title @(Context.Request.Scheme)://@(Context.Request.Host)@(Context.Request.Path)" 
+                               target="_blank" 
+                               class="btn btn-success">
+                                <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Donate Card -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-hand-holding-heart me-2"></i>
+                            @(isBangla ? "দান করুন" : "Support Our Work")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@(isBangla ? "আমাদের মানবিক কাজে সহায়তা করুন" : "Your donation helps us continue our humanitarian work")</p>
+                        <a href="/donation" class="btn btn-success w-100">
+                            <i class="fas fa-heart me-2"></i>
+                            @(isBangla ? "এখনই দান করুন" : "Donate Now")
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Get Involved Card -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            @(isBangla ? "যুক্ত হন" : "Get Involved")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@(isBangla ? "স্বেচ্ছাসেবক হিসেবে আমাদের সাথে কাজ করুন" : "Join us as a volunteer")</p>
+                        <a href="/getinvolved/volunteer" class="btn btn-outline-info w-100 mb-2">
+                            <i class="fas fa-hand-holding-heart me-2"></i>
+                            @(isBangla ? "স্বেচ্ছাসেবক" : "Volunteer")
+                        </a>
+                        <a href="/getinvolved/career" class="btn btn-outline-info w-100">
+                            <i class="fas fa-briefcase me-2"></i>
+                            @(isBangla ? "চাকরি" : "Careers")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .news-content {
+        text-align: justify;
+    }
+    .news-content p {
+        margin-bottom: 1.5rem;
+    }
+    .news-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+    }
+    .news-content h2, .news-content h3, .news-content h4 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+</style>

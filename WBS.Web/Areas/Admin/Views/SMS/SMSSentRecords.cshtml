@@ -1,0 +1,167 @@
+@model IEnumerable<WBS.Web.Models.SMSCampaign>
+
+@{
+    ViewData["Title"] = "SMS Sent Records";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-history me-2"></i>SMS Sent Records</h2>
+    <a href="@Url.Action("SendSMS")" class="btn btn-primary">
+        <i class="fas fa-paper-plane me-2"></i>Send New SMS
+    </a>
+</div>
+
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">From Date</label>
+                <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">To Date</label>
+                <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Campaigns List -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Campaign Name</th>
+                        <th>Recipient Type</th>
+                        <th>Total</th>
+                        <th>Success</th>
+                        <th>Failed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var campaign in Model)
+                        {
+                            <tr>
+                                <td>@campaign.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    <strong>@campaign.CampaignName</strong><br>
+                                    <small class="text-muted">@campaign.Message.Substring(0, Math.Min(50, campaign.Message.Length))...</small>
+                                </td>
+                                <td>
+                                    @switch (campaign.RecipientType)
+                                    {
+                                        case "AllDonors":
+                                            <span class="badge bg-primary"><i class="fas fa-donate me-1"></i>All Donors</span>
+                                            break;
+                                        case "SelectedDonors":
+                                            <span class="badge bg-primary"><i class="fas fa-user-check me-1"></i>Selected Donors</span>
+                                            break;
+                                        case "AllVolunteers":
+                                            <span class="badge bg-success"><i class="fas fa-hands-helping me-1"></i>All Volunteers</span>
+                                            break;
+                                        case "SelectedVolunteers":
+                                            <span class="badge bg-success"><i class="fas fa-user-check me-1"></i>Selected Volunteers</span>
+                                            break;
+                                        case "ContactGroup":
+                                            <span class="badge bg-info"><i class="fas fa-users me-1"></i>@campaign.ContactGroup?.GroupName</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@campaign.RecipientType</span>
+                                            break;
+                                    }
+                                </td>
+                                <td><strong>@campaign.TotalRecipients</strong></td>
+                                <td><span class="text-success">@campaign.SuccessCount</span></td>
+                                <td><span class="text-danger">@campaign.FailedCount</span></td>
+                                <td>
+                                    @switch (campaign.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning">Pending</span>
+                                            break;
+                                        case "Sending":
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-spinner fa-spin me-1"></i>Sending
+                                            </span>
+                                            break;
+                                        case "Completed":
+                                            <span class="badge bg-success">Completed</span>
+                                            break;
+                                        case "Failed":
+                                            <span class="badge bg-danger">Failed</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@campaign.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("CampaignDetails", new { id = campaign.Id })" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                No SMS campaigns found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+@if (Model.Any())
+{
+    var totalSent = Model.Sum(c => c.SuccessCount);
+    var totalFailed = Model.Sum(c => c.FailedCount);
+    var totalCampaigns = Model.Count();
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Campaigns</h6>
+                    <h3 class="text-primary">@totalCampaigns</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Successfully Sent</h6>
+                    <h3 class="text-success">@totalSent</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Failed</h6>
+                    <h3 class="text-danger">@totalFailed</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}

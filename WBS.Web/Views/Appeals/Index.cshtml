@@ -1,0 +1,129 @@
+﻿@model List<Appeal>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Appeals";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header bg-primary text-white py-5">
+    <div class="container">
+        <h1 class="fw-bold">
+            @if (isBangla)
+            {
+                <text>বর্তমান আবেদনসমূহ</text>
+            }
+            else
+            {
+                <text>Current Appeals</text>
+            }
+        </h1>
+        <p class="lead mb-0">
+            @if (isBangla)
+            {
+                <text>আমাদের মানবিক কাজে সহায়তা করুন</text>
+            }
+            else
+            {
+                <text>Support our humanitarian work</text>
+            }
+        </p>
+    </div>
+</section>
+
+<section class="appeals-list py-5">
+    <div class="container">
+        <!-- Filter -->
+        <div class="mb-4">
+            <div class="btn-group">
+                <a href="/appeals" class="btn @(ViewBag.Type == null ? "btn-primary" : "btn-outline-primary")">
+                    @(isBangla ? "সব" : "All")
+                </a>
+                <a href="/appeals?type=Emergency" class="btn @(ViewBag.Type == "Emergency" ? "btn-primary" : "btn-outline-primary")">
+                    @(isBangla ? "জরুরি" : "Emergency")
+                </a>
+                <a href="/appeals?type=Special" class="btn @(ViewBag.Type == "Special" ? "btn-primary" : "btn-outline-primary")">
+                    @(isBangla ? "বিশেষ" : "Special")
+                </a>
+            </div>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var appeal in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="card h-100 appeal-card">
+                            @if (!string.IsNullOrEmpty(appeal.FeaturedImage))
+                            {
+                                <img src="@appeal.FeaturedImage" class="card-img-top" alt="@appeal.Title" style="height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image fa-3x text-white-50"></i>
+                                </div>
+                            }
+                            @if (appeal.IsUrgent)
+                            {
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                                    @(isBangla ? "জরুরি" : "URGENT")
+                                </span>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    @if (isBangla && !string.IsNullOrEmpty(appeal.TitleBn))
+                                    {
+                                        @appeal.TitleBn
+                                    }
+                                    else
+                                    {
+                                        @appeal.Title
+                                    }
+                                </h5>
+                                <p class="card-text text-muted">
+                                    @{
+                                        var summary = isBangla && !string.IsNullOrEmpty(appeal.SummaryBn) 
+                                            ? appeal.SummaryBn 
+                                            : appeal.Summary;
+                                    }
+                                    @(summary?.Length > 100 ? summary.Substring(0, 100) + "..." : summary)
+                                </p>
+                                @if (appeal.TargetAmount.HasValue)
+                                {
+                                    var percentage = appeal.TargetAmount > 0 ? (int)Math.Min(100, (appeal.RaisedAmount / appeal.TargetAmount.Value) * 100) : 0;
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @percentage%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>
+                                            @(isBangla ? "সংগৃহীত" : "Raised"): ৳@appeal.RaisedAmount.ToString("N0")
+                                        </span>
+                                        <span>
+                                            @(isBangla ? "লক্ষ্য" : "Goal"): ৳@appeal.TargetAmount?.ToString("N0")
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="/appeals/@appeal.Slug" class="btn btn-primary w-100">
+                                    @(isBangla ? "এখনই দান করুন" : "Donate Now")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-hand-holding-heart fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">
+                    @(isBangla ? "কোন আবেদন পাওয়া যায়নি" : "No appeals found")
+                </h4>
+            </div>
+        }
+    </div>
+</section>

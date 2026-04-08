@@ -1,0 +1,461 @@
+﻿@model WBS.Web.Models.SDGProject
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<!-- Event Header -->
+<div class="event-detail-header py-5" style="background: linear-gradient(135deg, @Model.SDG?.Color 0%, @Model.SDG?.Color 100%); position: relative; overflow: hidden;">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-white fw-bold mb-3">
+                    @if (isBangla && !string.IsNullOrEmpty(Model.TitleBn))
+                    {
+                        @Html.Raw(Model.TitleBn)
+                    }
+                    else
+                    {
+                        @Model.Title
+                    }
+                </h1>
+                
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent p-0 mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="/ourwork/sdg" class="text-white">
+                                SDG
+                            </a>
+                        </li>
+                        @if (Model.SDG != null)
+                        {
+                            <li class="breadcrumb-item">
+                                <a href="/ourwork/sdg/@Model.SDG.Id" class="text-white">
+                                    SDG @Model.SDG.Number
+                                </a>
+                            </li>
+                        }
+                        @if (Model.SDGProgram != null)
+                        {
+                            <li class="breadcrumb-item">
+                                <a href="/ourwork/program/@Model.SDGProgram.Id" class="text-white">
+                                    @if (isBangla && !string.IsNullOrEmpty(Model.SDGProgram.TitleBn))
+                                    {
+                                        @Html.Raw(Model.SDGProgram.TitleBn)
+                                    }
+                                    else
+                                    {
+                                        @Model.SDGProgram.Title
+                                    }
+                                </a>
+                            </li>
+                        }
+                        <li class="breadcrumb-item active text-white" aria-current="page">
+                            @if (isBangla)
+                            {
+                                <text>ইভেন্ট বিস্তারিত</text>
+                            }
+                            else
+                            {
+                                <text>Event Details</text>
+                            }
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-4 text-md-end">
+                @if (Model.SDGProgramId != null)
+                {
+                    <a href="/ourwork/program/@Model.SDGProgramId" class="btn btn-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>ফিরে যান</text>
+                        }
+                        else
+                        {
+                            <text>Back to Program</text>
+                        }
+                    </a>
+                }
+                else
+                {
+                    <a href="/ourwork/sdg/@Model.SDGId" class="btn btn-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        @if (isBangla)
+                        {
+                            <text>ফিরে যান</text>
+                        }
+                        else
+                        {
+                            <text>Back to SDG</text>
+                        }
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+</div>
+
+<!-- Event Info Cards -->
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <div class="row g-3">
+            <!-- Location -->
+            <div class="col-md-6 col-lg-3">
+                <div class="info-card">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-wrapper me-3">
+                            <i class="fas fa-map-marker-alt fa-2x" style="color: @Model.SDG?.Color;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">
+                                @if (isBangla)
+                                {
+                                    <text>অবস্থান</text>
+                                }
+                                else
+                                {
+                                    <text>Location</text>
+                                }
+                            </h6>
+                            @if (!string.IsNullOrEmpty(Model.District))
+                            {
+                                <p class="mb-0 text-muted">
+                                    @Html.Raw(isBangla && !string.IsNullOrEmpty(Model.DistrictBn) ? Model.DistrictBn : Model.District)
+                                    @if (!string.IsNullOrEmpty(Model.Thana))
+                                    {
+                                        <br />
+                                        <small>@Html.Raw(isBangla && !string.IsNullOrEmpty(Model.ThanaBn) ? Model.ThanaBn : Model.Thana)</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.Union))
+                                    {
+                                        <br />
+                                        <small>@Html.Raw(isBangla && !string.IsNullOrEmpty(Model.UnionBn) ? Model.UnionBn : Model.Union)</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.Village))
+                                    {
+                                        <br />
+                                        <small>@Html.Raw(isBangla && !string.IsNullOrEmpty(Model.VillageBn) ? Model.VillageBn : Model.Village)</small>
+                                    }
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="mb-0 text-muted">
+                                    @if (isBangla)
+                                    {
+                                        <text>নির্দিষ্ট নয়</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Not specified</text>
+                                    }
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beneficiaries -->
+            <div class="col-md-6 col-lg-3">
+                <div class="info-card">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-wrapper me-3">
+                            <i class="fas fa-users fa-2x" style="color: @Model.SDG?.Color;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">
+                                @if (isBangla)
+                                {
+                                    <text>উপকারভোগী</text>
+                                }
+                                else
+                                {
+                                    <text>Beneficiaries</text>
+                                }
+                            </h6>
+                            <p class="mb-0 fw-bold fs-5" style="color: @Model.SDG?.Color;">@Model.BeneficiaryCount.ToString("N0")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="col-md-6 col-lg-3">
+                <div class="info-card">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-wrapper me-3">
+                            <i class="fas fa-calendar-alt fa-2x" style="color: @Model.SDG?.Color;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">
+                                @if (isBangla)
+                                {
+                                    <text>সময়কাল</text>
+                                }
+                                else
+                                {
+                                    <text>Duration</text>
+                                }
+                            </h6>
+                            @if (Model.StartDate != null || Model.EndDate != null)
+                            {
+                                <p class="mb-0 text-muted small">
+                                    @if (Model.StartDate != null)
+                                    {
+                                        @Model.StartDate.Value.ToString("MMM dd, yyyy")
+                                    }
+                                    @if (Model.StartDate != null && Model.EndDate != null)
+                                    {
+                                        <br />
+                                    }
+                                    @if (Model.EndDate != null)
+                                    {
+                                        @Model.EndDate.Value.ToString("MMM dd, yyyy")
+                                    }
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="mb-0 text-muted">
+                                    @if (isBangla)
+                                    {
+                                        <text>নির্দিষ্ট নয়</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Not specified</text>
+                                    }
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6 col-lg-3">
+                <div class="info-card">
+                    <div class="d-flex align-items-start">
+                        <div class="icon-wrapper me-3">
+                            <i class="fas fa-check-circle fa-2x" style="color: @Model.SDG?.Color;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">
+                                @if (isBangla)
+                                {
+                                    <text>স্ট্যাটাস</text>
+                                }
+                                else
+                                {
+                                    <text>Status</text>
+                                }
+                            </h6>
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    @if (isBangla)
+                                    {
+                                        <text>সক্রিয়</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Active</text>
+                                    }
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @if (isBangla)
+                                    {
+                                        <text>নিষ্ক্রিয়</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Inactive</text>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Description Section -->
+@if (!string.IsNullOrEmpty(Model.Description) || !string.IsNullOrEmpty(Model.DescriptionBn))
+{
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            @if (isBangla)
+                            {
+                                <h3 class="mb-3">ইভেন্ট সম্পর্কে</h3>
+                            }
+                            else
+                            {
+                                <h3 class="mb-3">About This Event</h3>
+                            }
+                            <div class="lead" style="white-space: pre-line;">
+                                @if (isBangla && !string.IsNullOrEmpty(Model.DescriptionBn))
+                                {
+                                    @Html.Raw(Model.DescriptionBn)
+                                }
+                                else
+                                {
+                                    @Model.Description
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Gallery Section -->
+@if (Model.Images.Any())
+{
+    <section class="py-5 bg-light">
+        <div class="container">
+            @if (isBangla)
+            {
+                <h2 class="text-center fw-bold mb-5">ছবি গ্যালারি</h2>
+            }
+            else
+            {
+                <h2 class="text-center fw-bold mb-5">Photo Gallery</h2>
+            }
+
+            <div class="row g-4">
+                @foreach (var image in Model.Images.OrderBy(i => i.DisplayOrder))
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="gallery-item">
+                            <img src="@image.ImageUrl" alt="@image.Caption" class="img-fluid rounded shadow" style="width: 100%; height: 300px; object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@image.Id" />
+                            @if (!string.IsNullOrEmpty(image.Caption) || !string.IsNullOrEmpty(image.CaptionBn))
+                            {
+                                <p class="mt-2 text-center text-muted small">
+                                    @if (isBangla && !string.IsNullOrEmpty(image.CaptionBn))
+                                    {
+                                        @Html.Raw(image.CaptionBn)
+                                    }
+                                    else
+                                    {
+                                        @image.Caption
+                                    }
+                                </p>
+                            }
+                        </div>
+
+                        <!-- Image Modal -->
+                        <div class="modal fade" id="imageModal_@image.Id" tabindex="-1">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            @if (isBangla && !string.IsNullOrEmpty(image.CaptionBn))
+                                            {
+                                                @Html.Raw(image.CaptionBn)
+                                            }
+                                            else
+                                            {
+                                                @image.Caption
+                                            }
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="@image.ImageUrl" alt="@image.Caption" class="img-fluid" style="max-height: 80vh; object-fit: contain;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+else if (!string.IsNullOrEmpty(Model.FeaturedImage))
+{
+    <section class="py-5 bg-light">
+        <div class="container">
+            @if (isBangla)
+            {
+                <h2 class="text-center fw-bold mb-5">ছবি</h2>
+            }
+            else
+            {
+                <h2 class="text-center fw-bold mb-5">Featured Image</h2>
+            }
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <img src="@Model.FeaturedImage" alt="@Model.Title" class="img-fluid rounded shadow" style="width: 100%;" />
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<style>
+    .info-card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.03);
+        border-radius: 10px;
+    }
+    
+    .gallery-item {
+        transition: all 0.3s ease;
+    }
+    
+    .gallery-item:hover {
+        transform: scale(1.02);
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255,255,255,0.7);
+    }
+    
+    .breadcrumb-item a {
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+</style>

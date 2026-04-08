@@ -1,0 +1,129 @@
+﻿@model WBS.Web.Models.Publication
+
+@{
+    ViewData["Title"] = "Create Publication";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-book me-2"></i>Create New Publication
+    </h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TitleBn" class="form-label">Title (বাংলা)</label>
+                    <input asp-for="TitleBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                    <span asp-validation-for="TitleBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Author" class="form-label">Author (English)</label>
+                    <input asp-for="Author" class="form-control" />
+                    <span asp-validation-for="Author" class="text-danger"></span>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label asp-for="AuthorBn" class="form-label">Author (বাংলা)</label>
+                    <input asp-for="AuthorBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                    <span asp-validation-for="AuthorBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Publisher" class="form-label">Publisher (English)</label>
+                    <input asp-for="Publisher" class="form-control" />
+                    <span asp-validation-for="Publisher" class="text-danger"></span>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PublisherBn" class="form-label">Publisher (বাংলা)</label>
+                    <input asp-for="PublisherBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                    <span asp-validation-for="PublisherBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Tags" class="form-label">Tags</label>
+                <input asp-for="Tags" class="form-control" placeholder="Separate tags with commas (e.g., Education, Health, Climate)" />
+                <small class="form-text text-muted">Enter tags separated by commas</small>
+                <span asp-validation-for="Tags" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Description" class="form-label">Description (English)</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                    <textarea asp-for="DescriptionBn" class="form-control" rows="4" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                    <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="coverImage" class="form-label">Cover Image</label>
+                    <input type="file" name="coverImage" id="coverImage" class="form-control" accept="image/*" />
+                    <small class="form-text text-muted">Upload a cover image (JPG, PNG, etc.)</small>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="file" class="form-label">Publication File</label>
+                    <input type="file" name="file" id="file" class="form-control" accept=".pdf,.doc,.docx" />
+                    <small class="form-text text-muted">Upload PDF or DOC file</small>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PublishedDate" class="form-label">Published Date</label>
+                    <input asp-for="PublishedDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="PublishedDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label asp-for="IsActive" class="form-check-label">
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Publication
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

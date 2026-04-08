@@ -1,0 +1,191 @@
+@model WBS.Web.Models.NotificationTemplate
+@{
+    ViewData["Title"] = "Create Notification Template";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-plus-circle me-2"></i>Create Notification Template</h2>
+    <a asp-action="Templates" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Templates
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="CreateTemplate" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g., Zakat Donation Receipt SMS" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label asp-for="TemplateType" class="form-label"></label>
+                    <select asp-for="TemplateType" class="form-select" id="templateType">
+                        <option value="SMS">SMS</option>
+                        <option value="Email">Email</option>
+                    </select>
+                    <span asp-validation-for="TemplateType" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DonationTypeId" class="form-label">Donation Type (Optional)</label>
+                    <select asp-for="DonationTypeId" class="form-select" asp-items="ViewBag.DonationTypes">
+                        <option value="">All Types (General)</option>
+                    </select>
+                    <small class="form-text text-muted">Leave empty for general template</small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <input asp-for="Category" class="form-control" value="DonationReceipt" />
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+
+            <!-- SMS Content Section -->
+            <div id="smsSection">
+                <div class="mb-3">
+                    <label asp-for="SmsContent" class="form-label">SMS Message</label>
+                    <textarea asp-for="SmsContent" class="form-control" rows="4" id="smsContent" 
+                              placeholder="Dear {DonorName}, Thank you for your donation of BDT {Amount} to {DonationType}. Transaction ID: {TransactionId}. - WBS"></textarea>
+                    <span asp-validation-for="SmsContent" class="text-danger"></span>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small class="form-text text-muted">
+                            Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}
+                        </small>
+                        <small class="form-text text-muted" id="smsLength">0 characters</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Content Section -->
+            <div id="emailSection" style="display: none;">
+                <div class="mb-3">
+                    <label asp-for="EmailSubject" class="form-label">Email Subject</label>
+                    <input asp-for="EmailSubject" class="form-control" id="emailSubject"
+                           placeholder="Thank You for Your Donation - Receipt #{TransactionId}" />
+                    <span asp-validation-for="EmailSubject" class="text-danger"></span>
+                    <small class="form-text text-muted">
+                        Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}, {Date}
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EmailContent" class="form-label">Email Content (HTML)</label>
+                    <textarea asp-for="EmailContent" class="form-control" rows="15" id="emailContent"
+                              placeholder="Enter HTML email template..."></textarea>
+                    <span asp-validation-for="EmailContent" class="text-danger"></span>
+                    <small class="form-text text-muted">
+                        Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}, {Date}
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-sm btn-info" onclick="insertDefaultEmailTemplate()">
+                        <i class="fas fa-magic me-1"></i>Insert Default Email Template
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsDefault" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsDefault" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">Use this template when no specific template is found</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Templates" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Template
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Toggle between SMS and Email sections
+        document.getElementById('templateType').addEventListener('change', function() {
+            const smsSection = document.getElementById('smsSection');
+            const emailSection = document.getElementById('emailSection');
+            
+            if (this.value === 'SMS') {
+                smsSection.style.display = 'block';
+                emailSection.style.display = 'none';
+            } else {
+                smsSection.style.display = 'none';
+                emailSection.style.display = 'block';
+            }
+        });
+
+        // SMS character counter
+        const smsContent = document.getElementById('smsContent');
+        const smsLength = document.getElementById('smsLength');
+        
+        if (smsContent) {
+            smsContent.addEventListener('input', function() {
+                smsLength.textContent = this.value.length + ' characters';
+                if (this.value.length > 160) {
+                    smsLength.classList.add('text-danger');
+                } else {
+                    smsLength.classList.remove('text-danger');
+                }
+            });
+        }
+
+        // Insert default email template
+        function insertDefaultEmailTemplate() {
+            const emailContent = document.getElementById('emailContent');
+            const defaultTemplate = `<html>
+<body style='font-family: Arial, sans-serif;'>
+<div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+    <div style='text-align: center; margin-bottom: 30px;'>
+        <h1 style='color: #2c5f2d;'>Thank You for Your Donation</h1>
+    </div>
+    <p>Dear <strong>{DonorName}</strong>,</p>
+    <p>Assalamu Alaikum! We are deeply grateful for your generous donation.</p>
+    <div style='background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;'>
+        <h3 style='color: #2c5f2d; margin-top: 0;'>Donation Details</h3>
+        <table style='width: 100%;'>
+            <tr><td><strong>Amount:</strong></td><td>BDT {Amount}</td></tr>
+            <tr><td><strong>Donation Type:</strong></td><td>{DonationType}</td></tr>
+            <tr><td><strong>Transaction ID:</strong></td><td>{TransactionId}</td></tr>
+            <tr><td><strong>Date:</strong></td><td>{Date}</td></tr>
+        </table>
+    </div>
+    <p>May Allah accept your charity and bless you abundantly.</p>
+    <p style='color: #666; font-size: 12px; margin-top: 30px;'>
+        Best regards,<br/>
+        <strong>WBS</strong><br/>
+        Working for Humanity
+    </p>
+</div>
+</body>
+</html>`;
+            emailContent.value = defaultTemplate;
+        }
+    </script>
+}

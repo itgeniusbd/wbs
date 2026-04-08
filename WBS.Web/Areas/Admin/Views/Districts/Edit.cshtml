@@ -1,0 +1,94 @@
+@model WBS.Web.Models.District
+
+@{
+    ViewData["Title"] = "Edit District";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Edit District</h1>
+            <p class="text-muted">Update district information</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">District Information</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label">District Name (English) <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NameBn" class="form-label">District Name (Bangla)</label>
+                                <input asp-for="NameBn" class="form-control" />
+                                <span asp-validation-for="NameBn" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Latitude" class="form-label">Latitude</label>
+                                <input asp-for="Latitude" class="form-control" />
+                                <span asp-validation-for="Latitude" class="text-danger"></span>
+                                <small class="text-muted">For map marker positioning</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Longitude" class="form-label">Longitude</label>
+                                <input asp-for="Longitude" class="form-control" />
+                                <span asp-validation-for="Longitude" class="text-danger"></span>
+                                <small class="text-muted">For map marker positioning</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                                <input asp-for="DisplayOrder" class="form-control" type="number" />
+                                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4 pt-2">
+                                    <input asp-for="HasWork" class="form-check-input" />
+                                    <label asp-for="HasWork" class="form-check-label">
+                                        WBS has work in this district
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update District
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

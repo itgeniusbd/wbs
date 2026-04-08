@@ -1,0 +1,121 @@
+@model Page
+@using Microsoft.AspNetCore.Localization
+@using WBS.Web.Helpers
+@{
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    var pageTitle = isBangla && !string.IsNullOrEmpty(Model.TitleBn) ? Model.TitleBn : Model.Title;
+    var pageContent = isBangla && !string.IsNullOrEmpty(Model.ContentBn) ? Model.ContentBn : Model.Content;
+    
+    ViewData["Title"] = pageTitle;
+}
+
+@if (!string.IsNullOrEmpty(Model.BannerImage))
+{
+    <section class="page-banner" style="background-image: url('@Model.BannerImage');">
+        <div class="banner-overlay"></div>
+        <div class="container">
+            <h1 class="text-white fw-bold">@pageTitle</h1>
+        </div>
+    </section>
+}
+else
+{
+    <section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 60px 0;">
+        <div class="container">
+            <h1 class="text-white fw-bold">@pageTitle</h1>
+        </div>
+    </section>
+}
+
+<section class="page-content py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 mx-auto">
+                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                {
+                    <img src="@Model.FeaturedImage" alt="@pageTitle" class="img-fluid rounded mb-4 shadow-sm" />
+                }
+                <div class="content">
+                    @Html.Raw(pageContent)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+    }
+    
+    .content h2 {
+        color: #00a99d;
+        font-weight: bold;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #00a99d;
+    }
+    
+    .content h3 {
+        color: #0077b6;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .content h4 {
+        color: #333;
+        font-weight: 600;
+        margin-top: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+    
+    .content ul, .content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+    
+    .content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .content strong {
+        color: #0077b6;
+        font-weight: 600;
+    }
+    
+    .content a {
+        color: #00a99d;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .content a:hover {
+        color: #0077b6;
+        text-decoration: underline;
+    }
+    
+    @@media (max-width: 768px) {
+        .content {
+            font-size: 1rem;
+        }
+        
+        .content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .content h3 {
+            font-size: 1.3rem;
+        }
+    }
+</style>

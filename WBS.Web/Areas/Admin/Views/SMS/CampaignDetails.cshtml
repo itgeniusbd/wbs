@@ -1,0 +1,265 @@
+@model WBS.Web.Models.SMSCampaign
+
+@{
+    ViewData["Title"] = "Campaign Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-line me-2"></i>Campaign Details</h2>
+    <div class="d-flex gap-2">
+        @if (Model.Status == "Sending" || Model.Status == "Failed" || Model.FailedCount > 0)
+        {
+            <form asp-action="RetryCampaign" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="campaignId" value="@Model.Id" />
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-redo me-2"></i>Retry Failed SMS
+                </button>
+            </form>
+        }
+        <a href="@Url.Action("SMSSentRecords")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Campaign Summary -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Campaign Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="150">Campaign Name:</th>
+                        <td>@Model.CampaignName</td>
+                    </tr>
+                    <tr>
+                        <th>Recipient Type:</th>
+                        <td>
+                            @switch (Model.RecipientType)
+                            {
+                                case "AllDonors":
+                                    <span class="badge bg-primary"><i class="fas fa-donate me-1"></i>All Donors</span>
+                                    break;
+                                case "SelectedDonors":
+                                    <span class="badge bg-primary"><i class="fas fa-user-check me-1"></i>Selected Donors</span>
+                                    break;
+                                case "AllVolunteers":
+                                    <span class="badge bg-success"><i class="fas fa-hands-helping me-1"></i>All Volunteers</span>
+                                    break;
+                                case "SelectedVolunteers":
+                                    <span class="badge bg-success"><i class="fas fa-user-check me-1"></i>Selected Volunteers</span>
+                                    break;
+                                case "ContactGroup":
+                                    <span class="badge bg-info"><i class="fas fa-users me-1"></i>@Model.ContactGroup?.GroupName</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.RecipientType</span>
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Created By:</th>
+                        <td>@Model.CreatedBy</td>
+                    </tr>
+                    <tr>
+                        <th>Created At:</th>
+                        <td>@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="150">Status:</th>
+                        <td>
+                            @switch (Model.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning">Pending</span>
+                                    break;
+                                case "Sending":
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-spinner fa-spin me-1"></i>Sending
+                                    </span>
+                                    break;
+                                case "Completed":
+                                    <span class="badge bg-success">Completed</span>
+                                    break;
+                                case "Failed":
+                                    <span class="badge bg-danger">Failed</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Total Recipients:</th>
+                        <td><strong>@Model.TotalRecipients</strong></td>
+                    </tr>
+                    <tr>
+                        <th>Success Count:</th>
+                        <td><span class="text-success fw-bold">@Model.SuccessCount</span></td>
+                    </tr>
+                    <tr>
+                        <th>Failed Count:</th>
+                        <td><span class="text-danger fw-bold">@Model.FailedCount</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <h6>Message:</h6>
+            <div class="alert alert-light border">
+                @Model.Message
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-users text-primary fa-3x mb-3"></i>
+                <h6 class="text-muted">Total Recipients</h6>
+                <h3 class="text-primary">@Model.TotalRecipients</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                <h6 class="text-muted">Successfully Sent</h6>
+                <h3 class="text-success">@Model.SuccessCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-danger">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle text-danger fa-3x mb-3"></i>
+                <h6 class="text-muted">Failed</h6>
+                <h3 class="text-danger">@Model.FailedCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-percentage text-info fa-3x mb-3"></i>
+                <h6 class="text-muted">Success Rate</h6>
+                <h3 class="text-info">
+                    @if (Model.TotalRecipients > 0)
+                    {
+                        @(((decimal)Model.SuccessCount / Model.TotalRecipients * 100).ToString("F1"))
+                    }
+                    else
+                    {
+                        @:0
+                    }%
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recipients List -->
+<div class="card">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recipients Details</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                        <th>Sent At</th>
+                        <th>Error Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Recipients.Any())
+                    {
+                        int index = 1;
+                        @foreach (var recipient in Model.Recipients.OrderBy(r => r.Status == "Sent" ? 0 : 1))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@recipient.Name</td>
+                                <td>
+                                    <a href="tel:@recipient.PhoneNumber">@recipient.PhoneNumber</a>
+                                </td>
+                                <td>
+                                    @switch (recipient.Status)
+                                    {
+                                        case "Pending":
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                            break;
+                                        case "Sent":
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Sent
+                                            </span>
+                                            break;
+                                        case "Failed":
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times me-1"></i>Failed
+                                            </span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@recipient.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    @if (recipient.SentAt.HasValue)
+                                    {
+                                        @recipient.SentAt.Value.ToString("MMM dd, HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(recipient.ErrorMessage))
+                                    {
+                                        <span class="text-danger small">@recipient.ErrorMessage</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No recipients found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

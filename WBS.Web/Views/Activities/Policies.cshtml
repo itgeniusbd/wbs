@@ -1,3 +1,5 @@
+﻿@model IEnumerable<WBS.Web.Models.Policy>
+@using WBS.Web.Helpers
 @{
     ViewData["Title"] = "Policies";
 }
@@ -6,8 +8,8 @@
     <div class="container">
         <div class="row">
             <div class="col-12 text-center text-white">
-                <h1 class="display-4 fw-bold mb-3">Policies & Guidelines</h1>
-                <p class="lead">Our organizational policies and operational guidelines</p>
+                <h1 class="display-4 fw-bold mb-3">@(LanguageHelper.IsEnglish(Context) ? "Policies & Guidelines" : "নীতি ও নির্দেশিকা")</h1>
+                <p class="lead">@(LanguageHelper.IsEnglish(Context) ? "Our organizational policies and operational guidelines" : "আমাদের সাংগঠনিক নীতি এবং পরিচালনা নির্দেশিকা")</p>
             </div>
         </div>
     </div>
@@ -17,81 +19,54 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Safeguarding Policy</h5>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var policy in Model)
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="@policy.Icon me-2"></i>
+                                    @(LanguageHelper.IsEnglish(Context) ? policy.Title : (policy.TitleBn ?? policy.Title))
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>@(LanguageHelper.IsEnglish(Context) ? policy.Description : (policy.DescriptionBn ?? policy.Description))</p>
+                                @if (!string.IsNullOrEmpty(policy.PdfUrl))
+                                {
+                                    <div class="d-flex gap-2">
+                                        <a href="@Url.Action("ViewPDF", "Policies", new { area = "Admin", id = policy.Id })" target="_blank" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye me-2"></i>@(LanguageHelper.IsEnglish(Context) ? "View" : "দেখুন")
+                                        </a>
+                                        <a href="@Url.Action("DownloadPDF", "Policies", new { area = "Admin", id = policy.Id })" class="btn btn-primary">
+                                            <i class="fas fa-download me-2"></i>@(LanguageHelper.IsEnglish(Context) ? "Download" : "ডাউনলোড করুন")
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">@(LanguageHelper.IsEnglish(Context) ? "No policies available at this time." : "এই মুহূর্তে কোনও নীতিমালা উপলব্ধ নেই।")</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p>Our safeguarding policy ensures the protection and well-being of all beneficiaries, especially children and vulnerable adults.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Code of Conduct</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Our code of conduct outlines the ethical standards and behavioral expectations for all staff, volunteers, and partners.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Privacy Policy</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Our privacy policy describes how we collect, use, and protect personal information in accordance with data protection laws.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Complaints & Feedback Policy</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>We welcome feedback and have established procedures for handling complaints fairly and efficiently.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-money-check-alt me-2"></i>Financial Management Policy</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Our financial management policy ensures transparency, accountability, and proper stewardship of resources.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-users-cog me-2"></i>HR Policy</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Our human resources policy covers employment terms, benefits, and workplace conduct for all team members.</p>
-                        <a href="#" class="btn btn-outline-primary">
-                            <i class="fas fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
+                }
 
                 <div class="alert alert-info mt-4">
                     <i class="fas fa-info-circle me-2"></i>
-                    For more information about our policies or to request additional documents, please <a href="/contact" class="alert-link">contact us</a>.
+                    @if (LanguageHelper.IsEnglish(Context))
+                    {
+                        <text>For more information about our policies or to request additional documents, please <a href="/about/contact" class="alert-link">contact us</a>.</text>
+                    }
+                    else
+                    {
+                        <text>আমাদের নীতিমালা সম্পর্কে আরও তথ্যের জন্য অথবা অতিরিক্ত নথির অনুরোধ করতে, অনুগ্রহ করে <a href="/about/contact" class="alert-link">যোগাযোগ করুন</a>?</text>
+                    }
                 </div>
             </div>
         </div>

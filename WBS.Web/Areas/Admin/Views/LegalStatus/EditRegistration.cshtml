@@ -1,0 +1,90 @@
+﻿@model WBS.Web.Models.RegistrationInfo
+
+@{
+    ViewData["Title"] = "Edit Registration Information";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-edit me-2"></i>Edit Registration Information
+    </h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="EditRegistration" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="LegalStatusId" />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Authority" class="form-label">Registration Authority (English) <span class="text-danger">*</span></label>
+                    <input asp-for="Authority" class="form-control" required />
+                    <span asp-validation-for="Authority" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="AuthorityBn" class="form-label">Registration Authority (বাংলা)</label>
+                    <input asp-for="AuthorityBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                    <span asp-validation-for="AuthorityBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="RegistrationNumber" class="form-label">Registration Number (English) <span class="text-danger">*</span></label>
+                    <input asp-for="RegistrationNumber" class="form-control" required />
+                    <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="RegistrationNumberBn" class="form-label">Registration Number (বাংলা)</label>
+                    <input asp-for="RegistrationNumberBn" class="form-control" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                    <span asp-validation-for="RegistrationNumberBn" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="RegistrationDate" class="form-label">Registration Date <span class="text-danger">*</span></label>
+                    <input asp-for="RegistrationDate" type="date" class="form-control" required />
+                    <span asp-validation-for="RegistrationDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="DisplayOrder" class="form-label">Display Order <span class="text-danger">*</span></label>
+                    <input asp-for="DisplayOrder" type="number" class="form-control" min="0" required />
+                    <small class="form-text text-muted">Lower numbers appear first</small>
+                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Registration Info
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

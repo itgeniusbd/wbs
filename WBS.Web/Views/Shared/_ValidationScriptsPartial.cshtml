@@ -1,0 +1,41 @@
+@* jQuery Validation Scripts - Load in correct sequence *@
+<script>
+(function() {
+    // Check if jQuery is loaded
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery must be loaded before validation scripts!');
+        return;
+    }
+    
+    console.log('Loading validation scripts...');
+    
+    // Function to load script dynamically
+    function loadScript(url, callback) {
+        var script = document.createElement('script');
+        script.src = url;
+        script.onload = function() {
+            console.log('? Loaded:', url);
+            if (callback) callback();
+        };
+        script.onerror = function() {
+            console.error('? Failed to load:', url);
+            if (callback) callback(); // Continue anyway
+        };
+        document.head.appendChild(script);
+    }
+    
+    // Load validation first
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js', function() {
+        // Then load unobtrusive
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js', function() {
+            // Verify both loaded
+            if (typeof $.validator !== 'undefined') {
+                console.log('? jQuery Validation ready');
+            }
+            if (typeof $.validator !== 'undefined' && typeof $.validator.unobtrusive !== 'undefined') {
+                console.log('? Unobtrusive Validation ready');
+            }
+        });
+    });
+})();
+</script>

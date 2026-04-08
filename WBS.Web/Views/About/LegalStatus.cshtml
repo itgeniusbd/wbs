@@ -1,0 +1,153 @@
+﻿@model WBS.Web.Models.LegalStatus
+@using Microsoft.AspNetCore.Localization
+@{
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    var isEnglish = currentCulture == "en";
+    ViewData["Title"] = isEnglish ? "Legal Status" : "আইনগত অবস্থা";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #2c5f2d 0%, #1a3a1b 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@(isEnglish ? "Legal Status" : "আইনগত অবস্থা")</h1>
+                <p class="lead">@(isEnglish ? "Official Registration & Certification" : "সরকারি নিবন্ধন ও সনদপত্র")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        @if (Model != null)
+        {
+            <!-- NGO Certificate Image -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body p-0">
+                            @if (!string.IsNullOrEmpty(isEnglish ? Model.CertificateImage : Model.CertificateImageBn ?? Model.CertificateImage))
+                            {
+                                var certificateImage = isEnglish ? Model.CertificateImage : (Model.CertificateImageBn ?? Model.CertificateImage);
+                                <img src="@certificateImage" 
+                                     alt="@(isEnglish ? "NGO Registration Certificate" : "এনজিও নিবন্ধন সনদ")" 
+                                     class="img-fluid w-100 rounded"
+                                     style="max-height: 700px; object-fit: contain; background: #f8f9fa;" />
+                            }
+                            else
+                            {
+                                <div class="text-center py-5 bg-light">
+                                    <i class="fas fa-certificate fa-5x text-muted mb-3"></i>
+                                    <p class="text-muted">@(isEnglish ? "Certificate image not available" : "সনদ ছবি উপলব্ধ নেই")</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Information Table -->
+            @if (Model.RegistrationInfos != null && Model.RegistrationInfos.Any())
+            {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-list-alt me-2"></i>
+                                    @(isEnglish ? "Registration Information" : "নিবন্ধন তথ্য")
+                                </h4>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 80px; font-weight: 600;">@(isEnglish ? "SL No" : "ক্রমিক")</th>
+                                                <th style="font-weight: 600;">@(isEnglish ? "Registration Department Authority" : "নিবন্ধন বিভাগ কর্তৃপক্ষ")</th>
+                                                <th style="font-weight: 600;">@(isEnglish ? "Registration Number" : "নিবন্ধন নম্বর")</th>
+                                                <th style="width: 150px; font-weight: 600;">@(isEnglish ? "Date" : "তারিখ")</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                int slNo = 1;
+                                                foreach (var item in Model.RegistrationInfos.OrderBy(r => r.DisplayOrder))
+                                                {
+                                                    var displayAuthority = isEnglish ? item.Authority : (item.AuthorityBn ?? item.Authority);
+                                                    var displayNumber = isEnglish ? item.RegistrationNumber : (item.RegistrationNumberBn ?? item.RegistrationNumber);
+                                                    
+                                                    <tr>
+                                                        <td class="fw-bold text-center align-middle">
+                                                            <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 0.75rem;">
+                                                                @(isEnglish ? slNo.ToString("D2") : ConvertToBanglaNumber(slNo.ToString("D2")))
+                                                            </span>
+                                                        </td>
+                                                        <td class="align-middle" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif; font-size: 1.05rem;" : "font-size: 1.05rem;")">
+                                                            @displayAuthority
+                                                        </td>
+                                                        <td class="align-middle" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif; font-size: 1.05rem;" : "font-size: 1.05rem;")">
+                                                            <strong>@displayNumber</strong>
+                                                        </td>
+                                                        <td class="align-middle text-center" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif; font-size: 1.05rem;" : "font-size: 1.05rem;")">
+                                                            @(isEnglish ? item.RegistrationDate.ToString("dd.MM.yyyy") : ConvertToBanglaDate(item.RegistrationDate))
+                                                        </td>
+                                                    </tr>
+                                                    slNo++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                <h4>@(isEnglish ? "Legal status information is not available at the moment." : "আইনগত অবস্থার তথ্য এই মুহূর্তে উপলব্ধ নেই।")</h4>
+            </div>
+        }
+    </div>
+</section>
+
+@functions {
+    string ConvertToBanglaNumber(string number)
+    {
+        var banglaDigits = new Dictionary<char, char>
+        {
+            {'0', '০'}, {'1', '১'}, {'2', '২'}, {'3', '৩'}, {'4', '৪'},
+            {'5', '৫'}, {'6', '৬'}, {'7', '৭'}, {'8', '৮'}, {'9', '৯'}
+        };
+        
+        return new string(number.Select(c => banglaDigits.ContainsKey(c) ? banglaDigits[c] : c).ToArray());
+    }
+    
+    string ConvertToBanglaDate(DateTime date)
+    {
+        var day = ConvertToBanglaNumber(date.Day.ToString("D2"));
+        var month = ConvertToBanglaNumber(date.Month.ToString("D2"));
+        var year = ConvertToBanglaNumber(date.Year.ToString());
+        return $"{day}.{month}.{year}";
+    }
+}
+
+<style>
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

@@ -1,0 +1,247 @@
+﻿@model WBS.Web.Models.SDG
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Name;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    var programs = ViewBag.Programs as List<WBS.Web.Models.SDGProgram> ?? new List<WBS.Web.Models.SDGProgram>();
+    dynamic stats = ViewBag.Stats;
+}
+
+<!-- SDG Header with Program Count -->
+<div class="sdg-detail-header py-5" style="background: linear-gradient(135deg, @Model.Color 0%, @Model.Color 100%); position: relative; overflow: hidden;">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center mb-3">
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <img src="@Model.Image" alt="@Model.Name" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px; margin-right: 2rem; box-shadow: 0 5px 20px rgba(0,0,0,0.3);" />
+                    }
+                    else
+                    {
+                        <div class="sdg-number-badge" style="width: 120px; height: 120px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; border-radius: 10px; margin-right: 2rem;">
+                            <h1 class="text-white display-1 fw-bold mb-0">@Model.Number</h1>
+                        </div>
+                    }
+                    
+                    <div class="flex-grow-1">
+                        <h1 class="text-white fw-bold mb-2">@Model.Name</h1>
+                        <p class="text-white fs-5 mb-0">@Model.NameBn</p>
+                    </div>
+                    
+                    <!-- Programs Count Badge - Inline with Title -->
+                    <div class="program-count-badge ms-3" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 1.5rem 2rem; border-radius: 15px; border: 2px solid rgba(255,255,255,0.3); min-width: 150px; text-align: center;">
+                        <h2 class="text-white fw-bold mb-1 display-4">@stats.TotalPrograms</h2>
+                        <p class="text-white mb-0 small text-uppercase fw-500">
+                            @if (isBangla)
+                            {
+                                <text>মোট প্রোগ্রাম</text>
+                            }
+                            else
+                            {
+                                <text>Programs</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/ourwork/sdg" class="btn btn-light btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    @if (isBangla)
+                    {
+                        <text>সব SDG</text>
+                    }
+                    else
+                    {
+                        <text>All SDGs</text>
+                    }
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+</div>
+
+<!-- Description Section -->
+@if (!string.IsNullOrEmpty(Model.Description) || !string.IsNullOrEmpty(Model.DescriptionBn))
+{
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            @if (isBangla)
+                            {
+                                <h3 class="mb-3">বিবরণ</h3>
+                            }
+                            else
+                            {
+                                <h3 class="mb-3">About</h3>
+                            }
+                            <p class="lead">
+                                @if (isBangla && !string.IsNullOrEmpty(Model.DescriptionBn))
+                                {
+                                    @Model.DescriptionBn
+                                }
+                                else
+                                {
+                                    @Model.Description
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Programs Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        @if (isBangla)
+        {
+            <h2 class="text-center fw-bold mb-5">আমাদের প্রোগ্রামসমূহ</h2>
+        }
+        else
+        {
+            <h2 class="text-center fw-bold mb-5">Our Programs</h2>
+        }
+
+        @if (programs.Any())
+        {
+            <div class="row g-4">
+                @foreach (var program in programs)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm program-card">
+                            @if (!string.IsNullOrEmpty(program.FeaturedImage))
+                            {
+                                <img src="@program.FeaturedImage" class="card-img-top" alt="@program.Title" style="height: 220px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 220px; background: linear-gradient(135deg, @Model.Color 0%, @Model.Color 100%);">
+                                    <i class="fas fa-project-diagram fa-3x text-white"></i>
+                                </div>
+                            }
+                            
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    @if (isBangla && !string.IsNullOrEmpty(program.TitleBn))
+                                    {
+                                        @program.TitleBn
+                                    }
+                                    else
+                                    {
+                                        @program.Title
+                                    }
+                                </h5>
+                                
+                                @if (!string.IsNullOrEmpty(program.Description) || !string.IsNullOrEmpty(program.DescriptionBn))
+                                {
+                                    var description = isBangla && !string.IsNullOrEmpty(program.DescriptionBn) 
+                                        ? program.DescriptionBn 
+                                        : program.Description;
+                                    
+                                    <p class="card-text text-muted small">
+                                        @(description?.Length > 150 ? description.Substring(0, 150) + "..." : description)
+                                    </p>
+                                }
+                                
+                                <!-- Event Count -->
+                                <div class="mb-2">
+                                    <span class="badge" style="background-color: @Model.Color;">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        @program.Events.Count
+                                        @if (isBangla)
+                                        {
+                                            <text> ইভেন্ট</text>
+                                        }
+                                        else
+                                        {
+                                            <text> Event(s)</text>
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer bg-transparent border-top">
+                                <a href="/ourwork/program/@program.Id" class="btn btn-sm btn-outline-primary w-100">
+                                    @if (isBangla)
+                                    {
+                                        <text>বিস্তারিত দেখুন</text>
+                                    }
+                                    else
+                                    {
+                                        <text>View Details</text>
+                                    }
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                @if (isBangla)
+                {
+                    <h4 class="text-muted">এই SDG এর জন্য কোন প্রোগ্রাম পাওয়া যায়নি</h4>
+                }
+                else
+                {
+                    <h4 class="text-muted">No programs found for this SDG</h4>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<style>
+    .program-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+        border-color: @Model.Color;
+    }
+    
+    .program-count-badge {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .program-count-badge {
+            margin-left: 0 !important;
+            margin-top: 1rem;
+        }
+        
+        .d-flex.align-items-center {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+    }
+</style>

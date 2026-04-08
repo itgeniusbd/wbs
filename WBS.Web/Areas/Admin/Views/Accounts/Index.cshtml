@@ -1,0 +1,985 @@
+﻿@model List<WBS.Web.Models.Account>
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = "Accounts Management";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">
+                <i class="fas fa-wallet me-2"></i>
+                @(isBangla ? "একাউন্ট ম্যানেজমেন্ট" : "Accounts Management")
+            </h2>
+            <p class="text-muted mb-0">@(isBangla ? "সকল একাউন্ট দেখুন এবং পরিচালনা করুন" : "View and manage all accounts")</p>
+        </div>
+        <div>
+            <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#depositModal">
+                <i class="fas fa-plus-circle me-2"></i>
+                @(isBangla ? "জমা করুন" : "Deposit")
+            </button>
+            <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                <i class="fas fa-minus-circle me-2"></i>
+                @(isBangla ? "উত্তোলন করুন" : "Withdraw")
+            </button>
+            <button class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#transferModal">
+                <i class="fas fa-exchange-alt me-2"></i>
+                @(isBangla ? "ট্রান্সফার করুন" : "Transfer")
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+                <i class="fas fa-plus me-2"></i>
+                @(isBangla ? "নতুন একাউন্ট" : "New Account")
+            </button>
+            <a href="@Url.Action("Transactions", "Accounts", new { area = "Admin" })" class="btn btn-info">
+                <i class="fas fa-exchange-alt me-2"></i>
+                @(isBangla ? "লেনদেন দেখুন" : "View Transactions")
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">@(isBangla ? "মোট একাউন্ট" : "Total Accounts")</p>
+                            <h3 class="mb-0 fw-bold">@Model.Count</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-wallet fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">@(isBangla ? "সক্রিয় একাউন্ট" : "Active Accounts")</p>
+                            <h3 class="mb-0 fw-bold text-success">@Model.Count(a => a.IsActive)</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">@(isBangla ? "মোট ব্যালেন্স" : "Total Balance")</p>
+                            <h3 class="mb-0 fw-bold text-info">৳@Model.Where(a => a.IsActive).Sum(a => a.AccountBalance).ToString("N2")</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-money-bill-wave fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">@(isBangla ? "মোট আয়" : "Total Income")</p>
+                            <h3 class="mb-0 fw-bold text-success">৳@Model.Sum(a => a.Total_Income).ToString("N2")</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="fas fa-arrow-down fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">@(isBangla ? "একাউন্ট তালিকা" : "Account List")</h5>
+                <div class="input-group" style="width: 300px;">
+                    <span class="input-group-text bg-white">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="searchInput" placeholder="@(isBangla ? "খুঁজুন..." : "Search...")">
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="accountsTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>@(isBangla ? "নাম" : "Name")</th>
+                            <th>@(isBangla ? "ধরন" : "Type")</th>
+                            <th>@(isBangla ? "ব্যালেন্স" : "Balance")</th>
+                            <th>@(isBangla ? "মোট আয়" : "Total Income")</th>
+                            <th>@(isBangla ? "মোট ব্যয়" : "Total Expense")</th>
+                            <th>@(isBangla ? "অবস্থা" : "Status")</th>
+                            <th class="text-center">@(isBangla ? "অ্যাকশন" : "Actions")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            foreach (var account in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>@(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)</strong>
+                                            @if (account.Default_Status)
+                                            {
+                                                <span class="badge bg-primary ms-2">@(isBangla ? "ডিফল্ট" : "Default")</span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(account.AccountNumber))
+                                            {
+                                                <br /><small class="text-muted">@account.AccountNumber</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (account.AccountType == "Cash")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-money-bill-wave me-1"></i>@(isBangla ? "নগদ" : "Cash")
+                                            </span>
+                                        }
+                                        else if (account.AccountType == "Bank")
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-university me-1"></i>@(isBangla ? "ব্যাংক" : "Bank")
+                                            </span>
+                                        }
+                                        else if (account.AccountType == "Mobile Banking")
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-mobile-alt me-1"></i>@(isBangla ? "মোবাইল ব্যাংকিং" : "Mobile Banking")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@account.AccountType</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong class="@(account.AccountBalance >= 0 ? "text-success" : "text-danger")">
+                                            ৳@account.AccountBalance.ToString("N2")
+                                        </strong>
+                                    </td>
+                                    <td class="text-success">৳@account.Total_Income.ToString("N2")</td>
+                                    <td class="text-danger">৳@account.Total_Expense.ToString("N2")</td>
+                                    <td>
+                                        @if (account.IsActive)
+                                        {
+                                            <span class="badge bg-success">@(isBangla ? "সক্রিয়" : "Active")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@(isBangla ? "নিষ্ক্রিয়" : "Inactive")</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-info" onclick="viewAccountDetails(@account.Id)" title="@(isBangla ? "বিস্তারিত" : "Details")">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" onclick="editAccount(@account.Id)" title="@(isBangla ? "সম্পাদনা" : "Edit")">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            @if (!account.Default_Status)
+                                            {
+                                                <button class="btn btn-outline-success" onclick="setDefaultAccount(@account.Id)" title="@(isBangla ? "ডিফল্ট সেট করুন" : "Set as Default")">
+                                                    <i class="fas fa-star"></i>
+                                                </button>
+                                            }
+                                            <a href="@Url.Action("Transactions", "Accounts", new { area = "Admin", accountId = account.Id })" class="btn btn-outline-warning" title="@(isBangla ? "লেনদেন দেখুন" : "View Transactions")">
+                                                <i class="fas fa-list"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger" onclick="deleteAccount(@account.Id)" title="@(isBangla ? "মুছুন" : "Delete")">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">@(isBangla ? "কোন একাউন্ট পাওয়া যায়নি" : "No accounts found")</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Account Modal -->
+<div class="modal fade" id="createAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    @(isBangla ? "নতুন একাউন্ট তৈরি করুন" : "Create New Account")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createAccountForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্টের নাম (ইংরেজি)" : "Account Name (English)") <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="accountName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্টের নাম (বাংলা)" : "Account Name (Bangla)")</label>
+                            <input type="text" class="form-control" id="accountNameBn">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্ট ধরন" : "Account Type") <span class="text-danger">*</span></label>
+                            <select class="form-select" id="accountType" required>
+                                <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                                <option value="Cash">@(isBangla ? "নগদ" : "Cash")</option>
+                                <option value="Bank">@(isBangla ? "ব্যাংক" : "Bank")</option>
+                                <option value="Mobile Banking">@(isBangla ? "মোবাইল ব্যাংকিং" : "Mobile Banking")</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্ট নম্বর" : "Account Number")</label>
+                            <input type="text" class="form-control" id="accountNumber">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "ব্যাংকের নাম" : "Bank Name")</label>
+                            <input type="text" class="form-control" id="bankName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "শাখার নাম" : "Branch Name")</label>
+                            <input type="text" class="form-control" id="branchName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "প্রাথমিক ব্যালেন্স" : "Initial Balance") <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" class="form-control" id="availableBalance" min="0" step="0.01" value="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "প্রদর্শন ক্রম" : "Display Order")</label>
+                            <input type="number" class="form-control" id="displayOrder" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Description")</label>
+                        <textarea class="form-control" id="description" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isActive" checked>
+                        <label class="form-check-label" for="isActive">@(isBangla ? "সক্রিয় রাখুন" : "Keep Active")</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isBangla ? "বন্ধ করুন" : "Close")</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i> @(isBangla ? "নতুন একাউন্ট তৈরি করুন" : "Create New Account")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal fade" id="depositModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    @(isBangla ? "টাকা জমা করুন" : "Deposit Money")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="depositForm">
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "একাউন্ট নির্বাচন করুন" : "Select Account") <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="depositAccountId" required>
+                            <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                            @foreach (var account in Model.Where(a => a.IsActive))
+                            {
+                                <option value="@account.Id">
+                                    @(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)
+                                    (৳@account.AccountBalance.ToString("N2"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "পরিমাণ" : "Amount") <span class="text-danger">*</span></label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">৳</span>
+                            <input type="number" class="form-control" id="depositAmount" min="1" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Description")</label>
+                        <textarea class="form-control" id="depositDescription" rows="2" placeholder="@(isBangla ? "কারণ লিখুন..." : "Enter reason...")"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    @(isBangla ? "বাতিল" : "Cancel")
+                </button>
+                <button type="button" class="btn btn-success btn-lg" onclick="processDeposit()">
+                    <i class="fas fa-check me-2"></i>
+                    @(isBangla ? "জমা করুন" : "Deposit")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-minus-circle me-2"></i>
+                    @(isBangla ? "টাকা উত্তোলন করুন" : "Withdraw Money")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="withdrawForm">
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "একাউন্ট নির্বাচন করুন" : "Select Account") <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="withdrawAccountId" required>
+                            <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                            @foreach (var account in Model.Where(a => a.IsActive))
+                            {
+                                <option value="@account.Id">
+                                    @(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)
+                                    (৳@account.AccountBalance.ToString("N2"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "পরিমাণ" : "Amount") <span class="text-danger">*</span></label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">৳</span>
+                            <input type="number" class="form-control" id="withdrawAmount" min="1" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Description")</label>
+                        <textarea class="form-control" id="withdrawDescription" rows="2" placeholder="@(isBangla ? "কারণ লিখুন..." : "Enter reason...")"></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        @(isBangla ? "নিশ্চিত করুন যে একাউন্টে পর্যাপ্ত ব্যালেন্স আছে" : "Ensure account has sufficient balance")
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    @(isBangla ? "বাতিল" : "Cancel")
+                </button>
+                <button type="button" class="btn btn-danger btn-lg" onclick="processWithdraw()">
+                    <i class="fas fa-check me-2"></i>
+                    @(isBangla ? "উত্তোলন করুন" : "Withdraw")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transfer Modal -->
+<div class="modal fade" id="transferModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-exchange-alt me-2"></i>
+                    @(isBangla ? "একাউন্ট ট্রান্সফার" : "Transfer Between Accounts")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="transferForm">
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "যে একাউন্ট থেকে" : "From Account") <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="fromAccountId" required>
+                            <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                            @foreach (var account in Model.Where(a => a.IsActive))
+                            {
+                                <option value="@account.Id">
+                                    @(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)
+                                    (৳@account.AccountBalance.ToString("N2"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="text-center mb-3">
+                        <i class="fas fa-arrow-down fa-2x text-muted"></i>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "যে একাউন্টে" : "To Account") <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg" id="toAccountId" required>
+                            <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                            @foreach (var account in Model.Where(a => a.IsActive))
+                            {
+                                <option value="@account.Id">
+                                    @(isBangla && !string.IsNullOrEmpty(account.AccountNameBn) ? account.AccountNameBn : account.AccountName)
+                                    (৳@account.AccountBalance.ToString("N2"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "পরিমাণ" : "Amount") <span class="text-danger">*</span></label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">৳</span>
+                            <input type="number" class="form-control" id="transferAmount" min="1" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Description")</label>
+                        <textarea class="form-control" id="transferDescription" rows="2" placeholder="@(isBangla ? "কারণ লিখুন..." : "Enter reason...")"></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @(isBangla ? "ট্রান্সফার একাউন্ট থেকে টাকা কেটে নিয়ে অন্য একাউন্টে জমা করবে" : "Transfer will deduct from source and add to destination account")
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    @(isBangla ? "বাতিল" : "Cancel")
+                </button>
+                <button type="button" class="btn btn-warning btn-lg" onclick="processTransfer()">
+                    <i class="fas fa-check me-2"></i>
+                    @(isBangla ? "ট্রান্সফার করুন" : "Transfer")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Account Modal -->
+<div class="modal fade" id="editAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    @(isBangla ? "একাউন্ট সম্পাদনা করুন" : "Edit Account")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAccountForm">
+                    <input type="hidden" id="editAccountId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্টের নাম (ইংরেজি)" : "Account Name (English)") <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editAccountName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্টের নাম (বাংলা)" : "Account Name (Bangla)")</label>
+                            <input type="text" class="form-control" id="editAccountNameBn">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্ট ধরন" : "Account Type") <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editAccountType" required>
+                                <option value="">-- @(isBangla ? "নির্বাচন করুন" : "Select") --</option>
+                                <option value="Cash">@(isBangla ? "নগদ" : "Cash")</option>
+                                <option value="Bank">@(isBangla ? "ব্যাংক" : "Bank")</option>
+                                <option value="Mobile Banking">@(isBangla ? "মোবাইল ব্যাংকিং" : "Mobile Banking")</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "একাউন্ট নম্বর" : "Account Number")</label>
+                            <input type="text" class="form-control" id="editAccountNumber">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "ব্যাংকের নাম" : "Bank Name")</label>
+                            <input type="text" class="form-control" id="editBankName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "শাখার নাম" : "Branch Name")</label>
+                            <input type="text" class="form-control" id="editBranchName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "প্রদর্শন ক্রম" : "Display Order")</label>
+                            <input type="number" class="form-control" id="editDisplayOrder" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "বিবরণ" : "Description")</label>
+                        <textarea class="form-control" id="editDescription" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editIsActive">
+                        <label class="form-check-label" for="editIsActive">@(isBangla ? "সক্রিয় রাখুন" : "Keep Active")</label>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        @(isBangla ? "নোট: একাউন্ট ব্যালেন্স সরাসরি এখানে পরিবর্তন করা যাবে না। জমা/উত্তোলন ব্যবহার করুন।" : "Note: Account balance cannot be changed directly here. Use Deposit/Withdraw.")
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isBangla ? "বাতিল" : "Cancel")</button>
+                <button type="button" class="btn btn-primary" onclick="updateAccount()">
+                    <i class="fas fa-save me-2"></i>
+                    @(isBangla ? "সংরক্ষণ করুন" : "Save Changes")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Details Modal -->
+<div class="modal fade" id="accountDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>
+                    @(isBangla ? "একাউন্ট বিস্তারিত" : "Account Details")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="accountDetailsContent">
+                <!-- Account details will be loaded here by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isBangla ? "বন্ধ করুন" : "Close")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var isBangla = '@(isBangla ? "1" : "0")' === '1';
+
+        // Enable detailed console logging
+        console.log('Account Management Script Loaded');
+        console.log('isBangla:', isBangla);
+
+        // Create Account Form Submit
+        document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const account = {
+                AccountName: document.getElementById('accountName').value,
+                AccountNameBn: document.getElementById('accountNameBn').value || null,
+                AccountType: document.getElementById('accountType').value,
+                AccountNumber: document.getElementById('accountNumber').value || null,
+                BankName: document.getElementById('bankName').value || null,
+                BranchName: document.getElementById('branchName').value || null,
+                AccountBalance: parseFloat(document.getElementById('availableBalance').value) || 0,
+                Description: document.getElementById('description').value || null,
+                IsActive: document.getElementById('isActive').checked,
+                DisplayOrder: parseInt(document.getElementById('displayOrder').value) || 0
+            };
+
+            fetch('@Url.Action("CreateAccount", "Accounts", new { area = "Admin" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(account)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        });
+
+        // View Account Details
+        function viewAccountDetails(id) {
+            fetch(`@Url.Action("GetAccountSummary", "Accounts", new { area = "Admin" })?id=${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API Response:', data); // Debug logging
+                
+                if (data.success && data.data) {
+                    const summary = data.data;
+                    
+                    // Safe access with default values
+                    const currentBalance = summary.currentBalance || summary.CurrentBalance || 0;
+                    const totalIncome = summary.totalIncome || summary.TotalIncome || 0;
+                    const totalExpense = summary.totalExpense || summary.TotalExpense || 0;
+                    const totalIn = summary.totalIn || summary.TotalIn || 0;
+                    const totalOut = summary.totalOut || summary.TotalOut || 0;
+                    
+                    const content = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-success">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-wallet me-2"></i>
+                                            ${isBangla ? 'বর্তমান ব্যালেন্স' : 'Current Balance'}
+                                        </h6>
+                                        <h3 class="text-success mb-0">৳${currentBalance.toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-info">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-arrow-down me-2"></i>
+                                            ${isBangla ? 'মোট আয়' : 'Total Income'}
+                                        </h6>
+                                        <h3 class="text-info mb-0">৳${totalIncome.toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-danger">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-arrow-up me-2"></i>
+                                            ${isBangla ? 'মোট ব্যয়' : 'Total Expense'}
+                                        </h6>
+                                        <h3 class="text-danger mb-0">৳${totalExpense.toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-primary">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-exchange-alt me-2"></i>
+                                            ${isBangla ? 'মোট ইন' : 'Total In'}
+                                        </h6>
+                                        <h3 class="text-primary mb-0">৳${totalIn.toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-warning">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-exchange-alt me-2"></i>
+                                            ${isBangla ? 'মোট আউট' : 'Total Out'}
+                                        </h6>
+                                        <h3 class="text-warning mb-0">৳${totalOut.toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3 border-secondary">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-chart-line me-2"></i>
+                                            ${isBangla ? 'নেট ব্যালেন্স' : 'Net Balance'}
+                                        </h6>
+                                        <h3 class="text-secondary mb-0">৳${(totalIn - totalOut).toFixed(2)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('accountDetailsContent').innerHTML = content;
+                    new bootstrap.Modal(document.getElementById('accountDetailsModal')).show();
+                } else {
+                    console.error('Invalid response:', data);
+                    alert(data.message || (isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একাউন্ট বিস্তারিত লোড করতে ব্যর্থ: ' + error.message : 'Failed to load account details: ' + error.message);
+            });
+        }
+
+        // Process Deposit
+        function processDeposit() {
+            const accountId = parseInt(document.getElementById('depositAccountId').value);
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const description = document.getElementById('depositDescription').value;
+
+            if (!accountId || !amount || amount <= 0) {
+                alert(isBangla ? 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' : 'Please fill all required fields');
+                return;
+            }
+
+            if (!confirm(isBangla ? `৳${amount.toFixed(2)} জমা করতে চান?` : `Deposit ৳${amount.toFixed(2)}?`)) {
+                return;
+            }
+
+            fetch('@Url.Action("Deposit", "Accounts", new { area = "Admin" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountId, amount, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Process Withdraw
+        function processWithdraw() {
+            const accountId = parseInt(document.getElementById('withdrawAccountId').value);
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const description = document.getElementById('withdrawDescription').value;
+
+            if (!accountId || !amount || amount <= 0) {
+                alert(isBangla ? 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' : 'Please fill all required fields');
+                return;
+            }
+
+            if (!confirm(isBangla ? `৳${amount.toFixed(2)} উত্তোলন করতে চান?` : `Withdraw ৳${amount.toFixed(2)}?`)) {
+                return;
+            }
+
+            fetch('@Url.Action("Withdraw", "Accounts", new { area = "Admin" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountId, amount, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Process Transfer
+        function processTransfer() {
+            const fromAccountId = parseInt(document.getElementById('fromAccountId').value);
+            const toAccountId = parseInt(document.getElementById('toAccountId').value);
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const description = document.getElementById('transferDescription').value;
+
+            if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
+                alert(isBangla ? 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' : 'Please fill all required fields');
+                return;
+            }
+
+            if (fromAccountId === toAccountId) {
+                alert(isBangla ? 'একই একাউন্টে ট্রান্সফার করা যাবে না' : 'Cannot transfer to same account');
+                return;
+            }
+
+            if (!confirm(isBangla ? `৳${amount.toFixed(2)} ট্রান্সফার করতে চান?` : `Transfer ৳${amount.toFixed(2)}?`)) {
+                return;
+            }
+
+            fetch('@Url.Action("Transfer", "Accounts", new { area = "Admin" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fromAccountId, toAccountId, amount, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Set Default Account
+        function setDefaultAccount(id) {
+            if (!confirm(isBangla ? "এই একাউন্টকে ডিফল্ট হিসেবে সেট করতে চান?" : "Set this account as default?")) {
+                return;
+            }
+
+            fetch(`@Url.Action("SetDefaultAccount", "Accounts", new { area = "Admin" })?id=${id}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Delete Account
+        function deleteAccount(accountId) {
+            if (!confirm(isBangla ? "আপনি কি সত্যিই এই একাউন্ট মুছে ফেলতে চান?" : "Are you sure you want to delete this account?")) {
+                return;
+            }
+
+            fetch(`@Url.Action("DeleteAccount", "Accounts", new { area = "Admin" })?id=${accountId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Edit Account
+        function editAccount(id) {
+            fetch(`@Url.Action("GetAccount", "Accounts", new { area = "Admin" })?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const account = data.data;
+                    document.getElementById('editAccountId').value = account.id;
+                    document.getElementById('editAccountName').value = account.accountName;
+                    document.getElementById('editAccountNameBn').value = account.accountNameBn || '';
+                    document.getElementById('editAccountType').value = account.accountType;
+                    document.getElementById('editAccountNumber').value = account.accountNumber || '';
+                    document.getElementById('editBankName').value = account.bankName || '';
+                    document.getElementById('editBranchName').value = account.branchName || '';
+                    document.getElementById('editDisplayOrder').value = account.displayOrder || 0;
+                    document.getElementById('editDescription').value = account.description || '';
+                    document.getElementById('editIsActive').checked = account.isActive;
+                    
+                    new bootstrap.Modal(document.getElementById('editAccountModal')).show();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Update Account
+        function updateAccount() {
+            const account = {
+                Id: parseInt(document.getElementById('editAccountId').value),
+                AccountName: document.getElementById('editAccountName').value,
+                AccountNameBn: document.getElementById('editAccountNameBn').value || null,
+                AccountType: document.getElementById('editAccountType').value,
+                AccountNumber: document.getElementById('editAccountNumber').value || null,
+                BankName: document.getElementById('editBankName').value || null,
+                BranchName: document.getElementById('editBranchName').value || null,
+                Description: document.getElementById('editDescription').value || null,
+                IsActive: document.getElementById('editIsActive').checked,
+                DisplayOrder: parseInt(document.getElementById('editDisplayOrder').value) || 0
+            };
+
+            if (!account.AccountName || !account.AccountType) {
+                alert(isBangla ? 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' : 'Please fill all required fields');
+                return;
+            }
+
+            fetch('@Url.Action("UpdateAccount", "Accounts", new { area = "Admin" })', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(account)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(isBangla ? 'একটি ত্রুটি ঘটেছে' : 'An error occurred');
+            });
+        }
+
+        // Search Accounts
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            var query = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#accountsTable tbody tr');
+            rows.forEach(function(row) {
+                var text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+}

@@ -1,16 +1,18 @@
-@model IEnumerable<WBS.Web.Models.Publication>
-
+﻿@model IEnumerable<WBS.Web.Models.Publication>
+@using Microsoft.AspNetCore.Localization
 @{
-    ViewData["Title"] = "Publications";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    var isEnglish = currentCulture == "en";
     var type = ViewBag.Type as string;
+    ViewData["Title"] = isEnglish ? "Publications" : "প্রকাশনা";
 }
 
 <section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center text-white">
-                <h1 class="display-4 fw-bold mb-3">Publications</h1>
-                <p class="lead">Browse our research, reports, and articles</p>
+                <h1 class="display-4 fw-bold mb-3">@(isEnglish ? "Publications" : "প্রকাশনা")</h1>
+                <p class="lead">@(isEnglish ? "Browse our research, reports, and articles" : "আমাদের গবেষণা, প্রতিবেদন এবং নিবন্ধ দেখুন")</p>
             </div>
         </div>
     </div>
@@ -21,11 +23,24 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="btn-group" role="group" aria-label="Publication types">
-                    <a href="/activities/publication" class="btn @(string.IsNullOrEmpty(type) ? "btn-primary" : "btn-outline-primary")">All</a>
-                    <a href="/activities/publication?type=Research" class="btn @(type == "Research" ? "btn-primary" : "btn-outline-primary")">Research</a>
-                    <a href="/activities/publication?type=Report" class="btn @(type == "Report" ? "btn-primary" : "btn-outline-primary")">Reports</a>
-                    <a href="/activities/publication?type=Article" class="btn @(type == "Article" ? "btn-primary" : "btn-outline-primary")">Articles</a>
-                    <a href="/activities/publication?type=Blog" class="btn @(type == "Blog" ? "btn-primary" : "btn-outline-primary")">Blogs</a>
+                    <a href="/activities/publication" class="btn @(string.IsNullOrEmpty(type) ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "All" : "সব")
+                    </a>
+                    <a href="/activities/publication?type=Research" class="btn @(type == "Research" ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "Research" : "গবেষণা")
+                    </a>
+                    <a href="/activities/publication?type=Report" class="btn @(type == "Report" ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "Reports" : "প্রতিবেদন")
+                    </a>
+                    <a href="/activities/publication?type=Article" class="btn @(type == "Article" ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "Articles" : "নিবন্ধ")
+                    </a>
+                    <a href="/activities/publication?type=Book" class="btn @(type == "Book" ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "Books" : "বই")
+                    </a>
+                    <a href="/activities/publication?type=Blog" class="btn @(type == "Blog" ? "btn-primary" : "btn-outline-primary")">
+                        @(isEnglish ? "Blogs" : "ব্লগ")
+                    </a>
                 </div>
             </div>
         </div>
@@ -35,29 +50,88 @@
             {
                 foreach (var publication in Model)
                 {
+                    var displayTitle = isEnglish ? publication.Title : (!string.IsNullOrEmpty(publication.TitleBn) ? publication.TitleBn : publication.Title);
+                    var displayDescription = isEnglish ? publication.Description : (!string.IsNullOrEmpty(publication.DescriptionBn) ? publication.DescriptionBn : publication.Description);
+                    var displayAuthor = isEnglish ? publication.Author : (!string.IsNullOrEmpty(publication.AuthorBn) ? publication.AuthorBn : publication.Author);
+                    var displayPublisher = isEnglish ? publication.Publisher : (!string.IsNullOrEmpty(publication.PublisherBn) ? publication.PublisherBn : publication.Publisher);
+                    
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
+                        <div class="card h-100 shadow-sm hover-shadow-lg transition-all" style="transition: all 0.3s ease;">
                             @if (!string.IsNullOrEmpty(publication.CoverImage))
                             {
-                                <img src="@publication.CoverImage" class="card-img-top" alt="@publication.Title" style="height: 250px; object-fit: cover;" />
+                                <a href="@Url.Action("ViewFile", "Publications", new { area = "Admin", id = publication.Id })" target="_blank" class="text-decoration-none">
+                                    <img src="@publication.CoverImage" class="card-img-top" alt="@displayTitle" style="height: 300px; object-fit: cover; cursor: pointer;" />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("ViewFile", "Publications", new { area = "Admin", id = publication.Id })" target="_blank" class="text-decoration-none">
+                                    <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;">
+                                        <div class="text-center text-white">
+                                            <i class="fas fa-book fa-5x mb-3" style="opacity: 0.8;"></i>
+                                            <p class="mb-0 fw-bold fs-5">@(isEnglish ? "Click to View" : "দেখতে ক্লিক করুন")</p>
+                                        </div>
+                                    </div>
+                                </a>
                             }
                             <div class="card-body">
-                                <span class="badge bg-primary mb-2">@publication.PublicationType</span>
-                                <h5 class="card-title">@publication.Title</h5>
-                                @if (!string.IsNullOrEmpty(publication.Description))
+                                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                    @if (!string.IsNullOrEmpty(publication.Tags))
+                                    {
+                                        var tags = publication.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Take(2);
+                                        foreach (var tag in tags)
+                                        {
+                                            <span class="badge bg-secondary">@tag.Trim()</span>
+                                        }
+                                    }
+                                </div>
+                                
+                                <h5 class="card-title" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                    @displayTitle
+                                </h5>
+                                
+                                @if (!string.IsNullOrEmpty(displayAuthor))
                                 {
-                                    <p class="card-text">@(publication.Description.Length > 150 ? publication.Description.Substring(0, 150) + "..." : publication.Description)</p>
+                                    <p class="text-muted mb-1" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        <i class="fas fa-user me-1"></i>
+                                        <small><strong>@(isEnglish ? "Author" : "লেখক"):</strong> @displayAuthor</small>
+                                    </p>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(displayPublisher))
+                                {
+                                    <p class="text-muted mb-2" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        <i class="fas fa-building me-1"></i>
+                                        <small><strong>@(isEnglish ? "Publisher" : "প্রকাশক"):</strong> @displayPublisher</small>
+                                    </p>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(displayDescription))
+                                {
+                                    <p class="card-text text-muted" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        @(displayDescription.Length > 100 ? displayDescription.Substring(0, 100) + "..." : displayDescription)
+                                    </p>
+                                }
+                                
+                                @if (publication.PublishedDate.HasValue)
+                                {
+                                    <p class="text-muted mb-0">
+                                        <i class="far fa-calendar me-1"></i>
+                                        <small>@publication.PublishedDate.Value.ToString("dd MMM yyyy")</small>
+                                    </p>
                                 }
                             </div>
-                            <div class="card-footer d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    <i class="far fa-calendar me-1"></i>@publication.PublishedAt.ToString("MMM dd, yyyy")
-                                </small>
+                            <div class="card-footer bg-white border-top-0">
                                 @if (!string.IsNullOrEmpty(publication.FileUrl))
                                 {
-                                    <a href="@publication.FileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-download me-1"></i>Download
-                                    </a>
+                                    <div class="d-flex gap-2">
+                                        <a href="@Url.Action("ViewFile", "Publications", new { area = "Admin", id = publication.Id })" target="_blank" class="btn btn-outline-primary flex-fill">
+                                            <i class="fas fa-eye me-2"></i>@(isEnglish ? "Read" : "পড়ুন")
+                                        </a>
+                                        <a href="@Url.Action("DownloadFile", "Publications", new { area = "Admin", id = publication.Id })" class="btn btn-primary flex-fill">
+                                            <i class="fas fa-download me-2"></i>@(isEnglish ? "Download" : "ডাউনলোড করুন")
+                                        </a>
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -67,11 +141,24 @@
             else
             {
                 <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>No publications available at the moment.
+                    <div class="alert alert-info text-center py-5">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <h4>@(isEnglish ? "No publications available at the moment." : "এই মুহূর্তে কোন প্রকাশনা উপলব্ধ নেই।")</h4>
+                        <p class="mb-0">@(isEnglish ? "Please check back later." : "পরে আবার চেক করুন।")</p>
                     </div>
                 </div>
             }
         </div>
     </div>
 </section>
+
+<style>
+    .hover-shadow-lg:hover {
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        transform: translateY(-5px);
+    }
+    
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+</style>

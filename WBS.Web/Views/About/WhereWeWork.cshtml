@@ -1,0 +1,611 @@
+﻿@model WBS.Web.ViewModels.WhereWeWorkViewModel
+@using WBS.Web.Helpers
+@{
+    ViewData["Title"] = LanguageHelper.IsEnglish(Context) ? "Where We Work" : "আমরা যেখানে কাজ করি";
+    var isEnglish = LanguageHelper.IsEnglish(Context);
+}
+
+@section Styles {
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('/images/pattern.png');
+        opacity: 0.1;
+    }
+
+    .map-container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+    }
+
+    .map-section {
+        position: relative;
+        text-align: center;
+        padding: 20px;
+    }
+
+    #bangladeshMapContainer {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        position: relative;
+        background: #f0f8ff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #bangladeshMapContainer img {
+        width: 15px;
+        height: auto;
+        display: block;
+        border-radius: 10px;
+    }
+
+    .map-marker {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 100;
+    }
+
+    .map-marker img {
+                width: 15px;
+        height: 35px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(0,169,157,0.5));
+    }
+
+    .map-marker:hover {
+        transform: translate(-50%, -50%) scale(1.3);
+        z-index: 101;
+    }
+
+    .map-marker:hover img {
+        filter: drop-shadow(0 6px 12px rgba(255, 0, 103, 0.7));
+    }
+
+    .marker-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        margin-bottom: 10px;
+        display: none;
+        z-index: 100;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .marker-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: white;
+    }
+
+    .map-marker:hover .marker-tooltip {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+    .progress-container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+    }
+
+    .progress-item {
+        margin-bottom: 30px;
+    }
+
+    .progress-item h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .progress {
+        height: 30px;
+        border-radius: 15px;
+        background-color: #e9ecef;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: width 1s ease-in-out;
+    }
+
+    .progress-bar.district-progress {
+        background: linear-gradient(135deg, #00a99d 0%, #00c9b7 100%);
+    }
+
+    .progress-bar.upazila-progress {
+        background: linear-gradient(135deg, #0077b6 0%, #0096c7 100%);
+    }
+
+    .district-table {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.3s;
+    }
+
+    .district-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .upazila-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .upazila-badge {
+        background: linear-gradient(135deg, #00a99d 0%, #00c9b7 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .count-badge {
+        background: #0077b6;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%);
+        margin: 15px auto 0;
+        border-radius: 2px;
+    }
+
+        .alert-light {
+            --bs-alert-color: var(--bs-light-text-emphasis);
+            --bs-alert-bg: #9be9e2;
+            --bs-alert-border-color: var(--bs-light-border-subtle);
+            --bs-alert-link-color: var(--bs-light-text-emphasis);
+        }
+
+        .small, small {
+            font-size: 1.3em;
+        }
+
+
+</style>
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container position-relative">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    @(isEnglish ? "Where We Work" : "আমরা যেখানে কাজ করি")
+                </h1>
+                <p class="lead">
+                    @(isEnglish ? "Our presence across Bangladesh" : "বাংলাদেশ জুড়ে আমাদের উপস্থিতি")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <!-- Map Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">
+                    @(isEnglish ? "Bangladesh Map - WBS Working Areas" : "বাংলাদেশ মানচিত্র - WBS কর্মএলাকা")
+                </h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Map Column -->
+            <div class="col-lg-7 mb-4">
+                <div class="map-container">
+                    <div class="map-section">
+                        <!-- Bangladesh Map with Markers -->
+                        <div id="bangladeshMapContainer">
+                            <img src="~/images/Bangladesh_Political_Map.svg" alt="Bangladesh Map" id="bangladeshMap" style="width: 100%; height: auto; display: block; border-radius: 10px;" />
+                            
+                            <!-- District Markers - Will be positioned via JavaScript -->
+                            @foreach (var district in Model.DistrictWorkInfos)
+                            {
+                                if (district.HasWork && district.Latitude.HasValue && district.Longitude.HasValue)
+                                {
+                                    var districtName = isEnglish ? district.DistrictName : district.DistrictNameBn;
+                                    var upazilasText = isEnglish 
+                                        ? $"{district.CoveredUpazilas} Upazilas" 
+                                        : $"{district.CoveredUpazilas}টি উপজেলা";
+                                    
+                                    <div class="map-marker" 
+                                         data-lat="@district.Latitude.Value" 
+                                         data-lng="@district.Longitude.Value"
+                                         data-district="@districtName">
+                                        <img src="~/images/wbs_logo.gif" alt="WBS" />
+                                        <div class="marker-tooltip">
+                                            <strong>@districtName</strong><br />
+                                            @upazilasText
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        
+@*                         <div class="text-center mt-4">
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                @(isEnglish 
+                                    ? $"Working in {Model.CoveredDistricts} districts across Bangladesh" 
+                                    : $"বাংলাদেশ জুড়ে {Model.CoveredDistricts}টি জেলায় কাজ করছি")
+                            </p>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                @(isEnglish 
+                                    ? "Hover over markers to see district details" 
+                                    : "জেলার বিবরণ দেখতে মার্কারে হোভার করুন")
+                            </small>
+                        </div> *@
+                        
+                        <!-- Map Legend removed from here - moved to right column -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Column -->
+            <div class="col-lg-5 mb-4">
+                <div class="progress-container">
+                    <h3 class="text-center mb-4">
+                        @(isEnglish ? "Coverage Statistics" : "কভারেজ পরিসংখ্যান")
+                    </h3>
+
+                    <!-- District Coverage -->
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>
+                                <i class="fas fa-map-marked-alt me-2"></i>
+                                @(isEnglish ? "Districts Covered" : "জেলা কভারেজ")
+                            </span>
+                            <span class="count-badge">@Model.CoveredDistricts/@Model.TotalDistricts</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar district-progress" role="progressbar" 
+                                 style="width: @((Model.CoveredDistricts * 100.0 / Model.TotalDistricts).ToString("0.0"))%" 
+                                 aria-valuenow="@Model.CoveredDistricts" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="@Model.TotalDistricts">
+                                @((Model.CoveredDistricts * 100.0 / Model.TotalDistricts).ToString("0.0"))%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upazila Coverage -->
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                @(isEnglish ? "Upazilas Covered" : "উপজেলা কভারেজ")
+                            </span>
+                            <span class="count-badge">@Model.CoveredUpazilas/@Model.TotalUpazilas</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar upazila-progress" role="progressbar" 
+                                 style="width: @((Model.CoveredUpazilas * 100.0 / Model.TotalUpazilas).ToString("0.0"))%" 
+                                 aria-valuenow="@Model.CoveredUpazilas" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="@Model.TotalUpazilas">
+                                @((Model.CoveredUpazilas * 100.0 / Model.TotalUpazilas).ToString("0.0"))%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-chart-line me-2"></i>
+                        @if (isEnglish)
+                        {
+                            <small>Our work spans across multiple districts and upazilas throughout Bangladesh, reaching communities in need.</small>
+                        }
+                        else
+                        {
+                            <small>আমাদের কাজ বাংলাদেশ জুড়ে একাধিক জেলা এবং উপজেলায় বিস্তৃত, প্রয়োজনীয় সম্প্রদায়গুলিতে পৌঁছাচ্ছে।</small>
+                        }
+                    </div>
+                    
+                    <!-- Map Legend moved here from below the map -->
+                    <div class="alert alert-light border mt-3">
+                        <div class="row text-center">
+                            <div class="col-12 mb-2">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div> <img src="~/images/wbs_logo.gif" alt="WBS" /></div>
+                                    <small>@(isEnglish ? "Active Districts" : "সক্রিয় জেলা")</small>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <small>@(isEnglish ? $"{Model.CoveredUpazilas} Upazilas" : $"{Model.CoveredUpazilas}টি উপজেলা")</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-hand-holding-heart text-danger me-2"></i>
+                                    <small>@(isEnglish ? "Community Impact" : "সম্প্রদায়ে প্রভাব")</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            @(isEnglish
+                                                        ? $"Working in {Model.CoveredDistricts} districts across Bangladesh"
+                                                        : $"বাংলাদেশ জুড়ে {Model.CoveredDistricts}টি জেলায় কাজ করছি")
+                        </p>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            @(isEnglish
+                                                        ? "Hover over markers to see district details"
+                                                        : "জেলার বিবরণ দেখতে মার্কারে হোভার করুন")
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- District Details Table -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="section-title">
+                    @(isEnglish ? "District-wise Coverage Details" : "জেলাভিত্তিক কভারেজ বিবরণ")
+                </h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="district-table">
+                    @if (Model.DistrictWorkInfos != null && Model.DistrictWorkInfos.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>@(isEnglish ? "District Name" : "জেলের নাম")</th>
+                                        <th>@(isEnglish ? "Upazilas Covered" : "উপজেলা কভারেজ")</th>
+                                        <th>@(isEnglish ? "Covered Upazilas" : "কভারকৃত উপজেলা")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var district in Model.DistrictWorkInfos.OrderBy(d => isEnglish ? d.DistrictName : d.DistrictNameBn))
+                                    {
+                                        <tr data-district-id="@district.DistrictId">
+                                            <td class="district-name">
+                                                <i class="fas fa-map-marked-alt me-2 text-primary"></i>
+                                                @(isEnglish ? district.DistrictName : district.DistrictNameBn)
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="count-badge">@district.CoveredUpazilas/@district.TotalUpazilas</span>
+                                            </td>
+                                            <td>
+                                                @if (district.UpazilaNames != null && district.UpazilaNames.Any())
+                                                {
+                                                    <div class="upazila-list">
+                                                        @foreach (var upazila in (isEnglish ? district.UpazilaNamesEn : district.UpazilaNames))
+                                                        {
+                                                            <span class="upazila-badge">@upazila</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@(isEnglish ? "No activities yet" : "এখনও কোন কার্যক্রম নেই")</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">
+                                @(isEnglish ? "No district information available at this time." : "এই মুহূর্তে কোন জেলা তথ্য উপলব্ধ নেই।")
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    console.log('%c🗺️ Bangladesh Map - Where We Work', 'background: #00a99d; color: white; padding: 10px; font-size: 14px; font-weight: bold');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapContainer = document.getElementById('bangladeshMapContainer');
+        const mapImg = document.getElementById('bangladeshMap');
+        const markers = document.querySelectorAll('.map-marker');
+        
+        console.log('Map container:', mapContainer);
+        console.log('Map image:', mapImg);
+        console.log('Markers found:', markers.length);
+        
+        // Function to position markers based on lat/lng
+        function positionMarkers() {
+            // Bangladesh approximate bounds (geographical coordinates)
+            const minLat = 20.74;  // Southern point (Cox's Bazar area)
+            const maxLat = 26.64;  // Northern point (Panchagarh area)
+            const minLng = 88.01;  // Western point (Satkhira area)
+            const maxLng = 92.67;  // Eastern point (Bandarban area)
+            
+            markers.forEach(marker => {
+                const lat = parseFloat(marker.dataset.lat);
+                const lng = parseFloat(marker.dataset.lng);
+                const district = marker.dataset.district;
+                
+                // Convert lat/lng to percentage position on map
+                // X: longitude (left to right), Y: latitude (inverted - top to bottom)
+                const xPercent = ((lng - minLng) / (maxLng - minLng)) * 100;
+                const yPercent = ((maxLat - lat) / (maxLat - minLat)) * 100;
+                
+                // Apply position
+                marker.style.left = xPercent + '%';
+                marker.style.top = yPercent + '%';
+                
+                console.log(`📍 ${district}: Lat ${lat.toFixed(2)}, Lng ${lng.toFixed(2)} → Position: ${xPercent.toFixed(1)}%, ${yPercent.toFixed(1)}%`);
+            });
+            
+            console.log('%c✅ All markers positioned successfully!', 'background: green; color: white; padding: 5px; font-weight: bold');
+        }
+        
+        // Position markers after image loads
+        if (mapImg.complete && mapImg.naturalHeight !== 0) {
+            console.log('Map already loaded, positioning markers...');
+            positionMarkers();
+        } else {
+            mapImg.addEventListener('load', function() {
+                console.log('Map loaded, positioning markers...');
+                positionMarkers();
+            });
+            
+            // Fallback: position after a short delay
+            setTimeout(function() {
+                if (mapImg.complete) {
+                    console.log('Fallback: positioning markers...');
+                    positionMarkers();
+                }
+            }, 500);
+        }
+        
+        // Reposition on window resize
+        window.addEventListener('resize', positionMarkers);
+        
+        // Add click handlers to markers for interactivity
+        markers.forEach(marker => {
+            marker.addEventListener('click', function() {
+                const district = this.dataset.district;
+                console.log(`🎯 Clicked on: ${district}`);
+                
+                // Scroll to the district in the table
+                const districtRow = document.querySelector(`[data-district-id="${this.dataset.districtId}"]`);
+                if (districtRow) {
+                    districtRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    districtRow.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => {
+                        districtRow.style.backgroundColor = '';
+                    }, 2000);
+                }
+            });
+        });
+        
+        console.log('%c🎉 Map initialization complete!', 'background: #0077b6; color: white; padding: 5px; font-weight: bold');
+    });
+</script>
+}

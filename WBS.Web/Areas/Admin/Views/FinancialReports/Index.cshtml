@@ -1,0 +1,759 @@
+@{
+    ViewData["Title"] = "Financial Report";
+    var fromDate = (DateTime?)ViewBag.FromDate;
+    var toDate = (DateTime?)ViewBag.ToDate;
+    
+    var totalIncome = (decimal)ViewBag.TotalIncome;
+    var totalExpenses = (decimal)ViewBag.TotalExpenses;
+    var netBalance = (decimal)ViewBag.NetBalance;
+    
+    var onlineDonations = (List<WBS.Web.Models.Donation>)ViewBag.OnlineDonations;
+    var manualDonations = (List<WBS.Web.Models.Donation>)ViewBag.ManualDonations;
+    var otherIncomes = (List<WBS.Web.Models.OtherIncome>)ViewBag.OtherIncomes;
+    var eventRegistrations = (List<WBS.Web.Models.EventRegistration>)ViewBag.EventRegistrations;
+    var deposits = (List<WBS.Web.Models.AccountTransaction>)ViewBag.Deposits;
+    var generalExpenses = (List<WBS.Web.Models.GeneralExpense>)ViewBag.GeneralExpenses;
+    var programExpenses = (List<WBS.Web.Models.ProgramExpense>)ViewBag.ProgramExpenses;
+    var withdrawals = (List<WBS.Web.Models.AccountTransaction>)ViewBag.Withdrawals;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-line me-2"></i>Financial Report</h2>
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-secondary">
+            <i class="fas fa-print me-2"></i>Print
+        </button>
+        <a href="@Url.Action("ExportToExcel", new { fromDate, toDate })" class="btn btn-success">
+            <i class="fas fa-file-excel me-2"></i>Export to Excel
+        </a>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show">
+        <i class="fas fa-info-circle me-2"></i>@TempData["Info"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Filter Card -->
+<div class="card mb-4 no-print">
+    <div class="card-header bg-primary text-white">
+        <i class="fas fa-filter me-2"></i>Report Filters
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">From Date</label>
+                <input type="date" name="fromDate" class="form-control" value="@fromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">To Date</label>
+                <input type="date" name="toDate" class="form-control" value="@toDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Account (Optional)</label>
+                <select name="accountId" class="form-select">
+                    <option value="">All Accounts</option>
+                    @foreach (var account in (List<WBS.Web.Models.Account>)ViewBag.Accounts)
+                    {
+                        <option value="@account.Id" selected="@(ViewBag.SelectedAccountId == account.Id)">@account.AccountName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Generate Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Print Only Header -->
+<div class="d-none" id="print-header">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="margin-bottom: 5px;">Wellbeing Bangladesh (WBS)</h1>
+        <h3 style="margin-bottom: 20px;">Financial Report</h3>
+        <p style="margin: 0;">
+            <strong>Report Period:</strong> @fromDate?.ToString("dd MMM yyyy") to @toDate?.ToString("dd MMM yyyy")
+        </p>
+        <p style="margin: 0; font-size: 12px; color: #666;">
+            Generated on: @DateTime.Now.ToString("dd MMM yyyy hh:mm tt")
+        </p>
+        <hr style="border-top: 2px solid #000; margin: 20px 0;" />
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Income</h6>
+                <h3 class="text-success mb-0">Tk @totalIncome.ToString("N2")</h3>
+                <small class="text-muted">
+                    @fromDate?.ToString("MMM dd, yyyy") - @toDate?.ToString("MMM dd, yyyy")
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Expenses</h6>
+                <h3 class="text-danger mb-0">Tk @totalExpenses.ToString("N2")</h3>
+                <small class="text-muted">
+                    @fromDate?.ToString("MMM dd, yyyy") - @toDate?.ToString("MMM dd, yyyy")
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-@(netBalance >= 0 ? "primary" : "warning")">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Net Balance</h6>
+                <h3 class="text-@(netBalance >= 0 ? "primary" : "warning") mb-0">
+                    Tk @netBalance.ToString("N2")
+                </h3>
+                <small class="text-muted">
+                    Income - Expenses
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Income Breakdown -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Income Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-globe text-success fs-3"></i>
+                                <h6 class="mb-0 mt-2">Online Donations</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-success mb-0">Tk @ViewBag.TotalOnlineDonations.ToString("N2")</h5>
+                                <small class="text-muted">@onlineDonations.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-hand-holding-usd text-success fs-3"></i>
+                                <h6 class="mb-0 mt-2">Manual Donations</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-success mb-0">Tk @ViewBag.TotalManualDonations.ToString("N2")</h5>
+                                <small class="text-muted">@manualDonations.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-coins text-success fs-3"></i>
+                                <h6 class="mb-0 mt-2">Other Incomes</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-success mb-0">Tk @ViewBag.TotalOtherIncomes.ToString("N2")</h5>
+                                <small class="text-muted">@otherIncomes.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-ticket-alt text-success fs-3"></i>
+                                <h6 class="mb-0 mt-2">Event Fees</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-success mb-0">Tk @ViewBag.TotalEventFees.ToString("N2")</h5>
+                                <small class="text-muted">@eventRegistrations.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-money-check-alt text-success fs-3"></i>
+                                <h6 class="mb-0 mt-2">Deposits</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-success mb-0">Tk @ViewBag.TotalDeposits.ToString("N2")</h5>
+                                <small class="text-muted">@deposits.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Breakdown -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Expense Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-money-bill-wave text-danger fs-3"></i>
+                                <h6 class="mb-0 mt-2">General Expenses</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-danger mb-0">Tk @ViewBag.TotalGeneralExpenses.ToString("N2")</h5>
+                                <small class="text-muted">@generalExpenses.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-project-diagram text-danger fs-3"></i>
+                                <h6 class="mb-0 mt-2">Program Expenses</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-danger mb-0">Tk @ViewBag.TotalProgramExpenses.ToString("N2")</h5>
+                                <small class="text-muted">@programExpenses.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <i class="fas fa-hand-holding-usd text-danger fs-3"></i>
+                                <h6 class="mb-0 mt-2">Withdrawals</h6>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-danger mb-0">Tk @ViewBag.TotalWithdrawals.ToString("N2")</h5>
+                                <small class="text-muted">@withdrawals.Count items</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Transactions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#online-donations-tab">
+                            <i class="fas fa-globe me-1"></i>Online Donations (@onlineDonations.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#manual-donations-tab">
+                            <i class="fas fa-hand-holding-usd me-1"></i>Manual Donations (@manualDonations.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#other-incomes-tab">
+                            <i class="fas fa-coins me-1"></i>Other Incomes (@otherIncomes.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#event-fees-tab">
+                            <i class="fas fa-ticket-alt me-1"></i>Event Fees (@eventRegistrations.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#deposits-tab">
+                            <i class="fas fa-piggy-bank me-1"></i>Deposits (@deposits.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#general-expenses-tab">
+                            <i class="fas fa-money-bill-wave me-1"></i>General Expenses (@generalExpenses.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#program-expenses-tab">
+                            <i class="fas fa-project-diagram me-1"></i>Program Expenses (@programExpenses.Count)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#withdrawals-tab">
+                            <i class="fas fa-hand-holding-usd me-1"></i>Withdrawals (@withdrawals.Count)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Online Donations Tab -->
+                    <div class="tab-pane fade show active" id="online-donations-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Donor</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Payment Method</th>
+                                        <th>Transaction ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var donation in onlineDonations)
+                                    {
+                                        <tr>
+                                            <td>@donation.PaidAt?.ToString("MMM dd, yyyy")</td>
+                                            <td>@donation.DonorName</td>
+                                            <td>@donation.DonationType?.Name</td>
+                                            <td class="text-success fw-bold">Tk @donation.Amount.ToString("N2")</td>
+                                            <td>@donation.PaymentMethod</td>
+                                            <td><small class="text-muted">@donation.TransactionId</small></td>
+                                        </tr>
+                                    }
+                                    @if (!onlineDonations.Any())
+                                    {
+                                        <tr><td colspan="6" class="text-center text-muted">No online donations in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Manual Donations Tab -->
+                    <div class="tab-pane fade" id="manual-donations-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Donor</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Payment Method</th>
+                                        <th>Account</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var donation in manualDonations)
+                                    {
+                                        <tr>
+                                            <td>@donation.PaidAt?.ToString("MMM dd, yyyy")</td>
+                                            <td>@donation.DonorName</td>
+                                            <td>@donation.DonationType?.Name</td>
+                                            <td class="text-success fw-bold">Tk @donation.Amount.ToString("N2")</td>
+                                            <td>@donation.PaymentMethod</td>
+                                            <td>@donation.Account?.AccountName</td>
+                                        </tr>
+                                    }
+                                    @if (!manualDonations.Any())
+                                    {
+                                        <tr><td colspan="6" class="text-center text-muted">No manual donations in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Other Incomes Tab -->
+                    <div class="tab-pane fade" id="other-incomes-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var income in otherIncomes)
+                                    {
+                                        <tr>
+                                            <td>@income.IncomeDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@income.IncomeCategory?.Name</td>
+                                            <td>@income.Description</td>
+                                            <td class="text-success fw-bold">Tk @income.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!otherIncomes.Any())
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted">No other incomes in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Event Fees Tab -->
+                    <div class="tab-pane fade" id="event-fees-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Event</th>
+                                        <th>Participant</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reg in eventRegistrations)
+                                    {
+                                        <tr>
+                                            <td>@reg.ConfirmedAt?.ToString("MMM dd, yyyy")</td>
+                                            <td>@reg.Event?.Title</td>
+                                            <td>@reg.FullName</td>
+                                            <td class="text-success fw-bold">Tk @reg.AmountPaid.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!eventRegistrations.Any())
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted">No event registrations in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Deposits Tab -->
+                    <div class="tab-pane fade" id="deposits-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var deposit in deposits)
+                                    {
+                                        <tr>
+                                            <td>@deposit.TransactionDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@deposit.Account?.AccountName</td>
+                                            <td>@deposit.Description</td>
+                                            <td class="text-success fw-bold">Tk @deposit.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!deposits.Any())
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted">No deposits in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- General Expenses Tab -->
+                    <div class="tab-pane fade" id="general-expenses-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in generalExpenses)
+                                    {
+                                        <tr>
+                                            <td>@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@expense.ExpenseCategory?.Name</td>
+                                            <td>@expense.Description</td>
+                                            <td class="text-danger fw-bold">Tk @expense.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!generalExpenses.Any())
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted">No general expenses in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Program Expenses Tab -->
+                    <div class="tab-pane fade" id="program-expenses-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>SDG</th>
+                                        <th>Program</th>
+                                        <th>Details</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in programExpenses)
+                                    {
+                                        <tr>
+                                            <td>@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@expense.SDG?.Name</td>
+                                            <td>@expense.Program?.Title</td>
+                                            <td>@expense.Details</td>
+                                            <td class="text-danger fw-bold">Tk @expense.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!programExpenses.Any())
+                                    {
+                                        <tr><td colspan="5" class="text-center text-muted">No program expenses in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Withdrawals Tab -->
+                    <div class="tab-pane fade" id="withdrawals-tab">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var withdrawal in withdrawals)
+                                    {
+                                        <tr>
+                                            <td>@withdrawal.TransactionDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@withdrawal.Description</td>
+                                            <td class="text-danger fw-bold">Tk @withdrawal.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (!withdrawals.Any())
+                                    {
+                                        <tr><td colspan="3" class="text-center text-muted">No withdrawals in this period</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        /* Show print header */
+        #print-header {
+            display: block !important;
+        }
+        
+        /* Hide admin layout elements */
+        .sidebar {
+            display: none !important;
+        }
+        
+        .top-navbar {
+            display: none !important;
+        }
+        
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .content-wrapper {
+            padding: 20px !important;
+        }
+        
+        /* Hide buttons and interactive elements */
+        .btn, button, .no-print {
+            display: none !important;
+        }
+        
+        /* Hide filter card */
+        .card:has(form) {
+            display: none !important;
+        }
+        
+        /* Hide tabs navigation but show all content */
+        .nav-tabs {
+            display: none !important;
+        }
+        
+        .tab-content .tab-pane {
+            display: block !important;
+            opacity: 1 !important;
+            page-break-before: always;
+        }
+        
+        .tab-content .tab-pane:first-child {
+            page-break-before: auto;
+        }
+        
+        /* Add section titles before each tab content */
+        #donations-tab::before {
+            content: "Donations Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #other-incomes-tab::before {
+            content: "Other Incomes Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #event-fees-tab::before {
+            content: "Event Fees Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #deposits-tab::before {
+            content: "Deposits Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #general-expenses-tab::before {
+            content: "General Expenses Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #program-expenses-tab::before {
+            content: "Program Expenses Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        #withdrawals-tab::before {
+            content: "Withdrawals Detail";
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+        }
+        
+        /* Card styling for print */
+        .card {
+            border: 1px solid #000 !important;
+            page-break-inside: avoid;
+            margin-bottom: 20px !important;
+            box-shadow: none !important;
+        }
+        
+        .card-header {
+            background-color: #f8f9fa !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Table styling */
+        table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+        
+        table thead {
+            background-color: #f8f9fa !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        table th, table td {
+            border: 1px solid #ddd !important;
+            padding: 8px !important;
+            font-size: 11px !important;
+        }
+        
+        /* Color preservation */
+        .text-success {
+            color: #198754 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .text-primary {
+            color: #0d6efd !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .bg-success {
+            background-color: #d4edda !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        .bg-danger {
+            background-color: #f8d7da !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Hide page title with icons */
+        h2 i {
+            display: none !important;
+        }
+        
+        /* Remove Bootstrap grid margins */
+        .row {
+            margin: 0 !important;
+        }
+        
+        /* Smaller font for breakdown cards */
+        .bg-light {
+            font-size: 12px !important;
+        }
+    }
+</style>

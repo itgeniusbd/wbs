@@ -1,0 +1,194 @@
+﻿@model (WBS.Web.Models.Policy? policy, WBS.Web.Models.SiteSettings? settings)
+@using Microsoft.AspNetCore.Localization
+@{
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+    
+    ViewData["Title"] = isBangla ? "রিফান্ড ও রিটার্ন নীতি" : "Refund & Return Policy";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "রিফান্ড ও রিটার্ন নীতি" : "Refund & Return Policy")</h1>
+                <p class="lead">@(isBangla ? "দানের রিফান্ড সম্পর্কিত আমাদের নীতি" : "Our policy regarding donation refunds")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 mx-auto">
+                @if (Model.policy != null)
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="@Model.policy.Icon me-2"></i>
+                                @(isBangla && !string.IsNullOrEmpty(Model.policy.TitleBn) ? Model.policy.TitleBn : Model.policy.Title)
+                            </h3>
+                            <div class="content">
+                                @Html.Raw(isBangla && !string.IsNullOrEmpty(Model.policy.DescriptionBn) ? Model.policy.DescriptionBn : Model.policy.Description)
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(Model.policy.PdfUrl))
+                            {
+                                <div class="mt-4">
+                                    <a href="@Model.policy.PdfUrl" target="_blank" class="btn btn-outline-primary me-2">
+                                        <i class="fas fa-eye me-2"></i>@(isBangla ? "দেখুন" : "View PDF")
+                                    </a>
+                                    <a href="@Model.policy.PdfUrl" download class="btn btn-primary">
+                                        <i class="fas fa-download me-2"></i>@(isBangla ? "ডাউনলোড করুন" : "Download PDF")
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-undo me-2"></i>
+                                @(isBangla ? "রিফান্ড ও রিটার্ন নীতি" : "Refund & Return Policy")
+                            </h3>
+                            <div class="content">
+                                @if (isBangla)
+                                {
+                                    <p>আমরা আমাদের দাতাদের সন্তুষ্টির জন্য প্রতিশ্রুতিবদ্ধ। কিছু নির্দিষ্ট পরিস্থিতিতে, দানগুলি ফেরত দেওয়া যেতে পারে।</p>
+                                    
+                                    <h4>রিফান্ডের যোগ্যতা:</h4>
+                                    <ul>
+                                        <li>ডুপ্লিকেট পেমেন্ট বা প্রযুক্তিগত ত্রুটি</li>
+                                        <li>অনিচ্ছাকৃত দান</li>
+                                        <li>ভুল পরিমাণ প্রবেশ করানো</li>
+                                    </ul>
+                                    
+                                    <h4>কীভাবে রিফান্ডের জন্য অনুরোধ করবেন:</h4>
+                                    <ol>
+                                        <li>আমাদের সাথে ইমেল বা ফোনে যোগাযোগ করুন</li>
+                                        <li>আপনার দান রসিদ বা লেনদেন আইডি প্রদান করুন</li>
+                                        <li>রিফান্ডের কারণ ব্যাখ্যা করুন</li>
+                                    </ol>
+                                }
+                                else
+                                {
+                                    <p>We are committed to the satisfaction of our donors. Under certain circumstances, donations may be refunded.</p>
+                                    
+                                    <h4>Refund Eligibility:</h4>
+                                    <ul>
+                                        <li>Duplicate payments or technical errors</li>
+                                        <li>Unintended donations</li>
+                                        <li>Incorrect amount entered</li>
+                                    </ul>
+                                    
+                                    <h4>How to Request a Refund:</h4>
+                                    <ol>
+                                        <li>Contact us via email or phone</li>
+                                        <li>Provide your donation receipt or transaction ID</li>
+                                        <li>Explain the reason for the refund</li>
+                                    </ol>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.settings?.RefundPolicyTimeframe))
+                {
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-clock me-2"></i>
+                            @(isBangla ? "রিফান্ড প্রসেসিং সময়" : "Refund Processing Time")
+                        </h5>
+                        <p class="mb-0">
+                            @(isBangla && !string.IsNullOrEmpty(Model.settings?.RefundPolicyTimeframeBn) 
+                                ? Model.settings.RefundPolicyTimeframeBn 
+                                : Model.settings.RefundPolicyTimeframe)
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-clock me-2"></i>
+                            @(isBangla ? "রিফান্ড প্রসেসিং সময়" : "Refund Processing Time")
+                        </h5>
+                        <p class="mb-0">
+                            @if (isBangla)
+                            {
+                                <text>আপনার রিফান্ডের আবেদন গৃহীত হওয়ার পর <strong>৭-১০ কার্যদিবসের</strong> মধ্যে আপনার একাউন্টে টাকা ফেরত দেওয়া হবে।</text>
+                            }
+                            else
+                            {
+                                <text>Refunds will be processed within <strong>7-10 business days</strong> after your refund request is approved.</text>
+                            }
+                        </p>
+                    </div>
+                }
+
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body p-4 text-center">
+                        <h5 class="mb-3">
+                            <i class="fas fa-question-circle me-2"></i>
+                            @(isBangla ? "প্রশ্ন আছে?" : "Have Questions?")
+                        </h5>
+                        <p class="text-muted mb-3">
+                            @if (isBangla)
+                            {
+                                <text>আমাদের রিফান্ড নীতি সম্পর্কে আরও তথ্যের জন্য অথবা রিফান্ডের অনুরোধ করতে, দয়া করে আমাদের সাথে যোগাযোগ করুন।</text>
+                            }
+                            else
+                            {
+                                <text>For more information about our refund policy or to request a refund, please contact us.</text>
+                            }
+                        </p>
+                        <a href="/about/contact" class="btn btn-primary">
+                            <i class="fas fa-envelope me-2"></i>
+                            @(isBangla ? "যোগাযোগ করুন" : "Contact Us")
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .content {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+    }
+    
+    .content h4 {
+        color: #0077b6;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .content ul, .content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+    
+    .content li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .alert-info {
+        background-color: #e8f4f8;
+        border-color: #00a99d;
+        color: #333;
+    }
+    
+    .alert-info .alert-heading {
+        color: #0077b6;
+    }
+</style>

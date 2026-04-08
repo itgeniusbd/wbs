@@ -30,11 +30,17 @@ namespace WBS.Web.Models
         [StringLength(100)]
         public string? DistrictBn { get; set; }
 
+        public int? DistrictId { get; set; }
+        public District? DistrictObj { get; set; }
+
         [StringLength(100)]
         public string? Thana { get; set; }
 
         [StringLength(100)]
         public string? ThanaBn { get; set; }
+
+        public int? UpazilaId { get; set; }
+        public Upazila? Upazila { get; set; }
 
         [StringLength(100)]
         public string? Union { get; set; }
@@ -57,6 +63,7 @@ namespace WBS.Web.Models
 
         public bool IsActive { get; set; } = true;
         public bool IsFeatured { get; set; }
+        public bool IsRohingyaEvent { get; set; } = false;
 
         public int DisplayOrder { get; set; }
 

@@ -1,0 +1,113 @@
+﻿@model WBS.Web.Models.Gallery
+@{
+    ViewData["Title"] = "Create Gallery";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Galleries</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Gallery</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title (English) <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter gallery title" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TitleBn" class="form-label">Title (বাংলা)</label>
+                        <input asp-for="TitleBn" class="form-control" placeholder="গ্যালারি শিরোনাম লিখুন" />
+                        <span asp-validation-for="TitleBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter gallery description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control" rows="3" placeholder="গ্যালারি বিবরণ লিখুন"></textarea>
+                        <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cover Image</label>
+                        <input type="file" name="coverImageFile" class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Upload a cover image for this gallery (optional)</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" class="form-control" type="number" value="0" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IsActive" class="form-label">Status</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label class="form-check-label" asp-for="IsActive">Active</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Create Gallery
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Information</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Create a gallery first, then add images
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Cover image is optional
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Images will be uploaded to Cloudinary
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Display order determines listing position
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,235 @@
+﻿@model WBS.Web.Models.Story
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    @if (isBangla && !string.IsNullOrEmpty(Model.TitleBn))
+                    {
+                        @Model.TitleBn
+                    }
+                    else
+                    {
+                        @Model.Title
+                    }
+                </h1>
+                @if (!string.IsNullOrEmpty(Model.BeneficiaryName) || !string.IsNullOrEmpty(Model.BeneficiaryNameBn))
+                {
+                    <p class="lead">
+                        @if (isBangla && !string.IsNullOrEmpty(Model.BeneficiaryNameBn))
+                        {
+                            @Model.BeneficiaryNameBn
+                        }
+                        else
+                        {
+                            @Model.BeneficiaryName
+                        }
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="/activities/stories" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                @(isBangla ? "সব গল্প" : "Back to Stories")
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Featured Image -->
+                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                {
+                    <div class="mb-4">
+                        <img src="@Model.FeaturedImage" alt="@Model.Title" class="img-fluid rounded shadow-sm" style="width: 100%; max-height: 500px; object-fit: cover;" />
+                    </div>
+                }
+
+                <!-- Story Summary -->
+                @if (!string.IsNullOrEmpty(Model.Summary) || !string.IsNullOrEmpty(Model.SummaryBn))
+                {
+                    <div class="alert alert-info">
+                        <p class="mb-0 lead">
+                            @if (isBangla && !string.IsNullOrEmpty(Model.SummaryBn))
+                            {
+                                @Model.SummaryBn
+                            }
+                            else
+                            {
+                                @Model.Summary
+                            }
+                        </p>
+                    </div>
+                }
+
+                <!-- Story Content -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        @if (isBangla && !string.IsNullOrEmpty(Model.ContentBn))
+                        {
+                            <div class="story-content" style="white-space: pre-line; line-height: 1.8;">
+                                @Model.ContentBn
+                            </div>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.Content))
+                        {
+                            <div class="story-content" style="white-space: pre-line; line-height: 1.8;">
+                                @Model.Content
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Video -->
+                @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                {
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-video me-2"></i>
+                                @(isBangla ? "ভিডিও" : "Video")
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.VideoUrl.Contains("youtube.com") || Model.VideoUrl.Contains("youtu.be"))
+                            {
+                                var videoId = Model.VideoUrl.Contains("youtube.com") 
+                                    ? Model.VideoUrl.Split("v=")[1].Split("&")[0]
+                                    : Model.VideoUrl.Split("/").Last();
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="https://www.youtube.com/embed/@videoId" 
+                                            title="YouTube video" 
+                                            allowfullscreen></iframe>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-4">
+                                    <a href="@Model.VideoUrl" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>
+                                        @(isBangla ? "ভিডিও দেখুন" : "Watch Video")
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Story Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            @(isBangla ? "গল্পের তথ্য" : "Story Information")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(Model.BeneficiaryName) || !string.IsNullOrEmpty(Model.BeneficiaryNameBn))
+                        {
+                            <div class="mb-3">
+                                <strong>
+                                    <i class="fas fa-user me-2 text-primary"></i>
+                                    @(isBangla ? "সুবিধাভোগী" : "Beneficiary")
+                                </strong>
+                                <p class="mb-0 mt-1">
+                                    @if (isBangla && !string.IsNullOrEmpty(Model.BeneficiaryNameBn))
+                                    {
+                                        @Model.BeneficiaryNameBn
+                                    }
+                                    else
+                                    {
+                                        @Model.BeneficiaryName
+                                    }
+                                </p>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Location) || !string.IsNullOrEmpty(Model.LocationBn))
+                        {
+                            <div class="mb-3">
+                                <strong>
+                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                    @(isBangla ? "স্থান" : "Location")
+                                </strong>
+                                <p class="mb-0 mt-1">
+                                    @if (isBangla && !string.IsNullOrEmpty(Model.LocationBn))
+                                    {
+                                        @Model.LocationBn
+                                    }
+                                    else
+                                    {
+                                        @Model.Location
+                                    }
+                                </p>
+                            </div>
+                        }
+
+                        <div class="mb-0">
+                            <strong>
+                                <i class="fas fa-calendar me-2 text-primary"></i>
+                                @(isBangla ? "তারিখ" : "Date")
+                            </strong>
+                            <p class="mb-0 mt-1">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share Section -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-share-alt me-2"></i>
+                            @(isBangla ? "শেয়ার করুন" : "Share This Story")
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=@Context.Request.Scheme://@Context.Request.Host@Context.Request.Path" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                <i class="fab fa-facebook me-2"></i> Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url=@Context.Request.Scheme://@Context.Request.Host@Context.Request.Path&text=@Model.Title" 
+                               target="_blank" 
+                               class="btn btn-info text-white">
+                                <i class="fab fa-twitter me-2"></i> Twitter
+                            </a>
+                            <a href="https://wa.me/?text=@Model.Title%20@Context.Request.Scheme://@Context.Request.Host@Context.Request.Path" 
+                               target="_blank" 
+                               class="btn btn-success">
+                                <i class="fab fa-whatsapp me-2"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .story-content {
+        font-size: 1.1rem;
+        color: #333;
+    }
+    .story-content p {
+        margin-bottom: 1.5rem;
+    }
+</style>

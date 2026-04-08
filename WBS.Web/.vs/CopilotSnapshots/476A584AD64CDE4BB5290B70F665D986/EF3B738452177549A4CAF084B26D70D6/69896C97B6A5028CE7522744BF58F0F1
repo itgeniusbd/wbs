@@ -1,0 +1,189 @@
+﻿@model WBS.Web.Models.Career
+
+@{
+    ViewData["Title"] = "Create Career Posting";
+}
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Create New Career Posting</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" id="careerForm">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Title" class="form-label">Job Title (English) *</label>
+                            <input asp-for="Title" class="form-control" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TitleBn" class="form-label">Job Title (Bangla)</label>
+                            <input asp-for="TitleBn" class="form-control bangla-text" style="font-family: 'Noto Sans Bengali', sans-serif;" />
+                            <span asp-validation-for="TitleBn" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Department" class="form-label">Department</label>
+                            <input asp-for="Department" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Location" class="form-label">Location</label>
+                            <input asp-for="Location" class="form-control" placeholder="e.g., Dhaka, Bangladesh" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="JobType" class="form-label">Job Type</label>
+                            <select asp-for="JobType" class="form-select">
+                                <option value="">Select Type</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Temporary">Temporary</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SalaryRange" class="form-label">Salary Range</label>
+                            <input asp-for="SalaryRange" class="form-control" placeholder="e.g., ?40,000 - ?60,000" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Deadline" class="form-label">Application Deadline</label>
+                            <input asp-for="Deadline" type="date" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Job Description (English)</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" id="description"></textarea>
+                        <small class="form-text text-muted">You can use HTML for formatting</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DescriptionBn" class="form-label">Job Description (Bangla)</label>
+                        <textarea asp-for="DescriptionBn" class="form-control bangla-text" rows="5" id="descriptionBn" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Requirements" class="form-label">Requirements & Qualifications (English)</label>
+                        <textarea asp-for="Requirements" class="form-control" rows="5" id="requirements"></textarea>
+                        <small class="form-text text-muted">You can use HTML for formatting</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="RequirementsBn" class="form-label">Requirements & Qualifications (Bangla)</label>
+                        <textarea asp-for="RequirementsBn" class="form-control bangla-text" rows="5" id="requirementsBn" style="font-family: 'Noto Sans Bengali', sans-serif;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Benefits" class="form-label">Benefits</label>
+                        <textarea asp-for="Benefits" class="form-control" rows="4" id="benefits"></textarea>
+                        <small class="form-text text-muted">You can use HTML for formatting</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ApplicationEmail" class="form-label">Application Email</label>
+                            <input asp-for="ApplicationEmail" type="email" class="form-control" placeholder="careers@wbs.org" />
+                            <small class="form-text text-muted">Email to receive applications</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ApplicationUrl" class="form-label">Application URL</label>
+                            <input asp-for="ApplicationUrl" type="url" class="form-control" placeholder="https://..." />
+                            <small class="form-text text-muted">Optional: External application form link</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Create Career Posting
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <!-- TinyMCE for rich text editing -->
+    <script src="https://cdn.tiny.cloud/1/n1fpf3wpeclihcz9psst291ddqjsarc29lxbuozp1k93o5iu/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        console.log('Initializing TinyMCE editors...');
+        
+        tinymce.init({
+            selector: '#description, #requirements, #benefits',
+            height: 300,
+            menubar: false,
+            plugins: 'lists link code',
+            toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link | code',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            setup: function(editor) {
+                editor.on('init', function() {
+                    console.log('TinyMCE editor initialized for: ' + editor.id);
+                });
+            }
+        });
+        
+        tinymce.init({
+            selector: '#descriptionBn, #requirementsBn',
+            height: 300,
+            menubar: false,
+            plugins: 'lists link code',
+            toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link | code',
+            content_style: "body { font-family: 'Noto Sans Bengali', 'SolaimanLipi', sans-serif; font-size: 14px; }",
+            setup: function(editor) {
+                editor.on('init', function() {
+                    console.log('TinyMCE Bengali editor initialized for: ' + editor.id);
+                });
+            }
+        });
+
+        // Handle form submission
+        $('#careerForm').on('submit', function(e) {
+            console.log('Form submit triggered');
+            
+            // Trigger TinyMCE to save content to textarea
+            if (typeof tinymce !== 'undefined') {
+                tinymce.triggerSave();
+                console.log('TinyMCE content saved to textareas');
+            }
+            
+            // Check if form is valid
+            if (!$(this).valid()) {
+                console.log('Form validation failed');
+                e.preventDefault();
+                return false;
+            }
+            
+            console.log('Form is valid, submitting...');
+            return true;
+        });
+
+        // Add submit button click handler
+        $('button[type="submit"]').on('click', function(e) {
+            console.log('Submit button clicked');
+        });
+    </script>
+}

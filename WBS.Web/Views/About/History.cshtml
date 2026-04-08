@@ -1,0 +1,158 @@
+﻿@model WBS.Web.Models.History
+@using WBS.Web.Helpers
+@{
+    ViewData["Title"] = LanguageHelper.IsEnglish(Context) ? "Our History" : "আমাদের ইতিহাস";
+    var isEnglish = LanguageHelper.IsEnglish(Context);
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "Our History" : "আমাদের ইতিহাস")
+                </h1>
+                <p class="lead" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                    @(isEnglish ? "The journey of our organization" : "আমাদের প্রতিষ্ঠানের যাত্রা")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        @if (Model != null)
+        {
+            <div class="row mb-5">
+                <div class="col-12">
+                    @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                    {
+                        <div class="featured-image-container mb-4">
+                            <img src="@Model.FeaturedImage" alt="@(isEnglish ? Model.Title : (Model.TitleBn ?? Model.Title))" 
+                                 class="img-fluid rounded shadow-lg w-100" 
+                                 style="max-height: 500px; object-fit: cover;" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-5">
+                            <h2 class="card-title mb-4 text-primary" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                @if (isEnglish)
+                                {
+                                    @Model.Title
+                                }
+                                else
+                                {
+                                    @if (!string.IsNullOrEmpty(Model.TitleBn))
+                                    {
+                                        @Model.TitleBn
+                                    }
+                                    else
+                                    {
+                                        @Model.Title
+                                    }
+                                }
+                            </h2>
+
+                            <div class="history-content" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                @if (isEnglish)
+                                {
+                                    @Html.Raw(Model.Content)
+                                }
+                                else
+                                {
+                                    @if (!string.IsNullOrEmpty(Model.ContentBn))
+                                    {
+                                        @Html.Raw(Model.ContentBn)
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            বাংলা কন্টেন্ট শীঘ্রই যোগ করা হবে। ইংরেজি সংস্করণ নিচে দেখুন:
+                                        </div>
+                                        @Html.Raw(Model.Content)
+                                    }
+                                }
+                            </div>
+
+                            @if (Model.CreatedAt != default(DateTime))
+                            {
+                                <div class="text-muted mt-4 pt-4 border-top">
+                                    <small style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                        <i class="far fa-calendar me-2"></i>
+                                        @(isEnglish ? "Published on" : "প্রকাশিত") @Model.CreatedAt.ToString("dd MMMM yyyy")
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-history fa-4x text-muted mb-3"></i>
+                            <h3 class="text-muted" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                @(isEnglish ? "History content is being updated" : "ইতিহাসের বিষয়বস্তু আপডেট করা হচ্ছে")
+                            </h3>
+                            <p class="text-muted" style="@(!isEnglish ? "font-family: 'Noto Sans Bengali', sans-serif;" : "")">
+                                @(isEnglish ? "Please check back later." : "পরে আবার চেক করুন।")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<style>
+    .history-content {
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .history-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .history-content h3, .history-content h4 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #0077b6;
+    }
+
+    .history-content ul, .history-content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .history-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .featured-image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .featured-image-container img {
+        transition: transform 0.3s ease;
+    }
+
+    .featured-image-container:hover img {
+        transform: scale(1.02);
+    }
+</style>

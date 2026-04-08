@@ -1,0 +1,275 @@
+﻿@model WBS.Web.Models.Appeal
+@{
+    ViewData["Title"] = "Create Appeal";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-plus-circle me-2"></i>Create New Appeal
+            </h2>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <h5>Please fix the following errors:</h5>
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" id="appealForm">
+        @Html.AntiForgeryToken()
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Appeal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Title *</label>
+                            <input asp-for="Title" class="form-control" placeholder="e.g., Help Rohingya Refugees" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TitleBn" class="form-label">Title (বাংলা)</label>
+                            <input asp-for="TitleBn" class="form-control" placeholder="বাংলা শিরোনাম" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Summary" class="form-label">Summary *</label>
+                            <textarea asp-for="Summary" class="form-control" rows="3" 
+                                      placeholder="Brief summary of the appeal..." required></textarea>
+                            <span asp-validation-for="Summary" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SummaryBn" class="form-label">Summary (বাংলা)</label>
+                            <textarea asp-for="SummaryBn" class="form-control" rows="3" 
+                                      placeholder="সংক্ষিপ্ত বিবরণ..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Full Content</label>
+                            <textarea asp-for="Content" class="form-control" rows="6" 
+                                      placeholder="Full description..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContentBn" class="form-label">Full Content (বাংলা)</label>
+                            <textarea asp-for="ContentBn" class="form-control" rows="6" 
+                                      placeholder="সম্পূর্ণ বিবরণ..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Images</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="featuredImage" class="form-label">Featured Image *</label>
+                            <input type="file" class="form-control" id="featuredImage" 
+                                   name="featuredImage" accept="image/*" required />
+                            <small class="text-muted">Recommended size: 1200x630px (Required)</small>
+                            <div id="featuredImagePreview" class="mt-2" style="display:none;">
+                                <img id="featuredImageImg" src="" style="max-width: 200px; height: auto; border-radius: 5px;" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bannerImage" class="form-label">Banner Image</label>
+                            <input type="file" class="form-control" id="bannerImage" 
+                                   name="bannerImage" accept="image/*" />
+                            <small class="text-muted">Recommended size: 1920x500px (Optional)</small>
+                            <div id="bannerImagePreview" class="mt-2" style="display:none;">
+                                <img id="bannerImageImg" src="" style="max-width: 300px; height: auto; border-radius: 5px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">Goal & Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="TargetAmount" class="form-label">Target Amount (?)</label>
+                            <input asp-for="TargetAmount" type="number" class="form-control" 
+                                   min="0" step="0.01" placeholder="0.00" />
+                            <small class="text-muted">Leave empty for ongoing appeal</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AppealType" class="form-label">Appeal Type</label>
+                            <select asp-for="AppealType" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Regular">Regular</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Special">Special</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StartDate" class="form-label">Start Date</label>
+                            <input asp-for="StartDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EndDate" class="form-label">End Date</label>
+                            <input asp-for="EndDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsFeatured" class="form-check-label">
+                                Featured Appeal
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsUrgent" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsUrgent" class="form-check-label">
+                                Mark as Urgent
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Help</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small mb-2"><strong>Required Fields:</strong></p>
+                        <ul class="small">
+                            <li>Title</li>
+                            <li>Summary</li>
+                            <li>Featured Image</li>
+                        </ul>
+                        <hr />
+                        <p class="small mb-0"><strong>Tips:</strong></p>
+                        <ul class="small mb-0">
+                            <li>Write compelling titles</li>
+                            <li>Use high-quality images</li>
+                            <li>Set realistic goals</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <i class="fas fa-save me-1"></i>Create Appeal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Image preview for featured image
+        document.getElementById('featuredImage').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('featuredImageImg').src = e.target.result;
+                    document.getElementById('featuredImagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Image preview for banner image
+        document.getElementById('bannerImage').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('bannerImageImg').src = e.target.result;
+                    document.getElementById('bannerImagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission validation
+        document.getElementById('appealForm').addEventListener('submit', function(e) {
+            var submitBtn = document.getElementById('submitBtn');
+            
+            // Check required fields
+            var title = document.querySelector('[name="Title"]').value.trim();
+            var summary = document.querySelector('[name="Summary"]').value.trim();
+            var featuredImage = document.querySelector('[name="featuredImage"]').files.length;
+            
+            if (!title) {
+                e.preventDefault();
+                alert('Title is required!');
+                document.querySelector('[name="Title"]').focus();
+                return false;
+            }
+            
+            if (!summary) {
+                e.preventDefault();
+                alert('Summary is required!');
+                document.querySelector('[name="Summary"]').focus();
+                return false;
+            }
+            
+            if (featuredImage === 0) {
+                e.preventDefault();
+                alert('Featured Image is required!');
+                document.getElementById('featuredImage').focus();
+                return false;
+            }
+            
+            // Disable button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating...';
+            
+            // Allow form to submit
+            return true;
+        });
+    </script>
+}

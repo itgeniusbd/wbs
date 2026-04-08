@@ -1,0 +1,148 @@
+﻿@model WBS.Web.Models.SDG
+@{
+    ViewData["Title"] = "Edit SDG";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-edit me-2"></i>Edit SDG
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Image" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Number" class="form-label">SDG Number *</label>
+                                <input asp-for="Number" class="form-control" />
+                                <span asp-validation-for="Number" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DisplayOrder" class="form-label">Display Order *</label>
+                                <input asp-for="DisplayOrder" class="form-control" />
+                                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Name (English) *</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NameBn" class="form-label">Name (বাংলা) *</label>
+                            <input asp-for="NameBn" class="form-control" />
+                            <span asp-validation-for="NameBn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description (English)</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DescriptionBn" class="form-label">Description (বাংলা)</label>
+                            <textarea asp-for="DescriptionBn" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="DescriptionBn" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Color" class="form-label">Color *</label>
+                            <div class="input-group">
+                                <input asp-for="Color" type="color" class="form-control form-control-color" />
+                                <input asp-for="Color" type="text" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Color" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imageFile" class="form-label">SDG Image</label>
+                            @if (!string.IsNullOrEmpty(Model.Image))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.Image" alt="Current Image" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px;" />
+                                    <p class="small text-muted mb-0">Current image</p>
+                                </div>
+                            }
+                            <input type="file" class="form-control" id="imageFile" name="imageFile" accept="image/*" />
+                            <small class="text-muted">Upload new image to replace current one (PNG, JPG, max 2MB)</small>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Update SDG
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>SDG Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-3" style="background-color: @Model.Color; width: 120px; height: 120px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <h1 class="text-white mb-0">@Model.Number</h1>
+                        </div>
+                        <h5>@Model.Name</h5>
+                        <p class="text-muted">@Model.NameBn</p>
+                    </div>
+
+                    <hr />
+
+                    <h6>Related Sectors</h6>
+                    @if (Model.Sectors.Any())
+                    {
+                        <ul class="small">
+                            @foreach (var sector in Model.Sectors)
+                            {
+                                <li>@sector.Name</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="small text-muted">No sectors linked yet</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,119 @@
+@model WBS.Web.ViewModels.EditRoleViewModel
+
+@{
+    ViewData["Title"] = "Edit Role";
+    var permissionGroups = ViewBag.PermissionGroups as List<WBS.Web.ViewModels.PermissionGroupViewModel>;
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2><i class="fas fa-user-shield"></i> Edit Role</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Role Name <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h4 class="mb-3">Permissions</h4>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllPermissions()">
+                        <i class="fas fa-check-double"></i> Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllPermissions()">
+                        <i class="fas fa-times"></i> Deselect All
+                    </button>
+                </div>
+
+                @if (permissionGroups != null)
+                {
+                    <div class="accordion" id="permissionsAccordion">
+                        @for (int i = 0; i < permissionGroups.Count; i++)
+                        {
+                            var group = permissionGroups[i];
+                            var collapseId = "collapse" + i;
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button @(i == 0 ? "" : "collapsed")" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                                        <i class="fas fa-folder-open me-2"></i> @group.Module
+                                        <span class="badge bg-secondary ms-2">@group.Permissions.Count</span>
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse @(i == 0 ? "show" : "")" 
+                                     data-bs-parent="#permissionsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            @foreach (var permission in group.Permissions)
+                                            {
+                                                <div class="col-md-3 mb-2">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" name="SelectedPermissions" value="@permission.Id" 
+                                                               class="form-check-input permission-checkbox" 
+                                                               id="permission_@permission.Id"
+                                                               @(permission.IsGranted ? "checked" : "") />
+                                                        <label class="form-check-label" for="permission_@permission.Id">
+                                                            @permission.Name
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Role
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function selectAllPermissions() {
+            $('.permission-checkbox').prop('checked', true);
+        }
+
+        function deselectAllPermissions() {
+            $('.permission-checkbox').prop('checked', false);
+        }
+    </script>
+}

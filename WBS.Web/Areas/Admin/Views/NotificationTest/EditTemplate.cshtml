@@ -1,0 +1,156 @@
+@model WBS.Web.Models.NotificationTemplate
+@{
+    ViewData["Title"] = "Edit Notification Template";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-edit me-2"></i>Edit Notification Template</h2>
+    <a asp-action="Templates" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Templates
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="EditTemplate" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <input type="hidden" asp-for="CreatedBy" />
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label asp-for="TemplateType" class="form-label"></label>
+                    <select asp-for="TemplateType" class="form-select" id="templateType">
+                        <option value="SMS">SMS</option>
+                        <option value="Email">Email</option>
+                    </select>
+                    <span asp-validation-for="TemplateType" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DonationTypeId" class="form-label">Donation Type (Optional)</label>
+                    <select asp-for="DonationTypeId" class="form-select" asp-items="ViewBag.DonationTypes">
+                        <option value="">All Types (General)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <input asp-for="Category" class="form-control" />
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+
+            <!-- SMS Content Section -->
+            <div id="smsSection" style="display: @(Model.TemplateType == "SMS" ? "block" : "none")">
+                <div class="mb-3">
+                    <label asp-for="SmsContent" class="form-label">SMS Message</label>
+                    <textarea asp-for="SmsContent" class="form-control" rows="4" id="smsContent"></textarea>
+                    <span asp-validation-for="SmsContent" class="text-danger"></span>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small class="form-text text-muted">
+                            Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}
+                        </small>
+                        <small class="form-text text-muted" id="smsLength">@(Model.SmsContent?.Length ?? 0) characters</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Content Section -->
+            <div id="emailSection" style="display: @(Model.TemplateType == "Email" ? "block" : "none")">
+                <div class="mb-3">
+                    <label asp-for="EmailSubject" class="form-label">Email Subject</label>
+                    <input asp-for="EmailSubject" class="form-control" />
+                    <span asp-validation-for="EmailSubject" class="text-danger"></span>
+                    <small class="form-text text-muted">
+                        Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}, {Date}
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EmailContent" class="form-label">Email Content (HTML)</label>
+                    <textarea asp-for="EmailContent" class="form-control" rows="15"></textarea>
+                    <span asp-validation-for="EmailContent" class="text-danger"></span>
+                    <small class="form-text text-muted">
+                        Available: {DonorName}, {Amount}, {DonationType}, {TransactionId}, {Date}
+                    </small>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsDefault" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsDefault" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">Use this template when no specific template is found</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Templates" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Template
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Toggle between SMS and Email sections
+        document.getElementById('templateType').addEventListener('change', function() {
+            const smsSection = document.getElementById('smsSection');
+            const emailSection = document.getElementById('emailSection');
+            
+            if (this.value === 'SMS') {
+                smsSection.style.display = 'block';
+                emailSection.style.display = 'none';
+            } else {
+                smsSection.style.display = 'none';
+                emailSection.style.display = 'block';
+            }
+        });
+
+        // SMS character counter
+        const smsContent = document.getElementById('smsContent');
+        const smsLength = document.getElementById('smsLength');
+        
+        if (smsContent) {
+            smsContent.addEventListener('input', function() {
+                smsLength.textContent = this.value.length + ' characters';
+                if (this.value.length > 160) {
+                    smsLength.classList.add('text-danger');
+                } else {
+                    smsLength.classList.remove('text-danger');
+                }
+            });
+            
+            // Trigger on page load
+            smsContent.dispatchEvent(new Event('input'));
+        }
+    </script>
+}

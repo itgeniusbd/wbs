@@ -1,0 +1,305 @@
+﻿@model WBS.Web.Models.Career
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = Model.Title;
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
+}
+
+<section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-white">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent mb-3">
+                        <li class="breadcrumb-item"><a href="/" class="text-white">@(isBangla ? "হোম" : "Home")</a></li>
+                        <li class="breadcrumb-item"><a href="/getinvolved/career" class="text-white">@(isBangla ? "ক্যারিয়ার" : "Career")</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">@(isBangla && !string.IsNullOrEmpty(Model.TitleBn) ? Model.TitleBn : Model.Title)</li>
+                    </ol>
+                </nav>
+                <h1 class="display-4 fw-bold mb-3">@(isBangla && !string.IsNullOrEmpty(Model.TitleBn) ? Model.TitleBn : Model.Title)</h1>
+                <div class="d-flex flex-wrap gap-3">
+                    @if (!string.IsNullOrEmpty(Model.JobType))
+                    {
+                        <span class="badge bg-white text-primary px-3 py-2">@Model.JobType</span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Location))
+                    {
+                        <span class="badge bg-white text-primary px-3 py-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>@Model.Location
+                        </span>
+                    }
+                    @if (Model.Deadline.HasValue)
+                    {
+                        <span class="badge bg-white text-primary px-3 py-2">
+                            <i class="far fa-calendar me-2"></i>@(isBangla ? "সময়সীমা" : "Deadline"): @Model.Deadline.Value.ToString("MMM dd, yyyy")
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="mb-3">@(isBangla ? "চাকরির বিবরণ" : "Job Description")</h3>
+                        @if (!string.IsNullOrEmpty(Model.Description) || !string.IsNullOrEmpty(Model.DescriptionBn))
+                        {
+                            var description = isBangla && !string.IsNullOrEmpty(Model.DescriptionBn) ? Model.DescriptionBn : Model.Description;
+                            <div>@Html.Raw(description)</div>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Requirements) || !string.IsNullOrEmpty(Model.RequirementsBn))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h3 class="mb-3">@(isBangla ? "যোগ্যতা ও প্রয়োজনীয়তা" : "Requirements & Qualifications")</h3>
+                            <div>@Html.Raw(isBangla && !string.IsNullOrEmpty(Model.RequirementsBn) ? Model.RequirementsBn : Model.Requirements)</div>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Benefits))
+                {
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h3 class="mb-3">@(isBangla ? "সুবিধাসমূহ" : "Benefits")</h3>
+                            <div>@Html.Raw(Model.Benefits)</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">@(isBangla ? "চাকরির তথ্য" : "Job Information")</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(Model.Department))
+                        {
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">@(isBangla ? "বিভাগ" : "Department")</h6>
+                                <p class="mb-0">@Model.Department</p>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">@(isBangla ? "অবস্থান" : "Location")</h6>
+                                <p class="mb-0">@Model.Location</p>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.JobType))
+                        {
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">@(isBangla ? "চাকরির ধরন" : "Job Type")</h6>
+                                <p class="mb-0">@Model.JobType</p>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.SalaryRange))
+                        {
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">@(isBangla ? "বেতন সীমা" : "Salary Range")</h6>
+                                <p class="mb-0">@Model.SalaryRange</p>
+                            </div>
+                        }
+
+                        @if (Model.Deadline.HasValue)
+                        {
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">@(isBangla ? "আবেদনের শেষ তারিখ" : "Application Deadline")</h6>
+                                <p class="mb-0">@Model.Deadline.Value.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-1">@(isBangla ? "পোস্ট করা হয়েছে" : "Posted On")</h6>
+                            <p class="mb-0">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                        </div>
+
+                        <hr />
+
+                        <h5 class="mb-3">@(isBangla ? "আবেদন করুন" : "Apply Now")</h5>
+                        
+                        <button type="button" class="btn btn-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#applyModal" 
+                                data-career-id="@Model.Id" data-career-title="@Model.Title">
+                            <i class="fas fa-paper-plane me-2"></i>@(isBangla ? "অনলাইনে আবেদন করুন" : "Apply Online")
+                        </button>
+                        
+                        @if (!string.IsNullOrEmpty(Model.ApplicationEmail))
+                        {
+                            <p class="text-center text-muted small mb-2">@(isBangla ? "অথবা" : "Or")</p>
+                            <a href="mailto:@Model.ApplicationEmail" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-envelope me-2"></i>@(isBangla ? "ইমেইলে আবেদন করুন" : "Apply via Email")
+                            </a>
+                            <p class="text-muted small mb-0 text-center">
+                                @(isBangla ? "পাঠান:" : "Send to:") @Model.ApplicationEmail
+                            </p>
+                        }
+
+                        <div class="alert alert-info mt-3 mb-0">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                @(isBangla ? "আবেদন করার সময় অনুগ্রহ করে পদের শিরোনাম উল্লেখ করুন।" : "Please mention the job title when applying.")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="/getinvolved/career" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>@(isBangla ? "সব চাকরি দেখুন" : "View All Jobs")
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Application Modal -->
+<div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="applyModalLabel">
+                    <i class="fas fa-briefcase me-2"></i>@(isBangla ? "চাকরির জন্য আবেদন করুন" : "Apply for Position")
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="GetInvolved" asp-action="ApplyForCareer" method="post" enctype="multipart/form-data" id="applicationForm">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>@(isBangla ? "আবেদন করছেন:" : "Applying for:")</strong> @Model.Title
+                    </div>
+                    
+                    <input type="hidden" name="CareerIdForest" value="@Model.Id" />
+                    <input type="hidden" name="PositionAppliedFor" value="@Model.Title" />
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "পূর্ণ নাম" : "Full Name") <span class="text-danger">*</span></label>
+                            <input type="text" name="FullName" class="form-control" required 
+                                   placeholder="@(isBangla ? "আপনার পূর্ণ নাম লিখুন" : "Enter your full name")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "ইমেইল" : "Email") <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control" required 
+                                   placeholder="@(isBangla ? "আপনার ইমেইল ঠিকানা" : "your@email.com")" />
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "ফোন নম্বর" : "Phone Number")</label>
+                            <input type="tel" name="Phone" class="form-control" 
+                                   placeholder="@(isBangla ? "০১৭XXXXXXXXX" : "+880 1XXXXXXXXX")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "ঠিকানা" : "Address")</label>
+                            <input type="text" name="Address" class="form-control" 
+                                   placeholder="@(isBangla ? "আপনার ঠিকানা" : "Your address")" />
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "শিক্ষাগত যোগ্যতা" : "Education")</label>
+                            <input type="text" name="Education" class="form-control" 
+                                   placeholder="@(isBangla ? "যেমন: স্নাতক, MBA" : "e.g., Bachelor's, MBA")" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@(isBangla ? "অভিজ্ঞতা (বছর)" : "Experience (Years)")</label>
+                            <input type="text" name="Experience" class="form-control" 
+                                   placeholder="@(isBangla ? "যেমন: ৫ বছর" : "e.g., 5 years")" />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "দক্ষতা" : "Skills")</label>
+                        <textarea name="Skills" class="form-control" rows="2" 
+                                  placeholder="@(isBangla ? "আপনার মূল দক্ষতাগুলি লিখুন" : "List your key skills")"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "CV আপলোড করুন" : "Upload CV") <span class="text-danger">*</span></label>
+                        <input type="file" name="cvFile" id="cvFileInput" class="form-control" 
+                               accept=".pdf,.doc,.docx" required />
+                        <small class="form-text text-muted">
+                            @(isBangla ? "PDF, DOC, অথবা DOCX (সর্বোচ্চ 5MB)" : "PDF, DOC, or DOCX (Max 5MB)")
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">@(isBangla ? "কভার লেটার (ঐচ্ছিক)" : "Cover Letter (Optional)")</label>
+                        <textarea name="CoverLetter" class="form-control" rows="4" 
+                                  placeholder="@(isBangla ? "কেন আপনি এই পদের জন্য উপযুক্ত তা বলুন..." : "Tell us why you're a good fit for this position...")"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>@(isBangla ? "বাতিল" : "Cancel")
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>@(isBangla ? "আবেদন জমা দিন" : "Submit Application")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // File upload validation
+        $('#cvFileInput').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                // Check file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('@(isBangla ? "ফাইলের আকার অবশ্যই ৫MB এর কম হতে হবে!" : "File size must be less than 5MB!")');
+                    $(this).val('');
+                    return;
+                }
+                
+                // Check file type
+                var allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('@(isBangla ? "শুধুমাত্র PDF, DOC, অথবা DOCX ফাইল আপলোড করুন!" : "Please upload only PDF, DOC, or DOCX files!")');
+                    $(this).val('');
+                    return;
+                }
+                
+                console.log('CV file selected:', file.name, 'Size:', file.size, 'bytes');
+            }
+        });
+        
+        // Form submission
+        $('#applicationForm').on('submit', function(e) {
+            console.log('Submitting application for: @Model.Title');
+            
+            // Validate CV file
+            var cvFile = $('#cvFileInput')[0].files[0];
+            if (!cvFile) {
+                e.preventDefault();
+                alert('@(isBangla ? "অনুগ্রহ করে আপনার CV আপলোড করুন!" : "Please upload your CV!")');
+                return false;
+            }
+            
+            // Show loading indicator
+            $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>@(isBangla ? "জমা দেওয়া হচ্ছে..." : "Submitting...")');
+        });
+    </script>
+}

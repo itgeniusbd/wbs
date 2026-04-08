@@ -1,0 +1,232 @@
+@model WBS.Web.ViewModels.WhereWeWorkViewModel
+@using WBS.Web.Helpers
+@{
+    ViewData["Title"] = LanguageHelper.IsEnglish(Context) ? "Where We Work" : "???? ?????? ??? ???";
+    var isEnglish = LanguageHelper.IsEnglish(Context);
+    var timestamp = DateTime.Now.Ticks; // For cache busting
+}
+
+@section Styles {
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%);
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .map-container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+    }
+
+    .map-section {
+        position: relative;
+        padding: 20px;
+    }
+
+    #bangladeshMap {
+        width: 100%;
+        min-height: 600px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: block !important;
+        position: relative;
+    }
+
+    #bangladeshMap svg {
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+</style>
+}
+
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container position-relative">
+        <div class="row">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    @(isEnglish ? "Where We Work" : "???? ?????? ??? ???")
+                </h1>
+                <p class="lead">
+                    @(isEnglish ? "Our presence across Bangladesh" : "???????? ????? ?????? ????????")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12">
+                <h2 class="section-title">
+                    @(isEnglish ? "Bangladesh Map" : "?????????? ????????")
+                </h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="map-container">
+                    <div class="map-section">
+                        <!-- NEW CLEAN MAP DIV -->
+                        <div id="bangladeshMap"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+console.log('%c??? FRESH MAP START', 'background: #00a99d; color: white; padding: 10px; font-size: 16px; font-weight: bold');
+
+// District data from server
+var districts = @Html.Raw(Json.Serialize(Model.DistrictWorkInfos.Where(d => d.HasWork && d.Latitude.HasValue && d.Longitude.HasValue).Select(d => new {
+    name = isEnglish ? d.DistrictName : d.DistrictNameBn,
+    lat = d.Latitude.Value,
+    lng = d.Longitude.Value,
+    upazilas = d.CoveredUpazilas
+})));
+
+console.log('Districts to display:', districts);
+
+function createBangladeshMap() {
+    var mapDiv = document.getElementById('bangladeshMap');
+    if (!mapDiv) {
+        console.error('Map div not found!');
+        return;
+    }
+    
+    console.log('Creating SVG...');
+    
+    // Create SVG
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 1000 1200');
+    svg.setAttribute('style', 'width: 100%; height: 600px; display: block;');
+    
+    // Background
+    var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('width', '1000');
+    bg.setAttribute('height', '1200');
+    bg.setAttribute('fill', '#e3f2fd');
+    svg.appendChild(bg);
+    
+    // Bangladesh detailed outline
+    var countryPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    var d = 'M 400,50 L 450,80 Q 480,90 500,110 L 550,140 Q 570,160 580,190 L 600,230 ' +
+            'Q 620,260 640,300 L 650,350 Q 655,390 650,430 L 640,480 ' +
+            'Q 635,520 620,560 L 600,600 Q 590,630 580,660 L 570,700 Q 565,730 555,760 L 545,800 ' +
+            'Q 540,820 530,840 L 520,860 Q 500,880 480,890 L 450,900 ' +
+            'Q 420,905 390,900 L 350,890 Q 320,885 290,880 L 250,870 Q 220,865 190,855 L 150,840 ' +
+            'Q 130,830 120,810 L 110,780 Q 105,750 100,720 L 95,680 Q 92,650 95,620 L 100,580 ' +
+            'Q 105,550 115,520 L 130,480 Q 140,450 155,420 L 175,380 Q 190,350 210,320 ' +
+            'L 235,280 Q 255,250 275,220 L 300,180 Q 320,150 340,130 L 365,100 Q 385,70 400,50 Z';
+    
+    countryPath.setAttribute('d', d);
+    countryPath.setAttribute('fill', '#bbdefb');
+    countryPath.setAttribute('stroke', '#0077b6');
+    countryPath.setAttribute('stroke-width', '3');
+    svg.appendChild(countryPath);
+    
+    // Add district markers
+    districts.forEach(function(district, index) {
+        // Convert lat/lng to SVG coordinates
+        var x = ((district.lng - 88.0) / 4.7) * 800 + 100;
+        var y = ((26.6 - district.lat) / 6.1) * 1100 + 50;
+        
+        // Pulsing circle
+        var pulseCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pulseCircle.setAttribute('cx', x);
+        pulseCircle.setAttribute('cy', y);
+        pulseCircle.setAttribute('r', '20');
+        pulseCircle.setAttribute('fill', '#00a99d');
+        pulseCircle.setAttribute('opacity', '0.3');
+        
+        var animate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+        animate.setAttribute('attributeName', 'r');
+        animate.setAttribute('values', '20;25;20');
+        animate.setAttribute('dur', '2s');
+        animate.setAttribute('repeatCount', 'indefinite');
+        pulseCircle.appendChild(animate);
+        svg.appendChild(pulseCircle);
+        
+        // Main marker
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', '12');
+        circle.setAttribute('fill', '#00a99d');
+        circle.setAttribute('stroke', '#ffffff');
+        circle.setAttribute('stroke-width', '3');
+        circle.style.cursor = 'pointer';
+        svg.appendChild(circle);
+        
+        // WBS Text
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y + 3);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '8');
+        text.setAttribute('font-weight', 'bold');
+        text.setAttribute('fill', '#ffffff');
+        text.textContent = 'WBS';
+        svg.appendChild(text);
+        
+        // District name label
+        var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', y - 20);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('fill', '#333');
+        label.textContent = district.name;
+        svg.appendChild(label);
+        
+        console.log('Added marker for:', district.name, 'at', x, y);
+    });
+    
+    // Title
+    var title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('x', '500');
+    title.setAttribute('y', '1150');
+    title.setAttribute('text-anchor', 'middle');
+    title.setAttribute('font-size', '20');
+    title.setAttribute('font-weight', 'bold');
+    title.setAttribute('fill', '#00a99d');
+    title.textContent = '@(isEnglish ? "Bangladesh - WBS Working Areas" : "???????? - WBS ?????????")';
+    svg.appendChild(title);
+    
+    // Clear and render
+    mapDiv.innerHTML = '';
+    mapDiv.appendChild(svg);
+    
+    console.log('%c? MAP RENDERED!', 'background: green; color: white; padding: 10px; font-size: 14px; font-weight: bold');
+    console.log('Total elements in SVG:', svg.children.length);
+}
+
+// Execute immediately
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createBangladeshMap);
+} else {
+    createBangladeshMap();
+}
+</script>
+}

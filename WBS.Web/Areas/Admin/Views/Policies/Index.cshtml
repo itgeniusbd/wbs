@@ -1,0 +1,87 @@
+@model IEnumerable<WBS.Web.Models.Policy>
+
+@{
+    ViewData["Title"] = "Policies & Guidelines";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Policies & Guidelines</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Policy
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Icon</th>
+                            <th>Title</th>
+                            <th>PDF</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var policy in Model)
+                        {
+                            <tr>
+                                <td>@policy.DisplayOrder</td>
+                                <td><i class="@policy.Icon"></i></td>
+                                <td>
+                                    <div>@policy.Title</div>
+                                    @if (!string.IsNullOrEmpty(policy.TitleBn))
+                                    {
+                                        <small class="text-muted bangla-text">@policy.TitleBn</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(policy.PdfUrl))
+                                    {
+                                        <a asp-action="ViewPDF" asp-route-id="@policy.Id" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View PDF
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No PDF</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (policy.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@policy.Id" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@policy.Id" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No policies have been added yet. Click "Add New Policy" to create one.
+            </div>
+        }
+    </div>
+</div>

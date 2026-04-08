@@ -1,0 +1,228 @@
+﻿@model WBS.Web.Models.Appeal
+@{
+    ViewData["Title"] = "Edit Appeal";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-edit me-2"></i>Edit Appeal
+            </h2>
+        </div>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Appeal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">Title *</label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TitleBn" class="form-label">Title (বাংলা)</label>
+                            <input asp-for="TitleBn" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Summary" class="form-label">Summary *</label>
+                            <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Summary" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SummaryBn" class="form-label">Summary (বাংলা)</label>
+                            <textarea asp-for="SummaryBn" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Full Content</label>
+                            <textarea asp-for="Content" class="form-control" rows="6"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContentBn" class="form-label">Full Content (বাংলা)</label>
+                            <textarea asp-for="ContentBn" class="form-control" rows="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Images</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Featured Image:</label><br />
+                                <img src="@Model.FeaturedImage" alt="@Model.Title" 
+                                     style="max-width: 300px; height: auto; border-radius: 5px;" />
+                            </div>
+                        }
+                        
+                        <div class="mb-3">
+                            <label for="featuredImage" class="form-label">
+                                @(string.IsNullOrEmpty(Model.FeaturedImage) ? "Featured Image *" : "Replace Featured Image")
+                            </label>
+                            <input type="file" class="form-control" id="featuredImage" 
+                                   name="featuredImage" accept="image/*" />
+                            <small class="text-muted">Leave empty to keep current image</small>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.BannerImage))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Banner Image:</label><br />
+                                <img src="@Model.BannerImage" alt="@Model.Title" 
+                                     style="max-width: 400px; height: auto; border-radius: 5px;" />
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label for="bannerImage" class="form-label">
+                                @(string.IsNullOrEmpty(Model.BannerImage) ? "Banner Image" : "Replace Banner Image")
+                            </label>
+                            <input type="file" class="form-control" id="bannerImage" 
+                                   name="bannerImage" accept="image/*" />
+                            <small class="text-muted">Leave empty to keep current image</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Raised Amount (?)</label>
+                            <input type="text" class="form-control" value="?@Model.RaisedAmount.ToString("N2")" readonly />
+                            <small class="text-muted">Updated automatically from donations</small>
+                        </div>
+
+                        @if (Model.TargetAmount.HasValue)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Progress</label>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" 
+                                         role="progressbar" 
+                                         style="width: @Model.DonationPercentage%">
+                                        @Model.DonationPercentage%
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-3">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">Goal & Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="TargetAmount" class="form-label">Target Amount (?)</label>
+                            <input asp-for="TargetAmount" type="number" class="form-control" 
+                                   min="0" step="0.01" />
+                            <small class="text-muted">Leave empty for ongoing appeal</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AppealType" class="form-label">Appeal Type</label>
+                            <select asp-for="AppealType" class="form-select">
+                                <option value="">-- Select --</option>
+                                <option value="Regular">Regular</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Special">Special</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StartDate" class="form-label">Start Date</label>
+                            <input asp-for="StartDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EndDate" class="form-label">End Date</label>
+                            <input asp-for="EndDate" type="date" class="form-control" />
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active (Show on website)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsFeatured" class="form-check-label">
+                                Featured Appeal
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsUrgent" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsUrgent" class="form-check-label">
+                                Mark as Urgent
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Metadata</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small mb-1"><strong>Created:</strong><br />
+                        @Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</p>
+                        
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <p class="small mb-1"><strong>Last Updated:</strong><br />
+                            @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")</p>
+                        }
+                        
+                        <p class="small mb-0"><strong>Slug:</strong><br />
+                        <code>@Model.Slug</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-1"></i>Update Appeal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

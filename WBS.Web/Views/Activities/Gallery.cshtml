@@ -1,15 +1,21 @@
+@using Microsoft.AspNetCore.Localization
 @model IEnumerable<WBS.Web.Models.Gallery>
 
 @{
     ViewData["Title"] = "Gallery";
+    var photoGalleries = ViewBag.PhotoGalleries as IEnumerable<WBS.Web.Models.Gallery>;
+    var videoGalleries = ViewBag.VideoGalleries as IEnumerable<WBS.Web.Models.VideoGallery>;
+    var activeTab = ViewBag.ActiveTab as string ?? "photos";
+    var currentCulture = Context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.TwoLetterISOLanguageName ?? "en";
+    bool isBangla = currentCulture == "bn";
 }
 
 <section class="page-header" style="background: linear-gradient(135deg, #00a99d 0%, #0077b6 100%); padding: 80px 0;">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center text-white">
-                <h1 class="display-4 fw-bold mb-3">Photo Gallery</h1>
-                <p class="lead">Explore our moments captured through the lens</p>
+                <h1 class="display-4 fw-bold mb-3">@(isBangla ? "????????" : "Gallery")</h1>
+                <p class="lead">@(isBangla ? "?????? ??????????? ??? ??? ????? ?????" : "Explore our moments captured through photos and videos")</p>
             </div>
         </div>
     </div>
@@ -17,54 +23,213 @@
 
 <section class="py-5">
     <div class="container">
-        <div class="row">
-            @if (Model != null && Model.Any())
-            {
-                foreach (var gallery in Model)
-                {
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            @if (gallery.Images != null && gallery.Images.Any())
-                            {
-                                var firstImage = gallery.Images.First();
-                                <img src="@firstImage.ImageUrl" class="card-img-top" alt="@gallery.Title" style="height: 250px; object-fit: cover;" />
-                            }
-                            else
-                            {
-                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
-                                    <i class="fas fa-images fa-4x text-muted"></i>
+        <!-- Gallery Tabs -->
+        <ul class="nav nav-pills nav-fill mb-4" id="galleryTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(activeTab == "photos" ? "active" : "")" 
+                        id="photos-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#photos" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="photos" 
+                        aria-selected="@(activeTab == "photos" ? "true" : "false")">
+                    <i class="fas fa-images me-2"></i>
+                    @(isBangla ? "??? ????????" : "Photo Gallery")
+                    @if (photoGalleries != null)
+                    {
+                        <span class="badge bg-light text-dark ms-2">@photoGalleries.Count()</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(activeTab == "videos" ? "active" : "")" 
+                        id="videos-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#videos" 
+                        type="button" 
+                        role="tab" 
+                        aria-controls="videos" 
+                        aria-selected="@(activeTab == "videos" ? "true" : "false")">
+                    <i class="fab fa-youtube me-2"></i>
+                    @(isBangla ? "????? ????????" : "Video Gallery")
+                    @if (videoGalleries != null)
+                    {
+                        <span class="badge bg-light text-dark ms-2">@videoGalleries.Count()</span>
+                    }
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="galleryTabContent">
+            <!-- Photo Gallery Tab -->
+            <div class="tab-pane fade @(activeTab == "photos" ? "show active" : "")" 
+                 id="photos" 
+                 role="tabpanel" 
+                 aria-labelledby="photos-tab">
+                <div class="row">
+                    @if (photoGalleries != null && photoGalleries.Any())
+                    {
+                        foreach (var gallery in photoGalleries)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm hover-lift">
+                                    @if (!string.IsNullOrEmpty(gallery.CoverImage))
+                                    {
+                                        <img src="@gallery.CoverImage" class="card-img-top" alt="@gallery.Title" style="height: 250px; object-fit: cover;" />
+                                    }
+                                    else if (gallery.Images != null && gallery.Images.Any())
+                                    {
+                                        var firstImage = gallery.Images.First();
+                                        <img src="@firstImage.ImageUrl" class="card-img-top" alt="@gallery.Title" style="height: 250px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                            <i class="fas fa-images fa-4x text-muted"></i>
+                                        </div>
+                                    }
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            @if (isBangla && !string.IsNullOrEmpty(gallery.TitleBn))
+                                            {
+                                                @gallery.TitleBn
+                                            }
+                                            else
+                                            {
+                                                @gallery.Title
+                                            }
+                                        </h5>
+                                        @if (!string.IsNullOrEmpty(gallery.Description))
+                                        {
+                                            var description = isBangla && !string.IsNullOrEmpty(gallery.DescriptionBn) ? gallery.DescriptionBn : gallery.Description;
+                                            <p class="card-text text-muted">@(description != null && description.Length > 100 ? description.Substring(0, 100) + "..." : description)</p>
+                                        }
+                                        <p class="text-muted">
+                                            <i class="far fa-images me-1"></i>
+                                            @(gallery.Images?.Count() ?? 0) @(isBangla ? "???" : "photos")
+                                        </p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="/activities/gallery/@gallery.Id" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-eye me-2"></i>@(isBangla ? "???????? ?????" : "View Gallery")
+                                        </a>
+                                    </div>
                                 </div>
-                            }
-                            <div class="card-body">
-                                <h5 class="card-title">@gallery.Title</h5>
-                                @if (!string.IsNullOrEmpty(gallery.Description))
-                                {
-                                    <p class="card-text text-muted">@(gallery.Description.Length > 100 ? gallery.Description.Substring(0, 100) + "..." : gallery.Description)</p>
-                                }
-                                <p class="text-muted">
-                                    <i class="far fa-images me-1"></i>@(gallery.Images?.Count() ?? 0) photos
-                                </p>
                             </div>
-                            <div class="card-footer">
-                                <a href="/activities/gallery/@gallery.Id" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-eye me-2"></i>View Gallery
-                                </a>
-                            </div>
-                            <div class="card-footer text-muted">
-                                <small><i class="far fa-calendar me-1"></i>@gallery.CreatedAt.ToString("MMM dd, yyyy")</small>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla ? "???? ??? ???????? ?????? ??????" : "No photo galleries available at the moment")
                             </div>
                         </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>No galleries available at the moment.
-                    </div>
+                    }
                 </div>
-            }
+            </div>
+
+            <!-- Video Gallery Tab -->
+            <div class="tab-pane fade @(activeTab == "videos" ? "show active" : "")" 
+                 id="videos" 
+                 role="tabpanel" 
+                 aria-labelledby="videos-tab">
+                <div class="row">
+                    @if (videoGalleries != null && videoGalleries.Any())
+                    {
+                        foreach (var video in videoGalleries)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm hover-lift">
+                                    <div class="position-relative">
+                                        @if (!string.IsNullOrEmpty(video.ThumbnailUrl))
+                                        {
+                                            <img src="@video.ThumbnailUrl" class="card-img-top" alt="@video.Title" style="height: 250px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="card-img-top d-flex align-items-center justify-content-center bg-dark" style="height: 250px;">
+                                                <i class="fab fa-youtube fa-4x text-white"></i>
+                                            </div>
+                                        }
+                                        <div class="position-absolute top-50 start-50 translate-middle">
+                                            <a href="@video.YouTubeUrl" target="_blank" class="btn btn-danger btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-play"></i>
+                                            </a>
+                                        </div>
+                                        @if (video.IsFeatured)
+                                        {
+                                            <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark">
+                                                <i class="fas fa-star"></i> Featured
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            @if (isBangla && !string.IsNullOrEmpty(video.TitleBn))
+                                            {
+                                                @video.TitleBn
+                                            }
+                                            else
+                                            {
+                                                @video.Title
+                                            }
+                                        </h5>
+                                        @if (!string.IsNullOrEmpty(video.Description))
+                                        {
+                                            var description = isBangla && !string.IsNullOrEmpty(video.DescriptionBn) ? video.DescriptionBn : video.Description;
+                                            <p class="card-text text-muted">@(description != null && description.Length > 100 ? description.Substring(0, 100) + "..." : description)</p>
+                                        }
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="@video.YouTubeUrl" target="_blank" class="btn btn-outline-danger w-100">
+                                            <i class="fab fa-youtube me-2"></i>@(isBangla ? "??????? ?????" : "Watch on YouTube")
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                @(isBangla ? "???? ????? ?????? ??????" : "No videos available at the moment")
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </section>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .nav-pills .nav-link {
+        color: #00a99d;
+        border: 2px solid #00a99d;
+        margin: 0 5px;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #00a99d;
+        border-color: #00a99d;
+    }
+
+    .nav-pills .nav-link:hover {
+        background-color: rgba(0, 169, 157, 0.1);
+    }
+</style>

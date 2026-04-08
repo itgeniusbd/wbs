@@ -1,0 +1,111 @@
+@model IEnumerable<WBS.Web.Models.SDG>
+@{
+    ViewData["Title"] = "Manage SDGs";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-globe me-2"></i>Sustainable Development Goals
+                </h2>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add New SDG
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Number</th>
+                            <th>Image</th>
+                            <th>Name (EN)</th>
+                            <th>Name (BN)</th>
+                            <th>Color</th>
+                            <th>Sectors</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.DisplayOrder</td>
+                                <td>
+                                    <span class="badge" style="background-color: @item.Color; font-size: 1rem;">
+                                        @item.Number
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Image))
+                                    {
+                                        <img src="@item.Image" alt="@item.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 5px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>@item.Name</td>
+                                <td>@item.NameBn</td>
+                                <td>
+                                    <span class="badge" style="background-color: @item.Color;">
+                                        @item.Color
+                                    </span>
+                                </td>
+                                <td>@item.Sectors.Count</td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No SDGs found. Click "Add New SDG" to create one.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
